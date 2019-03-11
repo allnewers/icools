@@ -10,6 +10,7 @@ import 'swiper/dist/css/swiper.css'
 import store from './store'
 import Selects from "./components/common/select"
 import Mint from 'mint-ui'
+import filters from './filter'
 import { Toast,Lazyload,InfiniteScroll,Spinner  } from 'mint-ui'
 
 Vue.component(Toast.name, Toast);
@@ -22,7 +23,8 @@ Vue.use(InfiniteScroll);
 
 Vue.use(Mint);
 Vue.config.productionTip = false
-
+console.log(filters);
+Object.keys(filters).forEach(key => Vue.filter(key, filters[key]));
 Vue.component('Selects',Selects)
 
 //阻止浏览器默认行为

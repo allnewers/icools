@@ -10,6 +10,9 @@ const mutations = {
   },
   changeSearchList(state,newVal){
     state.searchList = newVal;
+  },
+  changeDetailBanner(state,newVal){
+    state.detailBanner = newVal;
   }
 }
 export default mutations;

@@ -33,9 +33,11 @@ export const getNoticeNum = (params) => $fetch('get','message/gropListMessageNum
 export const getNoticeList = (params) => $fetch('get','message/gropListMessageCount','',params);
 export const getNoticeDetail = (params) => $fetch('get','message/listMessagePage','',params);
 export const getNavList = (params) => $fetch('get','search/getCategory','',params);
+export const eachGoodsBuyList = (params) => $fetch('get','product/getGroupbuyingReoceds','',params);
 //需要 传token的 接口
 export const search = (params) => $fetch('get','search/groupProductPage','',params);
 export const searchTag = (params) => $fetch('get','search/getSearch','',params);
+export const getDetail = (params) => $fetch('get','product/getGroupProductBySn','',params);
 
 
 
