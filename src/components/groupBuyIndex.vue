@@ -1,70 +1,73 @@
 <template>
   <div class="wraps">
-    <!-- 轮播图 -->
-    <Slide pos="index" :data="banners"/>
-    <div class="search" :class="{bgActive:isbgActive}" @click="goSearch">
-      <div class="icon">
-        <img src="../assets/img/search@2x.png" alt>
+    <div class="content" v-if="allshow">
+      <!-- 轮播图 -->
+      <Slide pos="index" :data="banners"/>
+      <div class="search" :class="{bgActive:isbgActive}" @click="goSearch">
+        <div class="icon">
+          <img src="../assets/img/search@2x.png" alt>
+        </div>
+        <input type="text" :placeholder="tips" maxlength="30" readonly>
       </div>
-      <input type="text" :placeholder="tips" maxlength="30" readonly>
-    </div>
-    <div class="notice" :class="{bgActive:isbgActive}" @click="checkLogin('notice')">
-      <img src="../assets/img/qi@2x.png" alt>
-      <div class="redcircle" v-if="isNotice"></div>
-    </div>
-    <!-- 首页导航 -->
-    <div class="nav">
-      <ul>
-        <li @click="subNav(item.id)" v-for="item in navs" :key="item.id">
-          <img :src="item.image" alt>
-        </li>
-      </ul>
-    </div>
-    <div class="content" v-if="faddish.length>=1">
-      <!-- 标题 -->
-      <Top :types="showType" :title="faddish"/>
-      <!-- 商品列表（每周） -->
-      <div class="indexItem">
+      <div class="notice" :class="{bgActive:isbgActive}" @click="checkLogin('notice')">
+        <img src="../assets/img/qi@2x.png" alt>
+        <div class="redcircle" v-if="isNotice"></div>
+      </div>
+      <!-- 首页导航 -->
+      <div class="nav">
         <ul>
-          <li v-for="(item,index) in faddish" :key="item.id" @click="goDetail(item.content)">
-            <img :src="item.path" alt>
-            <h2 class="nowrap">{{item.title}}</h2>
-            <div class="prices clear">
-              <p class="price fl">
-                ￥{{item.groupPrice}}
-                <span>￥{{item.price}}</span>
-              </p>
-              <p class="num fr">{{item.number}}人拼</p>
-            </div>
+          <li @click="subNav(item.id)" v-for="item in navs" :key="item.id">
+            <img :src="item.image" alt>
           </li>
         </ul>
       </div>
-      <!-- 标题 -->
-      <Top :types="showType1" :title="newProduct"/>
-      <!-- 商品列表（新品） -->
-      <div class="indexItem">
-        <ul>
-          <li v-for="(item,index) in newProduct" :key="item.id">
-            <img :src="item.path" alt>
-            <h2 class="nowrap">{{item.title}}</h2>
-            <div class="prices clear">
-              <p class="price fl">
-                ￥{{item.groupPrice}}
-                <span>￥{{item.price}}</span>
-              </p>
-              <p class="num fr">{{item.number}}人拼</p>
-            </div>
-          </li>
-        </ul>
+      <div class="content" v-if="faddish.length>=1">
+        <!-- 标题 -->
+        <Top :types="showType" :title="faddish"/>
+        <!-- 商品列表（每周） -->
+        <div class="indexItem">
+          <ul>
+            <li v-for="item in faddish" :key="item.id" @click="goDetail(item.content)">
+              <img :src="item.path" alt>
+              <h2 class="nowrap">{{item.title}}</h2>
+              <div class="prices clear">
+                <p class="price fl">
+                  ￥{{item.groupPrice}}
+                  <span>￥{{item.price}}</span>
+                </p>
+                <p class="num fr">{{item.number}}人拼</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <!-- 标题 -->
+        <Top :types="showType1" :title="newProduct"/>
+        <!-- 商品列表（新品） -->
+        <div class="indexItem">
+          <ul>
+            <li v-for="item in newProduct" :key="item.id" @click="goDetail(item.content)">
+              <img :src="item.path" alt>
+              <h2 class="nowrap">{{item.title}}</h2>
+              <div class="prices clear">
+                <p class="price fl">
+                  ￥{{item.groupPrice}}
+                  <span>￥{{item.price}}</span>
+                </p>
+                <p class="num fr">{{item.number}}人拼</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <!-- <div class="loading" v-if="load">
+        <Load/>
+      </div> -->
+      <div class="noData" v-if="noData">暂无数据</div>
+      <div class="myZone" @click="checkLogin('myZone')">
+        <img src="../assets/img/avatar@2x.png" alt>
       </div>
     </div>
-    <div class="loading" v-if="load">
-      <Load/>
-    </div>
-    <div class="noData" v-if="noData">暂无数据</div>
-    <div class="myZone" @click="checkLogin('myZone')">
-      <img src="../assets/img/avatar@2x.png" alt="">
-    </div>
+    <div class="preload" v-if="!allshow"></div>
   </div>
 </template>
 
@@ -81,6 +84,7 @@ import { getCookie } from "../util";
 import { setTimeout } from "timers";
 import Load from "./common/loading";
 import { mapState } from "vuex";
+import { Indicator } from "mint-ui";
 export default {
   name: "GBindex",
   data() {
@@ -92,9 +96,10 @@ export default {
       faddish: "", //爆款商品
       newProduct: [], //新商品
       token: "",
-      load: true,
+      //load: true,
       noData: false,
       isbgActive: false,
+      allshow:false,
       navs: [
         {
           id: 1,
@@ -107,8 +112,7 @@ export default {
         {
           id: 3,
           image: navImg3
-        },
-        
+        }
       ]
     };
   },
@@ -122,15 +126,17 @@ export default {
   },
   mounted() {
     this.navBgChange();
+    Indicator.open();
     getIndexData()
       .then(res => {
         let data = res.data;
         //console.log(res);
         this.banners = data.ad; //banner图数据
-        this.load = false;
+        //this.load = false;
         this.faddish = data.faddish;
         this.newProduct = data.newProduct;
-
+        Indicator.close();
+        this.allshow =true;
         if (this.faddish.length === 0) {
           this.noData = true;
         }
@@ -159,13 +165,13 @@ export default {
     goSearch() {
       this.$router.push("/search");
     },
-    subNav(id){
-      this.$router.push({name:'proList',params:{id:id}});
+    subNav(id) {
+      this.$router.push({ name: "proList", params: { id: id } });
     },
-    goDetail(sn){
-      this.$router.push({name:'detail',params:{sn:sn}})
-    }, 
-    checkLogin(urlCode){
+    goDetail(sn) {
+      this.$router.push({ name: "detail", params: { sn: sn } });
+    },
+    checkLogin(urlCode) {
       let token = getCookie("token");
       if (token === null) {
         this.$toast({
@@ -173,10 +179,10 @@ export default {
           duration: 1000
         });
         setTimeout(() => {
-          this.$router.push({name:'login',params:{urlCode:urlCode}});
+          this.$router.push({ name: "phonelogin", params: { urlCode: urlCode } });
         }, 1000);
       } else {
-        this.$router.push("/"+urlCode);
+        this.$router.push("/" + urlCode);
       }
     },
     navBgChange() {
@@ -205,6 +211,12 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+.preload{
+  width: 100%;
+  height: 100vh;
+  background: url(../assets/img/index_bg.png) no-repeat;
+  background-size: cover;
 }
 .search {
   position: fixed;
@@ -341,18 +353,18 @@ export default {
   padding: 0.4rem 0;
   color: #666;
 }
-.myZone{
+.myZone {
   width: 1.13rem;
-  height: .92rem;
+  height: 0.92rem;
   position: fixed;
   bottom: 1.48rem;
-  background: rgba(0,0,0,.15);
+  background: rgba(0, 0, 0, 0.15);
   right: 0;
-  border-radius: .7rem 0 0 .7rem;
-  img{
-    width: .84rem;
+  border-radius: 0.7rem 0 0 0.7rem;
+  img {
+    width: 0.84rem;
     position: relative;
-    left: .04rem;
+    left: 0.04rem;
     top: 0.04rem;
   }
 }

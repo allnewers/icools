@@ -26,11 +26,12 @@
 </template>
 <script>
 import md5 from "js-md5";
-import { sendLoginCode, signIn } from "../api";
+import { sendLoginCode, signIn } from "../../api";
 import Qs from "qs";
 import { setInterval, clearInterval, setTimeout } from "timers";
+import { setCookie,CookieEnable } from "../../util";
 export default {
-  name: "login",
+  name: "phonelogin",
   data() {
     return {
       formData: {
@@ -82,10 +83,13 @@ export default {
       sendLoginCode(this.formData)
         .then(res => {
           let result = res.result;
+          //console.log(res);
           if (result === true) {
             this.$toast("验证码发送成功");
             this.isForbid = true; //禁用btn按钮
             this.countDown(60, "秒后重新获取", "获取验证码");
+          }else{
+            this.$toast(res.msg);
           }
         })
         .catch(err => {
@@ -104,9 +108,16 @@ export default {
       this.loginData.mobile = this.formData.mobile;
       signIn(this.loginData)
         .then(res => {
+          console.log(res);
           let result = res.result;
           //设置cookie
-          document.cookie = `token=${escape(res.data.token)};`
+          // document.cookie = `token=${escape(res.data.token)};`
+          if(!CookieEnable()){
+            this.$toast('对不起，您的浏览器cookie功能被禁用，请开启并重启浏览器');
+            return;
+          }  
+          setCookie('token',res.data.token,7);
+          setCookie('username',res.data.username,7);
           this.alerts(res.msg,()=>{
             setTimeout(()=>{
               if(result===true){ 
@@ -167,8 +178,7 @@ export default {
     border-bottom: 1px solid #f0f0f0;
     font-size: 0.28rem;
     color: #333;
-    label {
-    }
+    
     input {
       padding-left: 0.6rem;
       &::placeholder {

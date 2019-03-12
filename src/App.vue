@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <transition :name="direction">
-      <keep-alive include="GBindex,detail">
+      <keep-alive include="GBindex,proList,brandList">
         <router-view/>
       </keep-alive>
     </transition>
@@ -101,7 +101,21 @@ export default {
           );
         }
       })(750, 750);
-    }
+    },
+    checkLogin(urlCode) {
+      let token = getCookie("token");
+      if (token === null) {
+        this.$toast({
+          message: "您尚未登录，请登录",
+          duration: 1000
+        });
+        setTimeout(() => {
+          this.$router.push({ name: "login", params: { urlCode: urlCode } });
+        }, 1000);
+      } else {
+        this.$router.push("/" + urlCode);
+      }
+    },
   }
 };
 </script>
@@ -109,6 +123,7 @@ export default {
 <style>
 #app {
 }
+
 @keyframes slideInRight {
   from {
     -webkit-transform: translate3d(100%, 0, 0);

@@ -16,12 +16,12 @@ export default new Router({
     {
       path:'/search',
       name:'search',
-      component:()=>import("@/components/search")
+      component:()=>import("@/components/search/search")
     },
     {
       path:'/tuanList/:keyword',
       name:'tuanList',
-      component:()=>import("@/components/tuanList")
+      component:()=>import("@/components/search/tuanList")
     },
     {
       path:'/proList/:id',
@@ -59,9 +59,9 @@ export default new Router({
       component:()=>import("@/components/orderInfos")
     },
     {
-      path:'/login/:urlCode',
-      name:'login',
-      component:()=>import("@/components/login")
+      path:'/phonelogin/:urlCode',
+      name:'phonelogin',
+      component:()=>import("@/components/login/phonelogin")
     },
     {
       path:'/notice',
@@ -81,7 +81,12 @@ export default new Router({
     {
       path:'/myZone',
       name:'myZone',
-      component:()=>import("@/components/myZone")
+      component:()=>import("@/components/personal/myZone")
+    },
+    {
+      path:'/settings',
+      name:'settings',
+      component:()=>import("@/components/personal/settings")
     },
   ]
 })

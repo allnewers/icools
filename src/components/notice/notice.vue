@@ -2,7 +2,7 @@
   <div class="wrap">
     <div class="notice">
       <ul>
-        <li class="clear" @click="goInfoList(item.type)" v-for="(item,index) in messageList" :key="index+Math.random()">
+        <li class="clear" @click="goInfoList(item.type)" v-for="(item,index) in messageList" :key="index">
           <div class="icon fl">
             <img v-if="item.type === 2" :src="require('../../assets/img/n3@2x.png')" alt>
             <img v-if="item.type === 6" :src="require('../../assets/img/n2@2x.png')" alt>
@@ -43,7 +43,7 @@ export default {
       }else{
         this.$toast(res.msg);
         setTimeout(()=>{
-          this.$router.push('login');
+          this.$router.push({ name: "phonelogin", params: { urlCode: 'notice' } });
         },2000)
       }
     }).catch(err=>{

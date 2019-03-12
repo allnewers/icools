@@ -38,7 +38,8 @@ export const eachGoodsBuyList = (params) => $fetch('get','product/getGroupbuying
 export const search = (params) => $fetch('get','search/groupProductPage','',params);
 export const searchTag = (params) => $fetch('get','search/getSearch','',params);
 export const getDetail = (params) => $fetch('get','product/getGroupProductBySn','',params);
-
+export const loginout = (params) => $fetch('get','logout','',params);
+export const collectProduct = (params) => $fetch('get','product/addGroupFavorite','',params);
 
 
 

@@ -3,7 +3,7 @@
     <div class="bg">
       <div class="search">
         <div class="icon">
-          <img src="../assets/img/search1@2x.png" alt>
+          <img src="../../assets/img/search1@2x.png" alt>
         </div>
         <input type="text" @click="search" readonly :placeholder="tips" maxlength="30">
       </div>
@@ -33,7 +33,7 @@
           ref="loadmore"
         >
           <ul>
-            <li v-for="(item,index) in searchList" :key="item.id">
+            <li v-for="item in searchList" :key="item.id">
               <img v-lazy="'http://eicools.oss-cn-beijing.aliyuncs.com/'+item.imag" alt>
               <h2>{{item.name}}</h2>
               <div class="prices clear">
@@ -57,7 +57,7 @@
         </mt-loadmore>
       </div>
       <div class="noData" v-if="noData">
-        <img src="../assets/img/noData.png" alt>
+        <img src="../../assets/img/noData.png" alt>
         <span>暂时没有数据哦~</span>
       </div>
     </div>
@@ -65,8 +65,8 @@
 </template>
 <script>
 import { mapState } from "vuex";
-import { search } from "../api";
-import { getCookie } from "../util";
+import { search } from "../../api";
+import { getCookie } from "../../util";
 import { Indicator } from "mint-ui";
 export default {
   name: "tuanList",

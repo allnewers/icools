@@ -1,131 +1,143 @@
 <template>
   <div>
     <div class="wrapper">
-      <div class="banner">
-        <swiper :options="swiperOption1" ref="mySwiper">
-          <swiper-slide v-for="(item, index) in detailBanner" :key="item.id">
-            <div class="img-banner">
-              <img v-lazy="'http://eicools.oss-cn-beijing.aliyuncs.com/'+item.large" alt>
-            </div>
-          </swiper-slide>
-          <div class="swiper-pagination" slot="pagination"></div>
-        </swiper>
-      </div>
-      <div class="titles">{{detailAllData.fullName}}</div>
-      <!-- 拼团中的列表 -->
-      <div class="grouping">
-        <div class="top">
-          以下小伙伴正在发起拼团，可直接参与
-          <span class="more" @click="moreGroup">查看更多</span>
+      <div class="content" v-if="allshow">
+        <div class="banner">
+          <swiper :options="swiperOption1" ref="mySwiper">
+            <swiper-slide v-for="item in detailBanner" :key="item.id">
+              <div class="img-banner">
+                <img v-lazy="'http://eicools.oss-cn-beijing.aliyuncs.com/'+item.large" alt>
+              </div>
+            </swiper-slide>
+            <div class="swiper-pagination" slot="pagination"></div>
+          </swiper>
         </div>
-        <div class="groupList">
-          <ul>
-            <li class="clear" v-for="item in groupingTwoNum" :key="item.id">
-              <div class="user">
-                <img v-lazy="item.avatar" alt>
-                <p>{{item.name}}</p>
-              </div>
-              <div class="jindu">
-                <p>
-                  还差
-                  <span>{{item.needNum}}</span>人成团
-                </p>
-                <div class="countDown">
-                  <i>剩余</i>
-                  <count-down
-                    :currentTime="item.nowTimestamp"
-                    :startTime="item.nowTimestamp"
-                    :endTime="item.endTimestamp"
-                    :tipText="'距离开始文字1'"
-                    :tipTextEnd="'距离结束文字1'"
-                    :endText="'结束自定义文字2'"
-                    :dayTxt="'天'"
-                    :hourTxt="':'"
-                    :minutesTxt="':'"
-                    :secondsTxt="''"
-                  ></count-down>
+        <div class="titles">{{detailAllData.fullName}}</div>
+        <!-- 拼团中的列表 -->
+        <div class="grouping" v-if="groupingList">
+          <div class="top">
+            以下小伙伴正在发起拼团，可直接参与
+            <span class="more" @click="moreGroup">查看更多</span>
+          </div>
+          <div class="groupList">
+            <ul>
+              <li class="clear" v-for="item in groupingTwoNum" :key="item.id">
+                <div class="user">
+                  <img v-lazy="item.avatar" alt>
+                  <p>{{item.name}}</p>
                 </div>
-              </div>
-              <div class="btn" @click="goBuyList(item.groupPrice)">去凑团</div>
+                <div class="jindu">
+                  <p>
+                    还差
+                    <span>{{item.needNum}}</span>人成团
+                  </p>
+                  <div class="countDown">
+                    <i>剩余</i>
+                    <count-down
+                      :currentTime="item.nowTimestamp"
+                      :startTime="item.nowTimestamp"
+                      :endTime="item.endTimestamp"
+                      :tipText="'距离开始文字1'"
+                      :tipTextEnd="'距离结束文字1'"
+                      :endText="'结束自定义文字2'"
+                      :dayTxt="'天'"
+                      :hourTxt="':'"
+                      :minutesTxt="':'"
+                      :secondsTxt="''"
+                      v-on:end_callback="countDownE_cb()"
+                    ></count-down>
+                  </div>
+                </div>
+                <div
+                  class="btn"
+                  :class="{btnDisabled:groupEnd}"
+                  @click="goBuyList(item.groupPrice)"
+                >{{!groupEnd?"去凑团":"已结束"}}</div>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="wanfa">
+          支付开团邀请一人参团，人数不足自动退款
+          <span class="more" @click="jumpUrl('game')">玩法详情</span>
+        </div>
+        <!-- 商品评价 -->
+        <div class="comments">
+          <div class="top" @click="jumpUrl('comments')">
+            商品评价({{comments.length}})
+            <span></span>
+          </div>
+          <div class="lu">
+            <swiper :options="swiperOption" ref="mySwiper">
+              <!-- slides -->
+              <swiper-slide v-for="item in comments" :key="item.id">
+                <div class="item clear" @click="jumpUrl('comments')">
+                  <div class="txt fl">
+                    <div class="userInfo">
+                      <img v-lazy="item.userImage" alt>
+                      <span>{{item.username}}</span>
+                    </div>
+                    <p>{{item.content}}</p>
+                  </div>
+                  <img class="fr prod" v-lazy="item.imgurl" alt>
+                </div>
+              </swiper-slide>
+              <!-- Optional controls -->
+              <div class="swiper-pagination" slot="pagination"></div>
+            </swiper>
+          </div>
+        </div>
+        <!-- 参数信息 -->
+        <div class="proInfos">
+          <div class="tips">参数信息</div>
+          <div class="phone-infos" v-for="item in infoList" :key="item.id">
+            <p v-for="itemc in item.items" :key="itemc.pid">{{itemc.pname}} : {{itemc.pval}}</p>
+          </div>
+          <div class="collapse" @click="moreInfos(slideMore)">{{slidetxt}}</div>
+        </div>
+        <!-- 标题 -->
+        <Top :types="showType1"/>
+        <div class="detail-imgs">
+          <div class="item" v-for="(item,index) in imgDetail" :key="index">
+            <img v-lazy="item" alt>
+          </div>
+        </div>
+        <!-- 底部导航 -->
+        <div class="blank"></div>
+        <div class="nav-bottom">
+          <ul>
+            <li @click="jumpUrl('')">
+              <img src="../assets/img/home@2x.png" alt>
+              <p>首页</p>
+            </li>
+            <li @click="collect()">
+              <img v-if="!isCollect" src="../assets/img/like@2x.png" alt>
+              <img v-if="isCollect" src="../assets/img/like1@2x.png" alt>
+              <p>收藏</p>
+            </li>
+            <li @click="goBuy(detailAllData.price)">
+              <p>¥{{detailAllData.price | toFixed}}</p>
+              <div>单买</div>
+            </li>
+            <li @click="goBuy(detailAllData.groupPrice)">
+              <p>¥{{detailAllData.groupPrice | toFixed}}</p>
+              <div>一键开团</div>
             </li>
           </ul>
         </div>
       </div>
-      <div class="wanfa">
-        支付开团邀请一人参团，人数不足自动退款
-        <span class="more" @click="jumpUrl('game')">玩法详情</span>
-      </div>
-      <!-- 商品评价 -->
-      <div class="comments">
-        <div class="top" @click="jumpUrl('comments')">
-          商品评价({{comments.length}})
-          <span></span>
-        </div>
-        <div class="lu">
-          <swiper :options="swiperOption" ref="mySwiper">
-            <!-- slides -->
-            <swiper-slide v-for="item in comments" :key="item.id">
-              <div class="item clear" @click="jumpUrl('comments')">
-                <div class="txt fl">
-                  <div class="userInfo">
-                    <img v-lazy="item.userImage" alt>
-                    <span>{{item.username}}</span>
-                  </div>
-                  <p>{{item.content}}</p>
-                </div>
-                <img class="fr prod" v-lazy="item.imgurl" alt>
-              </div>
-            </swiper-slide>
-            <!-- Optional controls -->
-            <div class="swiper-pagination" slot="pagination"></div>
-          </swiper>
-        </div>
-      </div>
-      <!-- 参数信息 -->
-      <div class="proInfos">
-        <div class="tips">参数信息</div>
-        <div class="phone-infos" v-for="(item ,index) in infoList" :key="item.id">
-          <p v-for="itemc in item.items" :key="itemc.pid">{{itemc.pname}} : {{itemc.pval}}</p>
-        </div>
-        <div class="collapse" @click="moreInfos(slideMore)">{{slidetxt}}</div>
-      </div>
-      <!-- 标题 -->
-      <Top :types="showType1"/>
-      <div class="detail-imgs">
-        <div class="item" v-for="(item,index) in imgDetail" :key="index">
-          <img v-lazy="item" alt>
-        </div>
-      </div>
-      <!-- 底部导航 -->
-      <div class="blank"></div>
-      <div class="nav-bottom">
-        <ul>
-          <li @click="jumpUrl('')">
-            <img src="../assets/img/home@2x.png" alt>
-            <p>首页</p>
-          </li>
-          <li>
-            <img src="../assets/img/like@2x.png" alt>
-            <p>收藏</p>
-          </li>
-          <li @click="goBuy(detailAllData.price)">
-            <p>¥{{detailAllData.price | toFixed}}</p>
-            <div>单买</div>
-          </li>
-          <li @click="goBuy(detailAllData.groupPrice)">
-            <p>¥{{detailAllData.groupPrice | toFixed}}</p>
-            <div>一键开团</div>
-          </li>
-        </ul>
-      </div>
-
+      <div class="preload" v-if="!allshow"></div>
       <!-- 选择商品弹框 -->
       <transition name="slideUp">
         <div class="selectC" v-show="dialog">
           <Selects @closeD="closeDialog">
             <div class="wrap">
               <div class="product-top clear">
-                <img class="fl" src alt>
+                <img
+                  class="fl"
+                  v-lazy="'http://eicools.oss-cn-beijing.aliyuncs.com/'+ detailBanner[0]['listMedium']"
+                  alt
+                >
                 <div class="baseInfo fl">
                   <h2>{{detailAllData.name}}</h2>
                   <!-- <div class="balance">库存100件</div> -->
@@ -176,42 +188,43 @@
       <transition name="slideUp">
         <div class="selectC" v-show="tuanShow" @touchmove.prevent>
           <Selects @closeD="closeDialog">
-            <div class="groupList">
+            <div class="groupList1">
               <div class="g-top">正在拼团</div>
+
               <div class="groupList">
                 <ul>
-                  <div class="groupList">
-                    <ul>
-                      <li class="clear" v-for="item in groupingNum" :key="item.id">
-                        <div class="user">
-                          <img v-lazy="item.avatar" alt>
-                          <p>{{item.name}}</p>
-                        </div>
-                        <div class="jindu">
-                          <p>
-                            还差
-                            <span>{{item.needNum}}</span>人成团
-                          </p>
-                          <div class="countDown">
-                            <i>剩余</i>
-                            <count-down
-                              :currentTime="item.nowTimestamp"
-                              :startTime="item.nowTimestamp"
-                              :endTime="item.endTimestamp"
-                              :tipText="'距离开始文字1'"
-                              :tipTextEnd="'距离结束文字1'"
-                              :endText="'结束自定义文字2'"
-                              :dayTxt="'天'"
-                              :hourTxt="':'"
-                              :minutesTxt="':'"
-                              :secondsTxt="''"
-                            ></count-down>
-                          </div>
-                        </div>
-                        <div class="btn" @click="goBuyList(item.groupPrice)">去凑团</div>
-                      </li>
-                    </ul>
-                  </div>
+                  <li class="clear" v-for="item in groupingNum" :key="item.id">
+                    <div class="user">
+                      <img v-lazy="item.avatar" alt>
+                      <p>{{item.name}}</p>
+                    </div>
+                    <div class="jindu">
+                      <p>
+                        还差
+                        <span>{{item.needNum}}</span>人成团
+                      </p>
+                      <div class="countDown">
+                        <i>剩余</i>
+                        <count-down
+                          :currentTime="item.nowTimestamp"
+                          :startTime="item.nowTimestamp"
+                          :endTime="item.endTimestamp"
+                          :tipText="'距离开始文字1'"
+                          :tipTextEnd="'距离结束文字1'"
+                          :endText="'结束自定义文字2'"
+                          :dayTxt="'天'"
+                          :hourTxt="':'"
+                          :minutesTxt="':'"
+                          :secondsTxt="''"
+                        ></count-down>
+                      </div>
+                    </div>
+                    <div
+                      class="btn"
+                      :class="{btnDisabled:groupEnd}"
+                      @click="goBuyList(item.groupPrice)"
+                    >{{!groupEnd?"去凑团":"已结束"}}</div>
+                  </li>
                 </ul>
               </div>
               <div class="g-top ziti">仅显示5个正在凑团的人</div>
@@ -229,11 +242,11 @@ import Slide from "./common/slide";
 import Top from "./common/top";
 import Selects1 from "./common/select";
 import detailIcon from "../assets/img/detaiIcon@2x.png";
-import BScroll from "better-scroll";
-import { getDetail, eachGoodsBuyList } from "../api";
+import { getDetail, eachGoodsBuyList, collectProduct } from "../api";
 import { getCookie } from "../util";
 import { mapState } from "vuex";
 import CountDown from "vue2-countdown";
+import { Indicator } from "mint-ui";
 export default {
   name: "detail",
   data() {
@@ -266,9 +279,13 @@ export default {
       SpecificationInfo: [], //规格详情
       slideMore: false,
       slidetxt: "全部",
-      imgDetail: [] ,//图文详情
-      price:'',
-      groupPrice:''
+      imgDetail: [], //图文详情
+      price: "",
+      groupPrice: "",
+      allshow: false, //预加载 背景
+      groupEnd: false, //团购倒计时 结束
+      groupingList: false, //正在拼团的列表
+      isCollect: false //是否收藏
     };
   },
   components: {
@@ -295,15 +312,17 @@ export default {
         this.infoList = val;
       }
     },
-    groupingTwoNum(){
-      return this.groupingNum.slice(0,2);
+    groupingTwoNum() {
+      return this.groupingNum.slice(0, 2);
     }
   },
   mounted() {
+    this.toTop(); //进入详情页 到顶部显示
     let sn = this.$route.params.sn;
     let token = getCookie("token");
     this.token = token;
-    console.log(sn);
+    //console.log(sn);
+    Indicator.open();
     getDetail({ sn: sn, token: this.token })
       .then(res => {
         console.log(res);
@@ -317,28 +336,41 @@ export default {
 
         eachGoodsBuyList({ product: this.goodsId }) //团购人数 列表
           .then(res => {
-            console.log(res);
-            this.groupingNum = res.data;
+            //console.log(res);
+            let groupList = res.data;
+            if (groupList.length >= 1) {
+              this.groupingList = true;
+            }
+            this.groupingNum = groupList;
+
+            Indicator.close();
+            this.allshow = true;
           })
           .catch(err => {});
       })
       .catch(err => {});
-    this.$nextTick(() => {
-      //$refs绑定元素
-      if (!this.scroll) {
-        this.scroll = new BScroll(this.$refs.wrapper, {
-          //开启点击事件 默认为false
-          click: true
-        });
-        // console.log(this.scroll)
-      } else if (!this.$refs.wrapper) {
-        return;
-      } else {
-        this.scroll.refresh();
-      }
-    });
+    // this.$nextTick(() => {
+    //   setTimeout(() => {
+    //     this.initScroll();
+    //   },20)
+
+    // });
   },
   methods: {
+    //initScroll(){
+    //$refs绑定元素
+    //if (!this.scroll) {
+    //this.scroll = new BScroll(this.$refs.wrapper, {
+    //开启点击事件 默认为false
+    //click: true,
+    // taps: true
+    //});
+    // console.log(this.scroll)
+    //} else if (!this.$refs.wrapper) {
+    //this.scroll.refresh();
+
+    //}
+    //},
     moreGroup() {
       this.tuanShow = true;
     },
@@ -346,7 +378,11 @@ export default {
       this.price = val;
       this.dialog = true;
     },
-    goBuyList(val){
+    goBuyList(val) {
+      if (this.groupEnd) {
+        this.$toast("此商品拼团已结束");
+        return false;
+      }
       this.price = val;
       this.dialog = true;
       this.tuanShow = false;
@@ -372,23 +408,49 @@ export default {
       else this.slidetxt = "收起";
       this.slideMore = !this.slideMore;
     },
-    jumpUrl(url){
-      this.$router.push('/'+url);
+    jumpUrl(url) {
+      this.$router.push("/" + url);
+    },
+    collect() {
+      collectProduct({ token: this.token, productId: this.detailAllData.id })
+        .then(res => {
+          //console.log(res);
+          this.isCollect = !this.isCollect;
+        })
+        .catch();
+    },
+    countDownE_cb() {
+      //倒计时结束回调
+      this.groupEnd = true;
+    },
+    toTop() {
+      if (
+        document.documentElement.scrollTop &&
+        document.documentElement.scrollTop > 0
+      ) {
+        document.documentElement.scrollTop = 0;
+      } else if (document.body.scrollTop && document.body.scrollTop > 0) {
+        document.body.scrollTop = 0;
+      } else {
+        window.pageYOffset = 0;
+      } //要做兼容 在模拟器能正常获取scrolltop在微信h5页面和手机的浏览器页面一直为0
     }
   },
   watch: {
-    dialog: {
-      handler(val, oldVal) {
-        if (val === true) {
-          this.noScroll();
-        } else {
-          this.canScroll();
-        }
-        document.body.scrollTop = this.pageScrollYoffset;
-        window.scroll(0, this.pageScrollYoffset);
-      },
-      deep: false
-    }
+    // dialog: {
+    //   handler(val, oldVal) {
+    //     this.initScroll();
+    //     if (val === true) {
+    //       //this.initScroll();
+    //       this.noScroll();
+    //     } else {
+    //       this.canScroll();
+    //     }
+    //     document.body.scrollTop = this.pageScrollYoffset;
+    //     window.scroll(0, this.pageScrollYoffset);
+    //   },
+    //   deep: false
+    // }
   }
 };
 </script>
@@ -396,6 +458,12 @@ export default {
 .swiper-slide {
   width: 80% !important;
   margin-right: 0.1rem;
+}
+.preload {
+  width: 100%;
+  height: 100vh;
+  background: url(../assets/img/index_bg.png) no-repeat;
+  background-size: cover;
 }
 .banner {
   min-height: 4rem;
@@ -417,9 +485,6 @@ export default {
   border-radius: 10px;
   font-size: 10px;
   padding: 4px 0;
-}
-.swiper-container {
-  //margin-left: 0.28rem;
 }
 
 .titles {
@@ -525,6 +590,9 @@ export default {
       font-weight: 400;
       color: #fff;
       font-size: 0.28rem;
+      &.btnDisabled {
+        background: #999;
+      }
     }
   }
 }
@@ -634,7 +702,7 @@ export default {
   bottom: 0;
   left: 0;
   background: #fff;
-  z-index: 1000;
+  z-index: 99;
   ul {
     height: 100%;
     width: 100%;
@@ -644,10 +712,10 @@ export default {
       text-align: center;
       font-size: 0.22rem;
       img {
+        padding-top: 0.15rem;
         width: 0.36rem;
         height: 0.36rem;
-        display: inline;
-        padding-top: 0.15rem;
+        display: inline-block;
       }
     }
     li:nth-child(1) {
@@ -715,9 +783,15 @@ export default {
 .rules {
   margin-top: 0.3rem;
   height: 3.6rem;
-  position: absolute;
-  overflow: hidden;
+  width: 90%;
+  // position: absolute;
+  //overflow: hidden;
+  overflow: scroll;
+  -webkit-overflow-scrolling: auto;
+  // left: .3rem;
+  // top: 2.3rem;
   ul {
+    min-height: 4rem;
     li {
       color: rgba(51, 51, 51, 1);
       font-size: 0.28rem;
@@ -750,7 +824,7 @@ export default {
 }
 .sum {
   color: #333;
-  margin-top: 4.2rem;
+  margin-top: 0.2rem;
   .tit {
     font-size: 0.3rem;
   }
@@ -817,7 +891,7 @@ export default {
     img {
       max-width: 100%;
       width: 0.48rem;
-      display: inline;
+      display: inline-block;
     }
   }
 }

@@ -2,7 +2,7 @@
   <div class="wrap">
     <div class="search">
       <div class="icon">
-        <img src="../assets/img/search1@2x.png" alt>
+        <img src="../../assets/img/search1@2x.png" alt>
       </div>
       <input type="text" v-model.trim="keys" :placeholder="tips" maxlength="30">
     </div>
@@ -24,8 +24,8 @@
   </div>
 </template>
 <script>
-import { search, searchTag } from "../api";
-import { getCookie } from "../util";
+import { search, searchTag } from "../../api";
+import { getCookie } from "../../util";
 import { Indicator } from 'mint-ui';
 export default {
   name: "search",
@@ -43,6 +43,7 @@ export default {
     this.token = token;
     //初始化搜索标签
     Indicator.open();//加载中....
+    //alert(token);
     searchTag({token:token})
       .then(res => {
         this.historyTag = res.data.history;

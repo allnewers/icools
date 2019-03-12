@@ -8,9 +8,9 @@
         <div class="swiper-pagination" slot="pagination"></div>
       </swiper>
     </div>
-    <div class="loading" v-if="data.length<=0">
+    <!-- <div class="loading" v-if="data.length<=0">
       <Load/>
-    </div>
+    </div> -->
   </div>
 </template>
 <script>
