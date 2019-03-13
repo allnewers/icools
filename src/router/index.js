@@ -51,7 +51,7 @@ export default new Router({
     {
       path:'/payType',
       name:'payType',
-      component:()=>import("@/components/payType")
+      component:()=>import("@/components/payType") 
     },
     {
       path:'/orderinfos',
@@ -87,6 +87,11 @@ export default new Router({
       path:'/settings',
       name:'settings',
       component:()=>import("@/components/personal/settings")
+    },
+    {
+      path:'/collectList',
+      name:'collectList',
+      component:()=>import("@/components/personal/collectList")
     },
   ]
 })

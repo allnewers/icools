@@ -3,7 +3,6 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import VueLazyload from 'vue-lazyload'
 import './assets/css/common.css'
 import './assets/css/dpr.css'
 import 'swiper/dist/css/swiper.css'
@@ -12,7 +11,9 @@ import Selects from "./components/common/select"
 import Mint from 'mint-ui'
 import filters from './filter'
 import { Toast,Lazyload,InfiniteScroll,Spinner  } from 'mint-ui'
-
+import VueImageSwipe from 'vue-image-swipe'
+import 'vue-image-swipe/dist/vue-image-swipe.css'
+Vue.use(VueImageSwipe)
 Vue.component(Toast.name, Toast);
 Vue.component(Spinner.name, Spinner);
 Vue.use(Lazyload,{
@@ -23,7 +24,7 @@ Vue.use(InfiniteScroll);
 
 Vue.use(Mint);
 Vue.config.productionTip = false
-console.log(filters);
+//console.log(filters);
 Object.keys(filters).forEach(key => Vue.filter(key, filters[key]));
 Vue.component('Selects',Selects)
 

@@ -82,7 +82,7 @@ export default {
       id1: "",
       id2: "",
       id3: "",
-      isSelected:'',
+      isSelected:null,
       whichGrageNav: "subNav",
       NavProductList: [], //商品列表
       allThirdNavList:[],
@@ -104,12 +104,12 @@ export default {
     Indicator.open();
     getNavList({ id: id })
       .then(res => {
-        //console.log(res);
+        console.log(res.data);
         this.tabBar = res.data; //二三级导航 数据;
         this.id2 = ""; //清空缓存;
         this.id2 = res.data[0].id; //默认展示商品 查询 所需的二级导航id
         this.allThirdNavList = res.data[0].items;
-        this.thirdNavList = res.data[0].items.slice(0, 5); //初始化三级导航列表；
+        this.thirdNavList = res.data[0].items.slice(0, 4); //初始化三级导航列表；
         this.initSubNavProduct(); //初始化 二级导航的 商品列表
       })
       .catch();
@@ -126,15 +126,17 @@ export default {
         .catch();
     },
     subTab(index, thirdNavList, subNavId, navGrade) {
+      alert(JSON.stringify(thirdNavList));
       this.thirdNavList = []; //清空缓存
       this.NavProductList = []; //清空缓存
       this.whichGrageNav = "";//清空缓存
+      this.isSelected = null;//清空缓存
       this.isActive = index;
       this.currentPage = 1;
       this.whichGrageNav = navGrade;
       this.id2 = subNavId; //给三级导航 查询商品列表 提供二级导航id
       this.allThirdNavList = thirdNavList;
-      this.thirdNavList = thirdNavList.slice(0, 5); //切换 三级导航 列表
+      this.thirdNavList = thirdNavList.slice(0, 4); //切换 三级导航 列表
       this.allLoaded = false;
       Indicator.open();
       this.firstPage();
@@ -250,6 +252,7 @@ export default {
       float: left;
       padding: 0 0.2rem;
       height: 0.5rem;
+      min-width: .65rem;
       background: rgba(244, 244, 244, 1);
       border-radius: 0.25rem;
       line-height: 0.5rem;

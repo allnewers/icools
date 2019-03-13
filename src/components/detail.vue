@@ -4,10 +4,10 @@
       <div class="content" v-if="allshow">
         <div class="banner">
           <swiper :options="swiperOption1" ref="mySwiper">
-            <swiper-slide v-for="item in detailBanner" :key="item.id">
-              <div class="img-banner">
+            <swiper-slide v-for="(item,index) in detailBanner" :key="item.id">
+              <span class="img-banner" @click="preview(index)">
                 <img v-lazy="'http://eicools.oss-cn-beijing.aliyuncs.com/'+item.large" alt>
-              </div>
+              </span>
             </swiper-slide>
             <div class="swiper-pagination" slot="pagination"></div>
           </swiper>
@@ -57,6 +57,7 @@
             </ul>
           </div>
         </div>
+        <!-- 拼团活动详情 -->
         <div class="wanfa">
           支付开团邀请一人参团，人数不足自动退款
           <span class="more" @click="jumpUrl('game')">玩法详情</span>
@@ -97,6 +98,7 @@
         </div>
         <!-- 标题 -->
         <Top :types="showType1"/>
+        <!-- 图文详情 -->
         <div class="detail-imgs">
           <div class="item" v-for="(item,index) in imgDetail" :key="index">
             <img v-lazy="item" alt>
@@ -184,7 +186,7 @@
           </Selects>
         </div>
       </transition>
-
+      <!-- 正在拼团 展开列表 -->
       <transition name="slideUp">
         <div class="selectC" v-show="tuanShow" @touchmove.prevent>
           <Selects @closeD="closeDialog">
@@ -244,7 +246,7 @@ import Selects1 from "./common/select";
 import detailIcon from "../assets/img/detaiIcon@2x.png";
 import { getDetail, eachGoodsBuyList, collectProduct } from "../api";
 import { getCookie } from "../util";
-import { mapState } from "vuex";
+import { mapState,mapGetters } from "vuex";
 import CountDown from "vue2-countdown";
 import { Indicator } from "mint-ui";
 export default {
@@ -298,6 +300,7 @@ export default {
   },
   computed: {
     ...mapState(["detailBanner"]),
+    ...mapGetters(['bannerImgList']),
     infoList: {
       get() {
         if (!this.slideMore) {
@@ -314,7 +317,8 @@ export default {
     },
     groupingTwoNum() {
       return this.groupingNum.slice(0, 2);
-    }
+    },
+
   },
   mounted() {
     this.toTop(); //进入详情页 到顶部显示
@@ -411,6 +415,12 @@ export default {
     jumpUrl(url) {
       this.$router.push("/" + url);
     },
+    preview(index){//图片放大 预览
+      this.$imagePreview({
+        images:this.bannerImgList,
+        index:index
+      });
+    },
     collect() {
       collectProduct({ token: this.token, productId: this.detailAllData.id })
         .then(res => {
@@ -467,6 +477,10 @@ export default {
 }
 .banner {
   min-height: 4rem;
+  .swiper-slide{
+    width: 100%!important;
+    margin-right:0;
+  }
 }
 .img-banner {
   text-align: center;

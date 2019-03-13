@@ -8,15 +8,16 @@
         <input type="text" @click="search" readonly :placeholder="tips" maxlength="30">
       </div>
       <div class="tabar">
+        <span class="sort-order" :class="{on:reverse}"></span>
         <ul>
           <li
             v-for="(item,index) in tabBar"
             :class="{active:isActive == index}"
             @click="tab(index)"
-            :key="index+Math.random()"
+            :key="index"
           >
             {{item}}
-            <i :class="{active:isActive == index}"></i>
+            <i></i>
           </li>
         </ul>
       </div>
@@ -72,15 +73,16 @@ export default {
   name: "tuanList",
   data() {
     return {
-      tips: "",//默认搜索的字段
+      tips: "", //默认搜索的字段
       tabBar: ["综合", "销量", "价格"],
       isActive: "0",
-      indexs: "0",//tab 默认显示下标
-      noData: false,//搜索没数据
-      allLoaded: false,//mint-ui loadmore组件 数据是否全部加载
-      currentPage: 1,//默认加载第？页数据
+      indexs: "0", //tab 默认显示下标
+      noData: false, //搜索没数据
+      allLoaded: false, //mint-ui loadmore组件 数据是否全部加载
+      currentPage: 1, //默认加载第？页数据
       bottomStatus: "",
-      scrollMode: "touch",//ios下loadmore和-webkit-overflow-scrolling：touch 属性冲突无法上拉问题
+      scrollMode: "touch", //ios下loadmore和-webkit-overflow-scrolling：touch 属性冲突无法上拉问题
+      reverse: false,
     };
   },
   mounted() {
@@ -100,6 +102,17 @@ export default {
   methods: {
     tab(index) {
       this.isActive = index;
+      if (index == 2) {
+        this.reverse = !this.reverse;
+        if(this.reverse){
+          this.isActive = '3';
+        }else{
+          this.isActive = index;
+        }
+
+      }else{
+        this.reverse = false;
+      }
     },
     search() {
       this.$router.push("/search");
@@ -109,7 +122,7 @@ export default {
       this.bottomStatus = status;
     },
     loadBottom() {
-      if(!this.allLoaded){
+      if (!this.allLoaded) {
         Indicator.open();
         this.nextPage();
         this.$refs.loadmore.onBottomLoaded(); //通知loadmore组件从新渲染，计算
@@ -136,7 +149,7 @@ export default {
       //alert(this.currentPage)
       search({
         keyword: this.tips,
-        token: this.token,//记录 标签
+        token: this.token, //记录 标签
         pageNum: this.currentPage
       })
         .then(res => {
@@ -155,7 +168,6 @@ export default {
           this.$toast(err);
         });
     }
-  
   }
 };
 </script>
@@ -216,6 +228,25 @@ export default {
   line-height: 0.6rem;
 }
 .tabar {
+  position: relative;
+  .sort-order {
+    width: 0;
+    height: 0;
+    display: inline-block;
+    border-width: 0 0.08rem 0.1rem;
+    border-style: solid;
+    border-color: transparent transparent #999; /*灰 透明 透明 */
+    position: absolute;
+    right: .89rem;
+    top: .3rem;
+    &.on{
+      border-color: transparent transparent #333;
+    }
+    &.on + ul li:last-child{
+      color: #333;
+      font-weight: bold;
+    }
+  }
   ul {
     display: flex;
     justify-content: space-around;
@@ -231,6 +262,14 @@ export default {
       &.active {
         font-weight: bold;
         color: rgba(51, 51, 51, 1);
+        i {
+          border-color: transparent transparent #333;
+        }
+      }
+      &:last-child {
+        i {
+          top: 0.05rem;
+        }
       }
       i {
         width: 0;
@@ -241,11 +280,8 @@ export default {
         border-color: transparent transparent #999; /*灰 透明 透明 */
         position: relative;
         top: -0.05rem;
-        &.active {
-          //animation: rotates .3s ease-in both;
-          transform: rotate(180deg);
-          border-color: transparent transparent #333;
-        }
+        transform: rotate(180deg);
+        
       }
     }
   }
@@ -322,7 +358,6 @@ export default {
     }
   }
 }
-
 </style>
 
 

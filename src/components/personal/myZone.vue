@@ -70,7 +70,7 @@
             <img src="../../assets/img/discount@2x.png" alt>
             <p>优惠券</p>
           </li>
-          <li>
+          <li @click="jumpUrl('collectList')">
             <img src="../../assets/img/collect@2x.png" alt>
             <p>商品收藏</p>
           </li>
