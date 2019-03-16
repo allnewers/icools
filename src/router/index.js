@@ -44,9 +44,9 @@ export default new Router({
       component:()=>import("@/components/game")
     },
     {
-      path:'/order',
+      path:'/order/:productId/:thumbnail/:sum/:title/:price',
       name:'order',
-      component:()=>import("@/components/order")
+      component:()=>import("@/components/order/order")
     },
     {
       path:'/payType',
@@ -56,7 +56,17 @@ export default new Router({
     {
       path:'/orderinfos',
       name:'orderinfos',
-      component:()=>import("@/components/orderInfos")
+      component:()=>import("@/components/order/orderInfos")
+    },
+    {
+      path:'/addAddress',
+      name:'addAddress',
+      component:()=>import("@/components/order/addAddress")
+    },
+    {
+      path:'/addressList',
+      name:'addressList',
+      component:()=>import("@/components/order/addressList")
     },
     {
       path:'/phonelogin/:urlCode',
@@ -92,6 +102,21 @@ export default new Router({
       path:'/collectList',
       name:'collectList',
       component:()=>import("@/components/personal/collectList")
+    },
+    {
+      path:'/feedback',
+      name:'feedback',
+      component:()=>import("@/components/personal/feedback")
+    },
+    {
+      path:'/help',
+      name:'help',
+      component:()=>import("@/components/personal/help")
+    },
+    {
+      path:'/deal',
+      name:'deal',
+      component:()=>import("@/components/personal/deal")
     },
   ]
 })

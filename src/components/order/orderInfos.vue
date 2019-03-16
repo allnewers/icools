@@ -16,8 +16,8 @@
       <h2>还差1人拼购成功，快来一起拼团吧</h2>
       <div class="time-down mt">剩余结束</div>
       <div class="avatar mt">
-        <img src="../assets/img/user@2x.png" alt>
-        <img src="../assets/img/default.png" alt>
+        <img src="../../assets/img/user@2x.png" alt>
+        <img src="../../assets/img/default.png" alt>
       </div>
       <div class="shareOut mt">分享出去</div>
     </div>
@@ -28,9 +28,9 @@
       </div>
       <div class="des">
         <div class="div">①拼团/参团</div>
-        <div class="div"><img src="../assets/img/jian.png" alt=""></div>
+        <div class="div"><img src="../../assets/img/jian.png" alt=""></div>
         <div class="div">②分享好友</div>
-        <div class="div"><img src="../assets/img/jian.png" alt=""></div>
+        <div class="div"><img src="../../assets/img/jian.png" alt=""></div>
         <div class="div">③满员发货 <p>人数不满自动退款</p></div>
       </div>
     </div>

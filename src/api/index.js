@@ -34,12 +34,19 @@ export const getNoticeList = (params) => $fetch('get','message/gropListMessageCo
 export const getNoticeDetail = (params) => $fetch('get','message/listMessagePage','',params);
 export const getNavList = (params) => $fetch('get','search/getCategory','',params);
 export const eachGoodsBuyList = (params) => $fetch('get','product/getGroupbuyingReoceds','',params);
+export const updateGroupPrice = (params) => $fetch('get','product/refreshGroupProduct','',params);
+export const updateSinglePrice = (params) => $fetch('get','product/refreshProduct','',params);
 //需要 传token的 接口
 export const search = (params) => $fetch('get','search/groupProductPage','',params);
 export const searchTag = (params) => $fetch('get','search/getSearch','',params);
 export const getDetail = (params) => $fetch('get','product/getGroupProductBySn','',params);
 export const loginout = (params) => $fetch('get','logout','',params);
 export const collectProduct = (params) => $fetch('get','product/addGroupFavorite','',params);
+export const receiveAddress = (params) => $fetch('get','member/listReceiver','',params);
+export const saveAddress = (params) => $fetch('get','member/saveReceiver','',params);
+
+
+
 
 
 

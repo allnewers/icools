@@ -1,25 +1,25 @@
 <template>
   <div>
     <ul>
-      <li>
+      <li @click="jumpUrl('deal')">
         <div class="top">
           服务协议
           <span class="more"></span>
         </div>
       </li>
-      <li>
-        <div class="top">
+      <li @click="jumpUrl('help')">
+        <div class="top" >
           使用帮助
           <span class="more"></span>
         </div>
       </li>
-      <li>
+      <li @click="jumpUrl('feedback')">
         <div class="top">
           意见反馈
           <span class="more"></span>
         </div>
       </li>
-      <li style="margin-top:.2rem;">
+      <li style="margin-top:.2rem;" >
         <div class="top">
           关于我们
           <span class="more"></span>
@@ -58,6 +58,9 @@ export default {
         }
         
       }).catch();
+    },
+    jumpUrl(url){
+      this.$router.push('/'+url);
     }
   }
 };

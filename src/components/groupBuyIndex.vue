@@ -106,11 +106,11 @@ export default {
           image: navImg1
         },
         {
-          id: 2,
+          id: 3,
           image: navImg2
         },
         {
-          id: 3,
+          id: 2,
           image: navImg3
         }
       ]
@@ -153,7 +153,7 @@ export default {
           if (res.result === true && res.data >= 1) {
             this.$store.commit("changeNotice", true);
           } else {
-            this.$toast(res.msg);
+            //this.$toast(res.msg);
           }
         })
         .catch(err => {});

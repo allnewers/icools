@@ -10,12 +10,14 @@ import store from './store'
 import Selects from "./components/common/select"
 import Mint from 'mint-ui'
 import filters from './filter'
-import { Toast,Lazyload,InfiniteScroll,Spinner  } from 'mint-ui'
+import { Toast,Lazyload,InfiniteScroll,Spinner ,Picker ,Popup} from 'mint-ui'
 import VueImageSwipe from 'vue-image-swipe'
 import 'vue-image-swipe/dist/vue-image-swipe.css'
 Vue.use(VueImageSwipe)
 Vue.component(Toast.name, Toast);
 Vue.component(Spinner.name, Spinner);
+Vue.component(Picker.name, Picker);
+Vue.component(Popup.name, Popup);
 Vue.use(Lazyload,{
   error:require('./assets/img/r404.png'),
   //loading:require('./assets/img/load.gif'),
@@ -29,24 +31,24 @@ Object.keys(filters).forEach(key => Vue.filter(key, filters[key]));
 Vue.component('Selects',Selects)
 
 //阻止浏览器默认行为
-Vue.prototype.mo = function (e) { 
-  if (event.cancelable) {
-  // 判断默认行为是否已经被禁用
-    if (!event.defaultPrevented) {
-        event.preventDefault();
-    }
-  } 
-}
-//弹出框禁止滑动
-Vue.prototype.noScroll = function () {
-  document.body.style.overflow = 'hidden'
-  document.addEventListener('touchmove', this.mo, { passive: false })// 禁止页面滑动
-}
-//弹出框可以滑动
-Vue.prototype.canScroll = function () {
-  document.body.style.overflow = ''// 出现滚动条
-  document.removeEventListener('touchmove', this.mo, { passive: false })
-}
+// Vue.prototype.mo = function (e) { 
+//   if (event.cancelable) {
+//   // 判断默认行为是否已经被禁用
+//     if (!event.defaultPrevented) {
+//         event.preventDefault();
+//     }
+//   } 
+// }
+// //弹出框禁止滑动
+// Vue.prototype.noScroll = function () {
+//   document.body.style.overflow = 'hidden'
+//   document.addEventListener('touchmove', this.mo, { passive: false })// 禁止页面滑动
+// }
+// //弹出框可以滑动
+// Vue.prototype.canScroll = function () {
+//   document.body.style.overflow = ''// 出现滚动条
+//   document.removeEventListener('touchmove', this.mo, { passive: false })
+// }
 
 
 /* eslint-disable no-new */
@@ -59,7 +61,7 @@ var vm = new Vue({
 })
 //全局守卫
 router.beforeEach((to, from, next) => {
-  vm.canScroll()  ;//进入路由，初始化 弹框状态
+  //vm.canScroll()  ;//进入路由，初始化 弹框状态
   const slideRoute = ['search']//需要slide效果的组件
   let direction = ''
   const toName = to.name    // 即将进入的路由名字

@@ -46,7 +46,7 @@
           <div class="top">我的消息</div>
         </div>
         <ul>
-          <li>
+          <li @click="jumpUrl('notice')">
             <img src="../../assets/img/notice@2x.png" alt>
             <p>消息中心</p>
           </li>

@@ -1,30 +1,32 @@
 <template>
   <div>
-    <div class="address">
-      <!-- <div class="newIncrease"></div> -->
-      <div class="defaults">
-        <div class="userPhone clear">
-          <p class="fl">王小二</p>
-          <p class="fl">13222223333</p>
+    <div class="address" :class="noAdderss?'noStyle':''">
+      <div class="defaults" >
+        <div class="add" v-if="noAdderss" @click="addAddress">新增收货地址</div>
+        <div class="has" v-if="hasAdderss">
+          <div class="userPhone clear">
+            <p class="fl">王小二</p>
+            <p class="fl">13222223333</p>
+          </div>
+          <div class="address-i">北京西城区内环到二环里西城区阜外大街甲9号国宾酒店打 一层GBC-15区域</div>
         </div>
-        <div class="address-i">北京西城区内环到二环里西城区阜外大街甲9号国宾酒店打 一层GBC-15区域</div>
       </div>
     </div>
     <div class="border-cai">
-      <img src="../assets/img/cai@2x.png" alt>
+      <img src="../../assets/img/cai@2x.png" alt>
     </div>
     <div class="goodsBill">
       <h3>商品清单</h3>
       <div class="goods">
         <div class="tops clear">
           <div class="img fl">
-            <img src="../assets/img/phone@2x.png" alt>
+            <img :src="'http://eicools.oss-cn-beijing.aliyuncs.com/'+params.thumbnail" alt>
           </div>
           <div class="txt fl">
-            <p>小米6全网通 亮黑色 6GB+64GB</p>
+            <p>{{params.title}}</p>
             <p>
-              <span>¥250</span>
-              ×{{snum}}
+              <span>¥{{parseInt(params.price)}}</span>
+              ×{{params.sum}}
             </p>
           </div>
         </div>
@@ -47,16 +49,16 @@
           </li>
           <li>
             <span>商品金额</span>
-            <span class="red">¥6000</span>
+            <span class="red">¥{{summary}}</span>
           </li>
-          <li>
+          <!-- <li>
             <span>数量</span>
             <div class="compute fr">
               <button class="fl" @click="decrease">-</button>
               <input class="fl" type="text" v-model="snum" readonly onfocus="this.blur();">
               <button class="fl" @click="increase">+</button>
             </div>
-          </li>
+          </li>-->
           <li>
             <span>运费</span>
             <span class="red">¥0</span>
@@ -68,8 +70,8 @@
     <div class="submitOrder">
       <div class="summary">
         共
-        <span>{{snum}}</span>件，合计：
-        <i>¥6000</i>
+        <span>{{params.sum}}</span>件，合计：
+        <i>¥{{summary}}</i>
       </div>
       <div class="submit" @click="submitOrder">提交订单</div>
     </div>
@@ -117,6 +119,8 @@
   </div>
 </template>
 <script>
+import { getCookie } from "../../util";
+import { receiveAddress } from "../../api";
 export default {
   name: "order",
   data() {
@@ -125,20 +129,43 @@ export default {
       dialog: false,
       tabBar: ["可用优惠券（1）", "不可用优惠券（2）"],
       isActive: "0",
-      noUse:false
+      noUse: false,
+      params: {},
+      token: "",
+      noAdderss:false,
+      hasAdderss:false,
     };
   },
+  computed: {
+    summary() {
+      let sum = parseInt(this.params.price) * parseInt(this.params.sum);
+      return sum;
+    }
+  },
+  mounted() {
+    let params = this.$route.params;
+    let token = getCookie("token");
+    //console.info(params);
+    this.params = params;
+    this.token = token;
+
+    receiveAddress({ token: this.token })
+      .then(res => {
+        console.log(res);
+        if(res.result === false){
+          this.noAdderss = true;
+        }else{
+
+        }
+      })
+      .catch();
+  },
   methods: {
-    submitOrder() {
-      this.$router.push("/payType");
+    addAddress(){
+      this.jumpUrl('addAddress');
     },
-    increase() {
-      ++this.snum;
-    },
-    decrease() {
-      if (this.snum > 1) {
-        --this.snum;
-      }
+    submitOrder(){
+      this.jumpUrl('payType');
     },
     discount() {
       this.dialog = true;
@@ -148,12 +175,15 @@ export default {
     },
     tab(index) {
       this.isActive = index;
-      if(index == '1'){
-        this.noUse = true
-      }else{
-        this.noUse = false
-      } 
-    }
+      if (index == "1") {
+        this.noUse = true;
+      } else {
+        this.noUse = false;
+      }
+    },
+    jumpUrl(url) {
+      this.$router.push("/"+url);
+    },
   }
 };
 </script>
@@ -161,14 +191,19 @@ export default {
 .address {
   padding: 0.1rem 0.28rem 0.28rem;
   position: relative;
-  background: #fff url("../assets/img/address.png") no-repeat 0.28rem center;
+  background: #fff url("../../assets/img/address.png") no-repeat 0.28rem center;
   background-size: 22px 23px;
+  min-height: .4rem;
+  &.noStyle{
+    padding:.28rem;
+  }
 }
 .defaults {
-  background: url("../assets/img/right.png") no-repeat 6.6rem center;
+  background: url("../../assets/img/right.png") no-repeat 6.6rem center;
   background-size: 24px 28px;
   padding-left: 0.62rem;
   color: rgba(51, 51, 51, 1);
+  
   .userPhone {
     font-size: 0.3rem;
     font-weight: 400;
@@ -263,7 +298,7 @@ export default {
     &:nth-child(3),
     &:nth-child(4) {
       padding-right: 0.5rem;
-      background: url("../assets/img/right.png") no-repeat 98.5% center;
+      background: url("../../assets/img/right.png") no-repeat 98.5% center;
       background-size: 20px 24px;
     }
     span {
@@ -388,8 +423,8 @@ export default {
         text-align: center;
         color: #fff;
         border-radius: 0 4px 4px 0;
-        &.grey{
-          background: #DBDBDB;
+        &.grey {
+          background: #dbdbdb;
         }
       }
     }

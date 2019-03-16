@@ -5,9 +5,9 @@
         v-infinite-scroll="loadMore"
         infinite-scroll-disabled="isMoreLoading"
         infinite-scroll-distance="10"
-        :infinite-scroll-immediate-check="true"
+        :infinite-scroll-immediate-check="false"
       >
-        <li v-for="(item,index) in lists" :key="item.id">
+        <li v-for="item in lists" :key="item.id">
           <div class="time clear">
             <div class="img fl">
               <img src="../../assets/img/oclock@2x.png" alt>
@@ -21,7 +21,7 @@
         </li>
       </ul>
       <div class="loading-box tc" v-if="isLoading">
-        <mt-spinner size="20" type="triple-bounce" class="loading-more"></mt-spinner>
+        <mt-spinner :size="20" type="triple-bounce" class="loading-more"></mt-spinner>
         <span class="loading-more-txt">加载中...</span>
       </div>
       <div class="no-more" v-if="noMore">没有更多了~</div>
@@ -41,63 +41,55 @@ export default {
       isLoading: false,
       isMoreLoading: false,
       noMore: false,
-      i: 0
+      i: 1,
+      token:'',
+      type:''
     };
   },
-  mounted() {
+  created() {
     let token = getCookie("token");
     let type = this.$route.params.type;
-    let i = 0;
-    //初始化 加载数据前5条
-    getNoticeDetail({
-      token: token,
-      type: type
-    })
-      .then(res => {
-        if (res.result === true) {
-          this.lists = res.data.list.slice(i * 5, (i + 1) * 5);
-        } else {
-          this.$toast(res.msg);
-        }
-      })
-      .catch(err => {
-        console.info(err);
-      });
+    this.token = token;
+    this.type = type;
   },
   methods: {
     loadMore() {
-      let token = getCookie("token");
-      let type = this.$route.params.type;
-      this.isMoreLoading = true;
       this.isLoading = true;
       this.noMore = false;
-      setTimeout(() => {
-        getNoticeDetail({
-          token: token,
-          type: type
-        })
-          .then(res => {
-            this.i++;
-            if (res.result === true) {
-              this.moreList = res.data.list.slice(this.i * 5, (this.i + 1) * 5);
-              //alert(this.moreList.length)
-              if(this.moreList.length == 0){
-                this.noMore = true;
-                this.isLoading =false;
-              }else{
-                this.isLoading = false;
-                this.moreList.forEach((item)=>{
+
+      if (!this.isMoreLoading) {
+        this.i++;
+        //alert(this.i);
+        setTimeout(() => {
+          getNoticeDetail({
+            token: this.token,
+            type: this.type,
+            pageNum:this.i
+          })
+            .then(res => {
+              if (res.result === true) {
+                this.moreList = res.data.list;
+                //alert(this.moreList.length)
+                if (this.moreList.length < 10) {
+                  this.noMore = true;
+                  this.isLoading = false;
+                  this.isMoreLoading = true;
+                } else {
+                  this.isLoading = true;
+                  this.noMore = false;
+                }
+                this.moreList.forEach(item => {
                   this.lists.push(item);
                 });
+              } else {
+                this.$toast(res.msg);
               }
-            } else {
-              this.$toast(res.msg);
-            }
-          })
-          .catch(err => {});
-          this.noMore = false;
-          this.isMoreLoading = false;
-      }, 1000);
+            })
+            .catch(err => {});
+          // this.noMore = false;
+          // this.isMoreLoading = false;
+        }, 1000);
+      }
     }
   },
   filters: {
@@ -111,8 +103,9 @@ export default {
 .list {
   padding: 0.28rem;
   ul {
-    max-height: 100vh;
-    overflow-y: auto;
+    max-height: 80vh;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling:touch;
     li {
       margin-top: 0.3rem;
       .time {
@@ -151,28 +144,26 @@ export default {
     }
   }
 }
-.loading-box{
+.loading-box {
   text-align: center;
   position: relative;
-  height: .6rem;
- 
-  
-  .loading-more{
+  height: 0.6rem;
+
+  .loading-more {
     position: absolute;
     left: 35%;
-    top: .1rem;
+    top: 0.1rem;
   }
-  .loading-more-txt{
-    font-size: .26rem;
+  .loading-more-txt {
+    font-size: 0.26rem;
     color: #666;
-    line-height:.6rem;
+    line-height: 0.6rem;
   }
 }
-.no-more{
+.no-more {
   text-align: center;
-  line-height: .6rem;
+  line-height: 0.6rem;
   color: #666;
-  font-size: .26rem;
+  font-size: 0.26rem;
 }
-
 </style>

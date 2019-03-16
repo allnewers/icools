@@ -7,7 +7,7 @@
             <img v-if="item.type === 2" :src="require('../../assets/img/n3@2x.png')" alt>
             <img v-if="item.type === 6" :src="require('../../assets/img/n2@2x.png')" alt>
             <img v-if="item.type === 5" :src="require('../../assets/img/n1@2x.png')" alt>
-            <div class="icon_num">{{item.total}}</div>
+            <div class="icon_num" v-if="item.total>=1">{{item.total}}</div>
           </div>
           <div class="txts fl">
             <h3>{{item.typeName}}</h3>

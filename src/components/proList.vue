@@ -104,7 +104,7 @@ export default {
     Indicator.open();
     getNavList({ id: id })
       .then(res => {
-        console.log(res.data);
+        //console.log(res.data);
         this.tabBar = res.data; //二三级导航 数据;
         this.id2 = ""; //清空缓存;
         this.id2 = res.data[0].id; //默认展示商品 查询 所需的二级导航id
@@ -126,7 +126,7 @@ export default {
         .catch();
     },
     subTab(index, thirdNavList, subNavId, navGrade) {
-      alert(JSON.stringify(thirdNavList));
+      //alert(JSON.stringify(thirdNavList));
       this.thirdNavList = []; //清空缓存
       this.NavProductList = []; //清空缓存
       this.whichGrageNav = "";//清空缓存

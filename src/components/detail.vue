@@ -117,11 +117,11 @@
               <img v-if="isCollect" src="../assets/img/like1@2x.png" alt>
               <p>收藏</p>
             </li>
-            <li @click="goBuy(detailAllData.price)">
+            <li @click="goBuy(detailAllData.price,'single')">
               <p>¥{{detailAllData.price | toFixed}}</p>
               <div>单买</div>
             </li>
-            <li @click="goBuy(detailAllData.groupPrice)">
+            <li @click="goBuy(detailAllData.groupPrice,'group')">
               <p>¥{{detailAllData.groupPrice | toFixed}}</p>
               <div>一键开团</div>
             </li>
@@ -135,38 +135,26 @@
           <Selects @closeD="closeDialog">
             <div class="wrap">
               <div class="product-top clear">
-                <img
-                  class="fl"
-                  v-lazy="'http://eicools.oss-cn-beijing.aliyuncs.com/'+ detailBanner[0]['listMedium']"
-                  alt
-                >
+                <img class="fl" :src="'http://eicools.oss-cn-beijing.aliyuncs.com/'+ thumbnail" alt>
                 <div class="baseInfo fl">
                   <h2>{{detailAllData.name}}</h2>
                   <!-- <div class="balance">库存100件</div> -->
-                  <p class="price">¥{{price | toFixed}}</p>
+                  <p class="price" v-if="parseInt(price)">¥{{price | toFixed}}</p>
+                  <p class="price" v-else>{{price}}</p>
                 </div>
               </div>
               <div class="rules wrapper" ref="wrapper">
                 <ul>
-                  <li>
-                    <h3>颜色</h3>
+                  <li v-for="(selectItem ,index) in SpecificationList" :key="selectItem.id">
+                    <h3>{{selectItem.name}}</h3>
                     <div class="choices">
-                      <span class="pink">金色</span>
-                      <span>银色</span>
-                    </div>
-                  </li>
-                  <li>
-                    <h3>容量</h3>
-                    <div class="choices">
-                      <span>64G</span>
-                      <span>256G</span>
-                    </div>
-                  </li>
-                  <li>
-                    <h3>容量</h3>
-                    <div class="choices">
-                      <span>64G</span>
-                      <span>256G</span>
+                      <!-- <span class="pink">金色</span> -->
+                      <span
+                        @click="specificationBtn(value.name,value.image,index,n)"
+                        :class="[subIndex[index] == n ? 'selectActive' :'']"
+                        v-for="(value,n) in selectItem.specificationValues"
+                        :key="value.id"
+                      >{{value.name}}</span>
                     </div>
                   </li>
                 </ul>
@@ -180,7 +168,11 @@
                 </div>
               </div>
               <div class="selected">
-                <button @click="toBuy">确定</button>
+                <button
+                  @click="toBuy"
+                  :class="confirmSelect?'':'noBuy'"
+                  :disabled="!confirmSelect"
+                >确定</button>
               </div>
             </div>
           </Selects>
@@ -244,9 +236,15 @@ import Slide from "./common/slide";
 import Top from "./common/top";
 import Selects1 from "./common/select";
 import detailIcon from "../assets/img/detaiIcon@2x.png";
-import { getDetail, eachGoodsBuyList, collectProduct } from "../api";
+import {
+  getDetail,
+  eachGoodsBuyList,
+  collectProduct,
+  updateGroupPrice,
+  updateSinglePrice
+} from "../api";
 import { getCookie } from "../util";
-import { mapState,mapGetters } from "vuex";
+import { mapState, mapGetters } from "vuex";
 import CountDown from "vue2-countdown";
 import { Indicator } from "mint-ui";
 export default {
@@ -282,12 +280,25 @@ export default {
       slideMore: false,
       slidetxt: "全部",
       imgDetail: [], //图文详情
-      price: "",
+      price: "", //切换 规格后 刷新的价格
       groupPrice: "",
       allshow: false, //预加载 背景
       groupEnd: false, //团购倒计时 结束
       groupingList: false, //正在拼团的列表
-      isCollect: false //是否收藏
+      isCollect: false, //是否收藏
+      SpecificationList: [], //商品多规格选择 列表(要被渲染的字段)
+      //isSelected:false,
+      isForbidSelected: false,
+      selectArr: [], //存放被选中的值
+      shopItemInfo: {}, //存放要和选中的值进行匹配的数据
+      subIndex: [], //是否选中 因为不确定是多规格还是但规格，所以这里定义数组来判断
+      allSpecificationCombined: [], //所有 可能出现的 规格组合
+      combinations: [], //所有选中的 方式
+      productId: "", //选中 商品的id
+      buyType: "", //购买方式 单买或拼团
+      confirmSelect: true, //选中商品 是否可购买
+      thumbnail: "", //手机缩略图
+      title: ""
     };
   },
   components: {
@@ -300,7 +311,7 @@ export default {
   },
   computed: {
     ...mapState(["detailBanner"]),
-    ...mapGetters(['bannerImgList']),
+    ...mapGetters(["bannerImgList"]),
     infoList: {
       get() {
         if (!this.slideMore) {
@@ -317,8 +328,7 @@ export default {
     },
     groupingTwoNum() {
       return this.groupingNum.slice(0, 2);
-    },
-
+    }
   },
   mounted() {
     this.toTop(); //进入详情页 到顶部显示
@@ -334,10 +344,23 @@ export default {
         this.comments = res.data.reviewList;
         this.SpecificationInfo = res.data.parameterList;
         this.imgDetail = res.data.contentImageList;
+        this.SpecificationList = res.data.specificationList;
+        this.defaultSpecification = res.data.productSpecifecationList;
+        //alert(JSON.stringify(this.defaultSpecification));
+        this.allSpecificationCombined = res.data.goodsSpecificationList;
         //this.moreSpecification = res.data.parameterList.slice(2);
         //this.goodsId = res.data.id;
         this.$store.commit("changeDetailBanner", res.data.productImageVos);
-
+        //console.log(this.detailBanner);
+        this.thumbnail = this.detailBanner[0].listMedium; //初始化 规格选择 缩略图
+        for (let i in this.allSpecificationCombined) {
+          //修改数据结构格式，改成键值对的方式，以方便和选中之后的值进行匹配
+          this.shopItemInfo[
+            this.allSpecificationCombined[i].specValName
+          ] = this.allSpecificationCombined[i];
+          this.combinations = this.allSpecificationCombined[i].specValName;
+        }
+        //alert(JSON.stringify(this.shopItemInfo));
         eachGoodsBuyList({ product: this.goodsId }) //团购人数 列表
           .then(res => {
             //console.log(res);
@@ -351,6 +374,8 @@ export default {
             this.allshow = true;
           })
           .catch(err => {});
+        this.getNowchoice(); //默认选中的 规格 及商品id，title
+        this.checkItem(); //初始化选中
       })
       .catch(err => {});
     // this.$nextTick(() => {
@@ -375,14 +400,63 @@ export default {
 
     //}
     //},
+    specificationBtn(itemValue, thumbnail, index, n) {
+      if (thumbnail != "") {
+        this.thumbnail = thumbnail;
+      }
+      if (this.selectArr[index] != itemValue) {
+        this.selectArr[index] = itemValue; //选中的值
+        this.subIndex[index] = n;
+      } else {
+        //this.selectArr[index] = "";
+        this.subIndex[index] = -1; //去掉选中的颜色
+        return;
+      }
+      this.checkItem();
+      this.checkMoney();
+    },
+    checkItem() {
+      for (let i in this.SpecificationList) {
+        let str = this.selectArr[i]; //默认选中的规格
+        //alert(str);
+        for (let k in this.SpecificationList[i].specificationValues) {
+          if (this.SpecificationList[i].specificationValues[k].name == str) {
+            //alert(k);
+            this.subIndex[i] = k; //点击获取 选中的 规格下标
+          }
+        }
+      }
+      this.$forceUpdate(); //重绘
+    },
+    getNowchoice() {
+      for (let i in this.defaultSpecification) {
+        this.selectArr[i] = this.defaultSpecification[i].name;
+      }
+      let choiceStr = this.selectArr.join("-");
+      this.productId = this.shopItemInfo[choiceStr].productId;
+      this.title = this.detailAllData.fullName;
+    },
+    checkMoney() {
+      Indicator.open();
+      let choiceStr = this.selectArr.join("-");
+      //alert(choiceStr)
+      this.productId = this.shopItemInfo[choiceStr].productId;
+      //console.log(Object.keys(this.shopItemInfo)[0] === choiceStr)
+
+      this.refreshPrice();
+    },
     moreGroup() {
       this.tuanShow = true;
     },
-    goBuy(val) {
+    goBuy(val, type) {
+      //单独开团 或 单买 入口
       this.price = val;
       this.dialog = true;
+      this.buyType = type;
+      this.refreshPrice();
     },
     goBuyList(val) {
+      //参与拼团列表 购买入口
       if (this.groupEnd) {
         this.$toast("此商品拼团已结束");
         return false;
@@ -390,6 +464,38 @@ export default {
       this.price = val;
       this.dialog = true;
       this.tuanShow = false;
+    },
+    refreshPrice() {
+      if (this.buyType == "single") {
+        updateSinglePrice({ id: this.productId })
+          .then(res => {
+            if (res.result === true) {
+              //console.log(res);
+              this.price = res.data.price;
+              this.title = res.data.fullName;
+              this.confirmSelect = true;
+            } else if (res.result === false) {
+              this.price = "缺货";
+              this.confirmSelect = false;
+            }
+            Indicator.close();
+          })
+          .catch();
+      } else {
+        updateGroupPrice({ id: this.productId })
+          .then(res => {
+            if (res.result === true) {
+              this.price = res.data.groupPrice;
+              this.title = res.data.fullName;
+              this.confirmSelect = true;
+            } else if (res.result === false) {
+              this.price = "缺货";
+              this.confirmSelect = false;
+            }
+            Indicator.close();
+          })
+          .catch();
+      }
     },
     increase() {
       ++this.snum;
@@ -404,7 +510,21 @@ export default {
       this.tuanShow = val;
     },
     toBuy() {
-      this.$router.push("/order");
+      //alert(this.productId);
+      if(this.price == '缺货'){//防修改 按钮disabled属性
+        this.$toast('此商品无货');
+        return false;
+      }
+      this.$router.push({
+        name: "order",
+        params: {
+          productId: this.productId,
+          thumbnail: this.thumbnail,
+          sum: this.snum,
+          title: this.title,
+          price: this.price
+        }
+      });
       this.$store.commit("toggleDialog", false);
     },
     moreInfos(slideMore) {
@@ -415,10 +535,11 @@ export default {
     jumpUrl(url) {
       this.$router.push("/" + url);
     },
-    preview(index){//图片放大 预览
+    preview(index) {
+      //图片放大 预览
       this.$imagePreview({
-        images:this.bannerImgList,
-        index:index
+        images: this.bannerImgList,
+        index: index
       });
     },
     collect() {
@@ -477,9 +598,9 @@ export default {
 }
 .banner {
   min-height: 4rem;
-  .swiper-slide{
-    width: 100%!important;
-    margin-right:0;
+  .swiper-slide {
+    width: 100% !important;
+    margin-right: 0;
   }
 }
 .img-banner {
@@ -796,7 +917,7 @@ export default {
 }
 .rules {
   margin-top: 0.3rem;
-  height: 3.6rem;
+  height: 4rem;
   width: 90%;
   // position: absolute;
   //overflow: hidden;
@@ -805,7 +926,7 @@ export default {
   // left: .3rem;
   // top: 2.3rem;
   ul {
-    min-height: 4rem;
+    min-height: 4.4rem;
     li {
       color: rgba(51, 51, 51, 1);
       font-size: 0.28rem;
@@ -820,16 +941,24 @@ export default {
         overflow: hidden;
         span {
           float: left;
-          width: 1.6rem;
+          padding: 0 0.3rem;
+          min-width: 1rem;
           height: 0.72rem;
           text-align: center;
           line-height: 0.72rem;
           border: 1px solid #f0f0f0;
           border-radius: 0.08rem;
           margin-right: 0.2rem;
-          &.pink {
+          margin-bottom: 0.2rem;
+          &.selectActive {
             background: #fff2f2;
             border: 1px solid #f24848;
+          }
+          &.forbidSelected {
+            background-color: #ccc;
+            opacity: 0.4;
+            color: #000;
+            pointer-events: none;
           }
         }
       }
@@ -876,7 +1005,10 @@ export default {
     font-size: 0.3rem;
     font-weight: 400;
     background: #333;
-    width: 90%;
+    width: 95%;
+    &.noBuy {
+      background: #d8d8d8;
+    }
   }
 }
 .moreGroup {
@@ -913,6 +1045,10 @@ export default {
 <style>
 .swiper-pagination-bullet-active {
   background-color: #fff;
+}
+.mint-indicator {
+  position: relative;
+  z-index: 106;
 }
 </style>
 
