@@ -29,8 +29,9 @@
       <!-- 标题 -->
       <!-- <Top :types="showType1"/> -->
       <!-- 商品列表（新品） -->
-      <div class="list-show" v-if="!noData" :style="{'-webkit-overflow-scrolling': scrollMode}">
+      <div class="list-show" :style="{'-webkit-overflow-scrolling': scrollMode}">
         <mt-loadmore
+          v-if="!showNoData"
           :bottom-method="loadBottom"
           :bottom-all-loaded="allLoaded"
           :auto-fill="false"
@@ -39,8 +40,8 @@
           ref="loadmore"
         >
           <ul>
-            <li v-for="item in NavProductList" :key="item.id">
-              <img v-lazy="item.imag" alt>
+            <li v-show="NavProductList.length>=1" v-for="item in NavProductList" :key="item.id">
+              <img v-lazy="imgBaseUrl+item.imag" alt>
               <h2>{{item.name}}</h2>
               <div class="prices clear">
                 <p class="price fl">
@@ -50,7 +51,9 @@
                 <p class="num fr">{{item.groupNum}}人拼</p>
               </div>
             </li>
+            
           </ul>
+          
           <div slot="bottom" class="mint-loadmore-bottom">
             <p v-show="bottomStatus !== 'loading'" class="loadmore-tip">
               <span :class="{ 'is-rotate': bottomStatus === 'drop' }">↑</span> 释放加载更多
@@ -61,6 +64,10 @@
           </div>
           <p class="nomore" v-show="allLoaded">没有更多了~</p>
         </mt-loadmore>
+        <div class="noData" v-show="showNoData">
+          <img src="../assets/img/noData.png" alt="">
+          <span>暂无数据</span>
+        </div>
       </div>
     </div>
   </div>
@@ -69,6 +76,7 @@
 import Top from "./common/top";
 import hotImg from "../assets/img/newPro@2x.png";
 import { getNavList, search } from "../api";
+import { imgBaseUrl } from "../util";
 import { Indicator } from "mint-ui";
 export default {
   name: "proList",
@@ -82,17 +90,18 @@ export default {
       id1: "",
       id2: "",
       id3: "",
-      isSelected:null,
+      isSelected: null,
       whichGrageNav: "subNav",
       NavProductList: [], //商品列表
-      allThirdNavList:[],
-      params:{},
-      bottomStatus:'',
-      noData:false,
-      scrollMode:'touch',
-      allLoaded:false,//商品 是否全部加载。 true时，表示禁止 调用loadBottom
+      allThirdNavList: [],
+      params: {},
+      bottomStatus: "",
+      noData: false,
+      scrollMode: "touch",
+      allLoaded: false, //商品 是否全部加载。 true时，表示禁止 调用loadBottom
       currentPage: 1,
-      
+      showNoData: false,
+      imgBaseUrl:imgBaseUrl
     };
   },
   components: {
@@ -120,34 +129,48 @@ export default {
       search({ id1: this.id1, id2: this.id2 })
         .then(res => {
           //console.log(res);
-          this.NavProductList = res.data.page.list;
-          Indicator.close();
+          if (res.result === true) {
+            this.NavProductList = res.data.page.list;
+            if (this.NavProductList.length == 0) {
+              this.showNoData = true;
+            }
+            Indicator.close();
+          }else{
+            console.log(res.msg);
+          }
+          
         })
-        .catch();
+        .catch(err => {
+          console.log(err);
+        });
     },
     subTab(index, thirdNavList, subNavId, navGrade) {
       //alert(JSON.stringify(thirdNavList));
+      if(this.isActive == index) return;
+      this.allLoaded = false;
       this.thirdNavList = []; //清空缓存
       this.NavProductList = []; //清空缓存
-      this.whichGrageNav = "";//清空缓存
-      this.isSelected = null;//清空缓存
+      this.whichGrageNav = ""; //清空缓存
+      this.isSelected = null; //清空缓存
+      this.showNoData = false;
       this.isActive = index;
       this.currentPage = 1;
       this.whichGrageNav = navGrade;
       this.id2 = subNavId; //给三级导航 查询商品列表 提供二级导航id
       this.allThirdNavList = thirdNavList;
       this.thirdNavList = thirdNavList.slice(0, 4); //切换 三级导航 列表
-      this.allLoaded = false;
       Indicator.open();
       this.firstPage();
     },
-    thirdNavTab(id3,index, navGrade) {
+    thirdNavTab(id3, index, navGrade) {
+      if(this.isSelected == index) return;
+      this.allLoaded = false;
       this.NavProductList = []; //清空缓存
       this.whichGrageNav = "";
       this.whichGrageNav = navGrade;
       this.id3 = id3;
       this.currentPage = 1;
-      this.allLoaded = false;
+      this.showNoData = false;
       this.isSelected = index;
       Indicator.open();
       this.firstPage();
@@ -159,21 +182,51 @@ export default {
         .then(res => {
           //切换 导航商品 列表
           //console.log(res);
-          this.NavProductList = res.data.page.list;
-          Indicator.close();
+          if (res.result === true) {
+            let data = res.data.page.list;
+            let lastPage = res.data.page.lastPage;//总共页数
+            this.NavProductList = res.data.page.list;
+            if (this.NavProductList.length == 0) {
+              this.showNoData = true;
+            }
+            if (lastPage <= this.currentPage) { 
+              this.allLoaded = true; //禁止上拉
+            } else{
+              this.allLoaded = false;
+            }
+            Indicator.close();
+          }else{
+            console.log(res.msg);
+          }
+          
         })
-        .catch();
+        .catch(err => {
+          console.log(err);
+        });
     },
     moreThirdNav() {
       let data = JSON.stringify(this.allThirdNavList);
-      this.$router.push({path:'/brandList',query:{id1:this.id1,id2:this.id2,thirdNavList:data}});
+      this.$router.push({
+        path: "/brandList",
+        query: { id1: this.id1, id2: this.id2, thirdNavList: data }
+      });
     },
-    judgeNavGrade(){//判断 哪一级导航
+    judgeNavGrade() {
+      //判断 哪一级导航
       let whichGrageNav = this.whichGrageNav;
       if (whichGrageNav === "subNav") {
-        this.params = { id1: this.id1, id2: this.id2,pageNum:this.currentPage };
+        this.params = {
+          id1: this.id1,
+          id2: this.id2,
+          pageNum: this.currentPage
+        };
       } else if (whichGrageNav === "thirdNav") {
-        this.params = { id1: this.id1, id2: this.id2, id3: this.id3,pageNum:this.currentPage };
+        this.params = {
+          id1: this.id1,
+          id2: this.id2,
+          id3: this.id3,
+          pageNum: this.currentPage
+        };
       } else {
         console.log("不清楚查询哪级导航的商品列表");
       }
@@ -182,33 +235,45 @@ export default {
       //alert(status);
       this.bottomStatus = status;
     },
-    loadBottom(){
-      if(!this.allLoaded){
+    loadBottom() {
+      if (!this.allLoaded) {
         Indicator.open();
         this.nextPage();
         this.$refs.loadmore.onBottomLoaded(); //通知loadmore组件从新渲染，计算
-      }   
+      }
     },
-    nextPage(){
+    nextPage() {
       ++this.currentPage;
       this.judgeNavGrade();
-      //console.log(this.params) ; 
+      //console.log(this.params) ;
       search(this.params)
         .then(res => {
           //切换 导航商品 列表
-          //console.log(res);
-          let data = res.data.page.list;
-          data.forEach(element => {
-            this.NavProductList.push(element);
-          });
-          if (data.length < 10) {
-            this.allLoaded = true;
-          } else if (data.length >= 10) {
-            this.allLoaded = false;
+          console.log(res);
+          if (res.result === true) {
+            let data = res.data.page.list;
+            let lastPage = res.data.page.lastPage;
+            if (this.NavProductList.length == 0) {
+              this.showNoData = true;
+            }
+            data.forEach(element => {
+              this.NavProductList.push(element);
+            });
+            if (lastPage <= this.currentPage) { 
+              this.allLoaded = true; //禁止上拉
+            } else{
+              this.allLoaded = false;
+            }
+            Indicator.close();
+          }else{
+            console.log(res.msg);
           }
-          Indicator.close();
+
+          
         })
-        .catch();
+        .catch(err => {
+          console.log(err);
+        });
     }
   }
 };
@@ -229,7 +294,7 @@ export default {
   background: #fff;
   height: 0.9rem;
 }
-.header{
+.header {
   position: fixed;
   top: 0;
   width: 100%;
@@ -252,7 +317,7 @@ export default {
       float: left;
       padding: 0 0.2rem;
       height: 0.5rem;
-      min-width: .65rem;
+      min-width: 0.65rem;
       background: rgba(244, 244, 244, 1);
       border-radius: 0.25rem;
       line-height: 0.5rem;
@@ -261,10 +326,10 @@ export default {
       color: #666;
       margin-bottom: 0.3rem;
       margin-right: 0.2rem;
-      border:1px solid #f0f0f0;
-      &.selected{
+      border: 1px solid #f0f0f0;
+      &.selected {
         background: #fff2f2;
-        border-color:#f24848;
+        border-color: #f24848;
         color: #f24848;
       }
       &:last-child {

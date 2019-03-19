@@ -10,7 +10,7 @@ import store from './store'
 import Selects from "./components/common/select"
 import Mint from 'mint-ui'
 import filters from './filter'
-import { Toast,Lazyload,InfiniteScroll,Spinner ,Picker ,Popup} from 'mint-ui'
+import { Toast,Lazyload,InfiniteScroll,Spinner ,Picker ,Popup,Indicator} from 'mint-ui'
 import VueImageSwipe from 'vue-image-swipe'
 import 'vue-image-swipe/dist/vue-image-swipe.css'
 Vue.use(VueImageSwipe)
@@ -62,10 +62,11 @@ var vm = new Vue({
 //全局守卫
 router.beforeEach((to, from, next) => {
   //vm.canScroll()  ;//进入路由，初始化 弹框状态
-  const slideRoute = ['search']//需要slide效果的组件
+  const slideRoute = ['search','addAddress']//需要slide效果的组件
   let direction = ''
   const toName = to.name    // 即将进入的路由名字
   const toIndex = slideRoute.indexOf(toName);
+  Indicator.close();
   if(toIndex!='-1'){
     direction = 'right'
   }

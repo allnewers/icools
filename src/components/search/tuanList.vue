@@ -35,7 +35,7 @@
         >
           <ul>
             <li v-for="item in searchList" :key="item.id">
-              <img v-lazy="'http://eicools.oss-cn-beijing.aliyuncs.com/'+item.imag" alt>
+              <img v-lazy="imgBaseUrl+item.imag" alt>
               <h2>{{item.name}}</h2>
               <div class="prices clear">
                 <p class="price fl">
@@ -46,6 +46,7 @@
               </div>
             </li>
           </ul>
+           
           <div slot="bottom" class="mint-loadmore-bottom">
             <p v-show="bottomStatus !== 'loading'" class="loadmore-tip">
               <span :class="{ 'is-rotate': bottomStatus === 'drop' }">↑</span> 释放加载更多
@@ -67,7 +68,7 @@
 <script>
 import { mapState } from "vuex";
 import { search } from "../../api";
-import { getCookie } from "../../util";
+import { getCookie,imgBaseUrl } from "../../util";
 import { Indicator } from "mint-ui";
 export default {
   name: "tuanList",
@@ -83,6 +84,7 @@ export default {
       bottomStatus: "",
       scrollMode: "touch", //ios下loadmore和-webkit-overflow-scrolling：touch 属性冲突无法上拉问题
       reverse: false,
+      imgBaseUrl:imgBaseUrl
     };
   },
   mounted() {

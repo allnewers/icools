@@ -1,79 +1,81 @@
 <template>
-  <div>
-    <div class="address" :class="noAdderss?'noStyle':''">
-      <div class="defaults" >
-        <div class="add" v-if="noAdderss" @click="addAddress">新增收货地址</div>
-        <div class="has" v-if="hasAdderss">
-          <div class="userPhone clear">
-            <p class="fl">王小二</p>
-            <p class="fl">13222223333</p>
+  <div class="order">
+    <div v-show="showAll">
+      <div class="address" :class="noAdderss?'noStyle':''">
+        <div class="defaults">
+          <div class="add" v-if="noAdderss" @click="addAddress">新增收货地址</div>
+          <div class="has" v-if="hasAdderss" @click="jumpUrl('addressList')">
+            <div class="userPhone clear">
+              <p class="fl">{{addressList[addressIndex].consignee}}</p>
+              <p class="fl">{{addressList[addressIndex].phone}}</p>
+            </div>
+            <div class="address-i">{{address}}</div>
           </div>
-          <div class="address-i">北京西城区内环到二环里西城区阜外大街甲9号国宾酒店打 一层GBC-15区域</div>
         </div>
       </div>
-    </div>
-    <div class="border-cai">
-      <img src="../../assets/img/cai@2x.png" alt>
-    </div>
-    <div class="goodsBill">
-      <h3>商品清单</h3>
-      <div class="goods">
-        <div class="tops clear">
-          <div class="img fl">
-            <img :src="'http://eicools.oss-cn-beijing.aliyuncs.com/'+params.thumbnail" alt>
+      <div class="border-cai">
+        <img src="../../assets/img/cai@2x.png" alt>
+      </div>
+      <div class="goodsBill">
+        <h3>商品清单</h3>
+        <div class="goods">
+          <div class="tops clear">
+            <div class="img fl">
+              <img :src="'http://eicools.oss-cn-beijing.aliyuncs.com/'+params.thumbnail" alt>
+            </div>
+            <div class="txt fl">
+              <p>{{params.title}}</p>
+              <p>
+                <span>¥{{parseInt(params.price)}}</span>
+                ×{{params.sum}}
+              </p>
+            </div>
           </div>
-          <div class="txt fl">
-            <p>{{params.title}}</p>
-            <p>
-              <span>¥{{parseInt(params.price)}}</span>
-              ×{{params.sum}}
-            </p>
-          </div>
-        </div>
-        <ul>
-          <li>
-            <span>支付配送</span>
-            <span>爱酷士配送</span>
-          </li>
-          <li>
-            <span>送货时间</span>
-            <span>2017-07-01 星期六 17:00-1900</span>
-          </li>
-          <li>
-            <span>发票</span>
-            <span>不开发票</span>
-          </li>
-          <li @click="discount">
-            <span>优惠券</span>
-            <span>暂无可用</span>
-          </li>
-          <li>
-            <span>商品金额</span>
-            <span class="red">¥{{summary}}</span>
-          </li>
-          <!-- <li>
+          <ul>
+            <li>
+              <span>支付配送</span>
+              <span>爱酷士配送</span>
+            </li>
+            <li @click="choiceTime">
+              <span>送货时间</span>
+              <span>{{deliveryDate?deliveryDate:''}} {{deliveryDate?deliveryTime:'选择配送时间'}}</span>
+            </li>
+            <li @click="jumpUrl('invoice')">
+              <span>发票</span>
+              <span>不开发票</span>
+            </li>
+            <li @click="discount">
+              <span>优惠券</span>
+              <span>暂无可用</span>
+            </li>
+            <li>
+              <span>商品金额</span>
+              <span class="red">¥{{summary}}</span>
+            </li>
+            <!-- <li>
             <span>数量</span>
             <div class="compute fr">
               <button class="fl" @click="decrease">-</button>
               <input class="fl" type="text" v-model="snum" readonly onfocus="this.blur();">
               <button class="fl" @click="increase">+</button>
             </div>
-          </li>-->
-          <li>
-            <span>运费</span>
-            <span class="red">¥0</span>
-          </li>
-        </ul>
+            </li>-->
+            <li>
+              <span>运费</span>
+              <span class="red">¥0</span>
+            </li>
+          </ul>
+        </div>
       </div>
-    </div>
-    <div class="blank"></div>
-    <div class="submitOrder">
-      <div class="summary">
-        共
-        <span>{{params.sum}}</span>件，合计：
-        <i>¥{{summary}}</i>
+      <div class="blank"></div>
+      <div class="submitOrder">
+        <div class="summary">
+          共
+          <span>{{params.sum}}</span>件，合计：
+          <i>¥{{summary}}</i>
+        </div>
+        <div class="submit" @click="submitOrder">提交订单</div>
       </div>
-      <div class="submit" @click="submitOrder">提交订单</div>
     </div>
     <transition name="slideUp">
       <div class="selectC yheight" v-show="dialog">
@@ -109,18 +111,40 @@
         </Selects>
       </div>
     </transition>
-    <!-- <transition name="slideUp">
-      <div class="selectC yheight" v-show="dialog">
-        <Selects>
-          222
-        </Selects>
-      </div>
-    </transition>-->
+    <mt-popup v-model="popupVisible" :closeOnClickModal="true" position="bottom">
+        <div class="date-top">配送日期</div>
+        <div class="con">
+          <div class="date titles">配送日期</div>
+          <div class="date-select clear">
+            <div class="item-poupe" v-for="(item,index) in DateData" :key="index">
+              <input id="dates" v-model="deliveryDate" type="radio" :value="sendData[index]"><label for="dates">{{item}}</label>
+            </div>
+          </div>
+          <div class="time titles">配送时间</div>
+          <div class="time-select">
+            <div class="item-poupe">
+              <input id="am" v-model="deliveryTime" type="radio" value="09:00-12:00"><label for="am">09:00-12:00</label>
+            </div>
+            <div class="item-poupe">
+              <input id="pm" v-model="deliveryTime" type="radio" value="12:00-15:00"><label for="pm">12:00-15:00</label>
+            </div>
+            <div class="item-poupe">
+              <input id="pm" v-model="deliveryTime" type="radio" value="15:00-18:00"><label for="pm">15:00-18:00</label>
+            </div>
+            <div class="item-poupe">
+              <input id="pm" v-model="deliveryTime" type="radio" value="18:00-21:00"><label for="pm">18:00-21:00</label>
+            </div>
+          </div>
+        </div>
+        <button class="confirm" @click="checkTime">确定</button>
+    </mt-popup>
   </div>
 </template>
 <script>
 import { getCookie } from "../../util";
 import { receiveAddress } from "../../api";
+import { mapState } from "vuex";
+import { Indicator } from "mint-ui";
 export default {
   name: "order",
   data() {
@@ -132,15 +156,30 @@ export default {
       noUse: false,
       params: {},
       token: "",
-      noAdderss:false,
-      hasAdderss:false,
+      noAdderss: false,
+      hasAdderss: false,
+      addressList: [],
+      showAll:false,
+      popupVisible:false,
+      deliveryTime:'',
+      deliveryDate:'',
+      DateData:[],
+      sendData:[],
+      
     };
   },
   computed: {
+    ...mapState(["addressIndex"]),
     summary() {
       let sum = parseInt(this.params.price) * parseInt(this.params.sum);
       return sum;
-    }
+    },
+    address() {
+      let data = this.addressList[this.addressIndex];
+      data = data ? data.areaName + data.address : "";
+      return data;
+    },
+
   },
   mounted() {
     let params = this.$route.params;
@@ -148,24 +187,36 @@ export default {
     //console.info(params);
     this.params = params;
     this.token = token;
-
+    Indicator.open();
     receiveAddress({ token: this.token })
       .then(res => {
         console.log(res);
-        if(res.result === false){
+        Indicator.close();
+        this.showAll = true;
+        if (res.result === false) {
           this.noAdderss = true;
-        }else{
-
+        } else {
+          this.addressList = res.data;
+          if (this.addAddress === 0) {
+            //（刷新 vuex值丢失）首次进入，设置默认地址
+            res.data.forEach((element, index) => {
+              if (element.isDefault === true) {
+                this.n = index; //初始化默认地址 标识
+              }
+            });
+          }
+          this.hasAdderss = true;
         }
       })
       .catch();
+    
   },
   methods: {
-    addAddress(){
-      this.jumpUrl('addAddress');
+    addAddress() {
+      this.jumpUrl("addAddress");
     },
-    submitOrder(){
-      this.jumpUrl('payType');
+    submitOrder() {
+      this.jumpUrl("payType");
     },
     discount() {
       this.dialog = true;
@@ -182,20 +233,61 @@ export default {
       }
     },
     jumpUrl(url) {
-      this.$router.push("/"+url);
+      this.$router.push("/" + url);
     },
+    choiceTime(){
+      this.popupVisible = true;
+      this.initFourDay();
+    },
+    checkTime(){
+      if(!this.deliveryTime || !this.deliveryDate){
+        this.$toast('请选择时间和日期');
+        return;
+      }
+      this.popupVisible = false;//关闭时间选择 弹框
+    },
+    initFourDay(){//配送日期 今天往后推四天
+      let yearArr = [];//年
+      let monthArr = [];//月
+      let dayArr = [];//日
+      let weekNumArr = [];//周 阿拉伯数字
+      let weekWordArr = []; //周 汉字
+      let week = ["[周日]","[周一]","[周二]","[周三]","[周四]","[周五]","[周六]"]; 
+      let needArr = [];//渲染用
+      let sendArr = [];//推数据用
+      let nowDate = new Date();
+      let year = nowDate.getFullYear();
+
+      for(let i=0;i<4;i++){
+        monthArr[i] = nowDate.getMonth() + 1;
+        dayArr[i] = nowDate.getDate() + i;
+        weekNumArr[i] = nowDate.getDay() + i;
+        monthArr[i] = monthArr[i] > 10 ? monthArr[i] : ('0' + monthArr[i]);
+        dayArr[i] = dayArr[i] > 10 ? dayArr[i] : ('0' + dayArr[i]);
+        weekWordArr[i] = week[weekNumArr[i]];
+        if(i == 0) weekWordArr[0] = '[今天]';
+        needArr[i] = monthArr[i] + '月' + dayArr[i] + '日' + weekWordArr[i] ;
+        sendArr[i] = year + '-' + monthArr[i] + '-' + dayArr[i];
+      }
+      this.DateData = needArr;
+      this.sendData = sendArr;
+    }
   }
 };
 </script>
 <style lang="less" scoped>
+.mint-popup-bottom{
+  width: 100%;
+  height: 55vh;
+}
 .address {
   padding: 0.1rem 0.28rem 0.28rem;
   position: relative;
   background: #fff url("../../assets/img/address.png") no-repeat 0.28rem center;
   background-size: 22px 23px;
-  min-height: .4rem;
-  &.noStyle{
-    padding:.28rem;
+  min-height: 0.4rem;
+  &.noStyle {
+    padding: 0.28rem;
   }
 }
 .defaults {
@@ -203,7 +295,9 @@ export default {
   background-size: 24px 28px;
   padding-left: 0.62rem;
   color: rgba(51, 51, 51, 1);
-  
+  .has {
+    min-height: 1rem;
+  }
   .userPhone {
     font-size: 0.3rem;
     font-weight: 400;
@@ -270,6 +364,7 @@ export default {
       }
     }
     .txt {
+      width: 80%;
       p {
         font-size: 0.26rem;
         font-weight: 400;
@@ -430,6 +525,83 @@ export default {
     }
   }
 }
+.date-top{
+  height: 1rem;
+  text-align: center;
+  line-height: 1rem;
+  font-size: .28rem;
+  color: #333;
+  border-bottom: 1px solid #f0f0f0;
+}
+.con{
+  padding: .28rem;
+  color: #333;
+  
+  .titles{
+    font-size: .24rem;
+    padding-left: .36rem;
+    margin-top: .1rem;
+    &.date{
+      background: url('../../assets/img/date@2x.png') no-repeat 0 center;
+      background-size: .3rem .3rem;
+    }
+    &.time{
+      background: url('../../assets/img/time@2x.png') no-repeat;
+      background-size: .3rem .3rem;
+    }
+  }
+  .time-select{
+    overflow: hidden;
+    padding: .3rem 0;
+  }
+}
+.date-select{
+  padding: .3rem 0;
+  .item-poupe{
+    width: 3rem;
+  }
+}
+.item-poupe{
+    width: 1.52rem;
+    height: .52rem;
+    border: 1px solid #f0f0f0;
+    border-radius: 4px;
+    font-size: .22rem;
+    text-align: center;
+    line-height: .52rem;
+    float: left;
+    margin: 0 .2rem .2rem 0;
+    position: relative;
+    &:last-child{
+      margin-right: 0;
+    }
+    input[type="radio"]{
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 100;
+      &:checked + label{
+        background: #333;
+        color: #fff;
+        width: 100%;
+        height: 100%;
+        display: block;
+        border-radius: 4px;
+      }
+    }
+  }
+.order .confirm{
+  margin-top: 0;
+}
+
 </style>
+<style>
+.mint-toast.is-placemiddle{
+  z-index: 2002;
+}
+</style>
+
 
 

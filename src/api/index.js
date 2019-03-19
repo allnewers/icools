@@ -44,6 +44,9 @@ export const loginout = (params) => $fetch('get','logout','',params);
 export const collectProduct = (params) => $fetch('get','product/addGroupFavorite','',params);
 export const receiveAddress = (params) => $fetch('get','member/listReceiver','',params);
 export const saveAddress = (params) => $fetch('get','member/saveReceiver','',params);
+export const updateAddress = (params) => $fetch('get','member/updateReceiver','',params);
+export const deleteAddress = (params) => $fetch('get','member/deleteReceiver','',params);
+
 
 
 

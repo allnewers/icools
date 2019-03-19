@@ -177,3 +177,14 @@ button:focus {
 .nomore{
   margin-bottom: .2rem;
 }
+.confirm{
+  width: 90%;
+  height: .9rem;
+  text-align: center;
+  color: #fff;
+  background: #333;
+  font-size: .3rem;
+  margin: 1rem auto 0;
+  display: block;
+  border-radius: 4px;
+}

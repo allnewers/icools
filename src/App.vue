@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <transition :name="direction">
-      <keep-alive include="GBindex,addAddress">
+      <keep-alive include="GBindex">
         <router-view/>
       </keep-alive>
     </transition>

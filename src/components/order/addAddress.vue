@@ -45,8 +45,9 @@
   </div>
 </template>
 <script>
-import { saveAddress } from '../../api'
+import { saveAddress, updateAddress} from '../../api'
 import { getCookie } from "../../util";
+import { Indicator } from "mint-ui";
 import { setTimeout } from 'timers';
 export default {
   name: "addAddress",
@@ -91,7 +92,9 @@ export default {
         gender:'',
         //label:'',//地区标签
         //isDefault:false
-      }
+      },
+      editData:{},
+      len:0
     };
   },
   computed:{
@@ -102,48 +105,51 @@ export default {
   mounted(){
     let token = getCookie('token');
     this.formData.token = token;
+    let query = this.$route.query;
+    let len = Object.keys(query).length;
+    this.len = len;
+    if( len > 0 ){ //如果 是编辑页面
+      let editData = JSON.parse(query.address) ;
+      //console.log(editData);
+      this.editData = editData;
+      this.fillData();
+    }
   },
   methods:{
+    fillData(){
+      let areaName = this.editData.areaName ;
+      this.formData.consignee = this.editData.consignee;
+      this.formData.gender =  this.editData.gender;//性别id
+      this.formData.areaName = this.editData.areaName;
+      this.formData.address = this.editData.address;
+      this.getGenderById();//展示性别
+      this.formData.phone = this.editData.phone; 
+      this.currentVal = [areaName.substr(0,3),areaName.substr(3,3),areaName.substr(6,3)];//地区名称 省 县 市
+      this.formData.address = this.editData.address;
+      this.formData.area = this.editData.area;
+    },
+    getGenderById(){
+      let val = this.editData.gender;
+      if(val == 0){
+        this.currentgenderVal = "男";
+      }else if(val == 1){
+        this.currentgenderVal = "女";
+      }else{
+        this.currentgenderVal = "保密";
+      }
+    },
     submit(){
-      if(this.formData.consignee == ''){
-        this.$toast('请输入姓名');
-        return;
+      if(this.len>0){
+        this.editAddress();//编辑地址
+      }else{
+        this.xinZengAddress();//新增地址
       } 
-      if(this.currentgenderVal == ''){
-        this.$toast('请选择性别');
-        return;
-      }
-      if(this.formData.phone == '' || !this.validPhoneNum(this.formData.phone)){
-        this.$toast('请输入正确的手机号');
-        return;
-      }
-      if(this.districtVal == ''){
-        this.$toast('请选择地区');
-        return;
-      }
-      if(this.formData.address == ''){
-        this.$toast('请输入详细地址');
-        return;
-      }
-      this.getVal();//获取性别id 地区名称
-      this.getCountyId();//获取 县级 id
-      saveAddress(this.formData).then(res=>{
-        console.log(res);
-        if(res.result === true){
-          this.$toast({message:"添加成功",duration:1000});
-          setTimeout(()=>{
-            this.$router.push('/addressList');
-          },1000);
-        }else{
-          this.$toast(res.msg);
-        }
-      }).catch();
     },
     setVal(){
       this.popupVisible = false;
       this.currentVal = this.$refs.picker.getValues();
       this.county = this.$refs.picker.getValues()[2];
-      console.log( this.county);
+      //console.log( this.county);
     },
     setgenderVal(){
       this.popupVisible1 = false;
@@ -151,7 +157,7 @@ export default {
     },
     getVal(){
       let districtVal = this.currentVal.join(' ');
-      this.formData.areaName = districtVal? districtVal:'';
+      this.formData.areaName = districtVal? districtVal:''; //获取地区名称
       if(this.currentgenderVal == "男"){
         this.formData.gender = 0;
       }else if(this.currentgenderVal == "女"){
@@ -184,6 +190,59 @@ export default {
         return false;
       }
     },
+    editAddress(){
+      this.formData.id = this.editData.id;
+      Indicator.open();
+      updateAddress(this.formData).then(res=>{
+        //console.log(res);
+        if(res.result === true){
+          Indicator.close();
+          this.$toast({message:'编辑成功',duration:1000});
+          setTimeout(()=>{
+            this.$router.go(-1);
+          },1000);
+        }
+      }).catch(err=>{
+
+      });
+    },
+    xinZengAddress(){
+      if(this.formData.consignee == ''){
+        this.$toast('请输入姓名');
+        return;
+      } 
+      if(this.currentgenderVal == ''){
+        this.$toast('请选择性别');
+        return;
+      }
+      if(this.formData.phone == '' || !this.validPhoneNum(this.formData.phone)){
+        this.$toast('请输入正确的手机号');
+        return;
+      }
+      if(this.districtVal == ''){
+        this.$toast('请选择地区');
+        return;
+      }
+      if(this.formData.address == ''){
+        this.$toast('请输入详细地址');
+        return;
+      }
+      this.getVal();//获取性别id 地区名称
+      this.getCountyId();//获取 县级 id
+      Indicator.open();
+      saveAddress(this.formData).then(res=>{
+        console.log(res);
+        if(res.result === true){
+          Indicator.close();
+          this.$toast({message:"添加成功",duration:1000});
+          setTimeout(()=>{
+            this.$router.go(-1);
+          },1000);
+        }else{
+          this.$toast(res.msg);
+        }
+      }).catch();
+    }
   }
 };
 </script>
@@ -197,17 +256,7 @@ export default {
   line-height: 1rem;
   border-bottom: 1px solid #f0f0f0;
 }
-.confirm{
-  width: 90%;
-  height: .9rem;
-  text-align: center;
-  color: #fff;
-  background: #333;
-  font-size: .3rem;
-  margin: 1rem auto 0;
-  display: block;
-  border-radius: 4px;
-}
+
 .from {
   background: #fff;
   ul {

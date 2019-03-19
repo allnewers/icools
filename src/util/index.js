@@ -32,3 +32,5 @@ export function CookieEnable() {//检测浏览器cookie 是否被禁用
 
     return result;
 } 
+
+export const imgBaseUrl = 'http://eicools.oss-cn-beijing.aliyuncs.com/';

@@ -13,6 +13,9 @@ const mutations = {
   },
   changeDetailBanner(state,newVal){
     state.detailBanner = newVal;
+  },
+  changeAddressIndex(state,newVal){
+    state.addressIndex = newVal;
   }
 }
 export default mutations;

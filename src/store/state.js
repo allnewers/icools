@@ -4,5 +4,6 @@ const state = {
   isNotice:false,
   searchList:[],//搜索商品列表
   detailBanner:[{listMedium:''}],
+  addressIndex:0,//收货地址 下标
 }
 export default state;
