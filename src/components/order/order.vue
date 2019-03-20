@@ -38,11 +38,11 @@
             </li>
             <li @click="choiceTime">
               <span>送货时间</span>
-              <span>{{deliveryDate?deliveryDate:''}} {{deliveryDate?deliveryTime:'选择配送时间'}}</span>
+              <span>{{times.deliveryDate?times.deliveryDate:''}} {{times.deliveryDate?times.deliveryTime:'选择配送时间'}}</span>
             </li>
-            <li @click="jumpUrl('invoice')">
+            <li @click="setInvoiceTitle">
               <span>发票</span>
-              <span>不开发票</span>
+              <span>{{invoiceTitle!=''?list[invoiceTitle].title:'不开发票'}}</span>
             </li>
             <li @click="discount">
               <span>优惠券</span>
@@ -117,22 +117,22 @@
           <div class="date titles">配送日期</div>
           <div class="date-select clear">
             <div class="item-poupe" v-for="(item,index) in DateData" :key="index">
-              <input id="dates" v-model="deliveryDate" type="radio" :value="sendData[index]"><label for="dates">{{item}}</label>
+              <input id="dates" v-model="times.deliveryDate" type="radio" :value="sendData[index]"><label for="dates">{{item}}</label>
             </div>
           </div>
           <div class="time titles">配送时间</div>
           <div class="time-select">
             <div class="item-poupe">
-              <input id="am" v-model="deliveryTime" type="radio" value="09:00-12:00"><label for="am">09:00-12:00</label>
+              <input id="am" v-model="times.deliveryTime" type="radio" value="09:00-12:00"><label for="am">09:00-12:00</label>
             </div>
             <div class="item-poupe">
-              <input id="pm" v-model="deliveryTime" type="radio" value="12:00-15:00"><label for="pm">12:00-15:00</label>
+              <input id="pm" v-model="times.deliveryTime" type="radio" value="12:00-15:00"><label for="pm">12:00-15:00</label>
             </div>
             <div class="item-poupe">
-              <input id="pm" v-model="deliveryTime" type="radio" value="15:00-18:00"><label for="pm">15:00-18:00</label>
+              <input id="pm" v-model="times.deliveryTime" type="radio" value="15:00-18:00"><label for="pm">15:00-18:00</label>
             </div>
             <div class="item-poupe">
-              <input id="pm" v-model="deliveryTime" type="radio" value="18:00-21:00"><label for="pm">18:00-21:00</label>
+              <input id="pm" v-model="times.deliveryTime" type="radio" value="18:00-21:00"><label for="pm">18:00-21:00</label>
             </div>
           </div>
         </div>
@@ -142,7 +142,7 @@
 </template>
 <script>
 import { getCookie } from "../../util";
-import { receiveAddress } from "../../api";
+import { receiveAddress,InvoiceTitleList } from "../../api";
 import { mapState } from "vuex";
 import { Indicator } from "mint-ui";
 export default {
@@ -161,15 +161,15 @@ export default {
       addressList: [],
       showAll:false,
       popupVisible:false,
-      deliveryTime:'',
-      deliveryDate:'',
+      // deliveryTime:'',
+      // deliveryDate:'',
       DateData:[],
       sendData:[],
-      
+      list:[]
     };
   },
   computed: {
-    ...mapState(["addressIndex"]),
+    ...mapState(["addressIndex",'times','invoiceTitle']),
     summary() {
       let sum = parseInt(this.params.price) * parseInt(this.params.sum);
       return sum;
@@ -209,6 +209,16 @@ export default {
         }
       })
       .catch();
+    InvoiceTitleList({
+      token:this.token
+    }).then(res=>{
+      console.log(res);
+      if(res.result === true){
+        this.list = res.data;
+      }else{
+        console.log(res.msg);
+      }
+    }).catch();
     
   },
   methods: {
@@ -217,6 +227,12 @@ export default {
     },
     submitOrder() {
       this.jumpUrl("payType");
+    },
+    setInvoiceTitle(){
+      let len = this.list.length;
+      if(len>0){
+
+      }
     },
     discount() {
       this.dialog = true;
@@ -240,7 +256,7 @@ export default {
       this.initFourDay();
     },
     checkTime(){
-      if(!this.deliveryTime || !this.deliveryDate){
+      if(!this.times.deliveryTime || !this.times.deliveryDate){
         this.$toast('请选择时间和日期');
         return;
       }

@@ -32,5 +32,24 @@ export function CookieEnable() {//检测浏览器cookie 是否被禁用
 
     return result;
 } 
-
+export function validIdNum( num ){//检验身份证号
+    let reg = /^[1-9]\d{5}[1-9]\d{3}((0[1-9])|(1[0-2]))((0[1-9])|([1-2]\d)|(3[0-1]))((\d{4})|(\d{3}[Xx]))$/;
+    let cardNo = num.replace(/\s/g, "");
+    let val=reg.test(cardNo);
+    if(val){
+        return true;
+    }else{
+        return false;
+    }
+}
+export function validCreditCode(val){
+    let reg =/[0-9A-Za-z]{18}/;
+    let vals = reg.test(val);
+    return vals = vals?true:false;
+}
+export function checkEmail(val){
+    let reg = new RegExp("^[a-z0-9]+([._\\-]*[a-z0-9])*@([a-z0-9]+[-a-z0-9]*[a-z0-9]+.){1,63}[a-z0-9]+$");
+    let vals = reg.test(val);
+    return vals = vals?true:false;
+  }
 export const imgBaseUrl = 'http://eicools.oss-cn-beijing.aliyuncs.com/';

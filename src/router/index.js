@@ -69,6 +69,16 @@ export default new Router({
       component:()=>import("@/components/order/addressList")
     },
     {
+      path:'/invoiceTitle',
+      name:'invoiceTitle',
+      component:()=>import("@/components/order/invoiceTitle")
+    },
+    {
+      path:'/invoiceList',
+      name:'invoiceList',
+      component:()=>import("@/components/order/invoiceList")
+    },
+    {
       path:'/phonelogin/:urlCode',
       name:'phonelogin',
       component:()=>import("@/components/login/phonelogin")

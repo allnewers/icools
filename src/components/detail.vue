@@ -298,7 +298,8 @@ export default {
       buyType: "", //购买方式 单买或拼团
       confirmSelect: true, //选中商品 是否可购买
       thumbnail: "", //手机缩略图
-      title: ""
+      title: "",
+      sn:''
     };
   },
   components: {
@@ -334,6 +335,7 @@ export default {
     this.toTop(); //进入详情页 到顶部显示
     let sn = this.$route.params.sn;
     let token = getCookie("token");
+    this.sn = sn;
     this.token = token;
     //console.log(sn);
     Indicator.open();
@@ -515,6 +517,10 @@ export default {
         this.$toast('此商品无货');
         return false;
       }
+      if(this.token === null){
+        this.$router.push({name:'phonelogin',params:{urlCode:'detail/'+this.sn}});
+        return;
+      }
       this.$router.push({
         name: "order",
         params: {
@@ -526,6 +532,7 @@ export default {
         }
       });
       this.$store.commit("toggleDialog", false);
+      
     },
     moreInfos(slideMore) {
       if (slideMore) this.slidetxt = "全部";

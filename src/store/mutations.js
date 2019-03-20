@@ -16,6 +16,9 @@ const mutations = {
   },
   changeAddressIndex(state,newVal){
     state.addressIndex = newVal;
-  }
+  },
+  changeInvoiceTitle(state,newVal){
+    state.invoiceTitle = newVal;
+  },
 }
 export default mutations;

@@ -47,6 +47,10 @@ export const saveAddress = (params) => $fetch('get','member/saveReceiver','',par
 export const updateAddress = (params) => $fetch('get','member/updateReceiver','',params);
 export const deleteAddress = (params) => $fetch('get','member/deleteReceiver','',params);
 
+export const addInvoiceTitle = (params) => $fetch('get','member/saveInvoice','',params);
+export const InvoiceTitleList = (params) => $fetch('get','member/listInvoice','',params);
+
+
 
 
 
