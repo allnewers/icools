@@ -26,6 +26,7 @@ import { getCookie } from "../../util";
 import imgN1 from '../../assets/img/n1@2x.png'
 import imgN2 from '../../assets/img/n2@2x.png'
 import imgN3 from '../../assets/img/n3@2x.png'
+import { Indicator } from "mint-ui";
 import { setTimeout } from 'timers';
 export default {
   name: "notice",
@@ -37,7 +38,9 @@ export default {
   },
   mounted(){
     let token = getCookie("token");
+    Indicator.open();
     getNoticeList({'token':token}).then(res=>{
+      Indicator.close();
       if(res.result===true){
         this.messageList = res.data;
       }else{

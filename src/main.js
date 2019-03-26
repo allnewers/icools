@@ -10,6 +10,7 @@ import store from './store'
 import Selects from "./components/common/select"
 import Mint from 'mint-ui'
 import filters from './filter'
+import 'babel-polyfill'
 import { Toast,Lazyload,InfiniteScroll,Spinner ,Picker ,Popup,Indicator} from 'mint-ui'
 import VueImageSwipe from 'vue-image-swipe'
 import 'vue-image-swipe/dist/vue-image-swipe.css'

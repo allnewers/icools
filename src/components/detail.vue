@@ -299,7 +299,7 @@ export default {
       confirmSelect: true, //选中商品 是否可购买
       thumbnail: "", //手机缩略图
       title: "",
-      sn:''
+      sn:'',
     };
   },
   components: {
@@ -343,6 +343,7 @@ export default {
       .then(res => {
         console.log(res);
         this.detailAllData = res.data;
+        this.isCollect = res.data.isFavorite;
         this.comments = res.data.reviewList;
         this.SpecificationInfo = res.data.parameterList;
         this.imgDetail = res.data.contentImageList;
@@ -600,7 +601,7 @@ export default {
 .preload {
   width: 100%;
   height: 100vh;
-  background: url(../assets/img/index_bg.png) no-repeat;
+  background: url(../assets/img/detail-preload.png) no-repeat;
   background-size: cover;
 }
 .banner {

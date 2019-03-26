@@ -40,7 +40,7 @@
           ref="loadmore"
         >
           <ul>
-            <li v-show="NavProductList.length>=1" v-for="item in NavProductList" :key="item.id">
+            <li v-show="NavProductList.length>=1" v-for="item in NavProductList" :key="item.id" @click="goDetail(item.sn)">
               <img v-lazy="imgBaseUrl+item.imag" alt>
               <h2>{{item.name}}</h2>
               <div class="prices clear">
@@ -128,7 +128,7 @@ export default {
       //查询 初始化的 二级导航 商品列表
       search({ id1: this.id1, id2: this.id2 })
         .then(res => {
-          //console.log(res);
+          console.log(res);
           if (res.result === true) {
             this.NavProductList = res.data.page.list;
             if (this.NavProductList.length == 0) {
@@ -210,6 +210,9 @@ export default {
         path: "/brandList",
         query: { id1: this.id1, id2: this.id2, thirdNavList: data }
       });
+    },
+    goDetail(sn) {
+      this.$router.push({ name: "detail", params: { sn: sn } });
     },
     judgeNavGrade() {
       //判断 哪一级导航

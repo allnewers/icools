@@ -32,9 +32,9 @@
             </div>
           </div>
           <ul>
-            <li>
-              <span>支付配送</span>
-              <span>爱酷士配送</span>
+            <li @click="choiceType">
+              <span>配送方式</span>
+              <span>{{currentVal?currentVal:'选择配送方式'}}</span>
             </li>
             <li @click="choiceTime">
               <span>送货时间</span>
@@ -42,7 +42,7 @@
             </li>
             <li @click="setInvoiceTitle">
               <span>发票</span>
-              <span>{{invoiceTitle!=''?list[invoiceTitle].title:'不开发票'}}</span>
+              <span>{{list[invoiceTitle]?list[invoiceTitle].title:'不开发票'}}</span>
             </li>
             <li @click="discount">
               <span>优惠券</span>
@@ -112,37 +112,56 @@
       </div>
     </transition>
     <mt-popup v-model="popupVisible" :closeOnClickModal="true" position="bottom">
-        <div class="date-top">配送日期</div>
-        <div class="con">
-          <div class="date titles">配送日期</div>
-          <div class="date-select clear">
-            <div class="item-poupe" v-for="(item,index) in DateData" :key="index">
-              <input id="dates" v-model="times.deliveryDate" type="radio" :value="sendData[index]"><label for="dates">{{item}}</label>
-            </div>
-          </div>
-          <div class="time titles">配送时间</div>
-          <div class="time-select">
-            <div class="item-poupe">
-              <input id="am" v-model="times.deliveryTime" type="radio" value="09:00-12:00"><label for="am">09:00-12:00</label>
-            </div>
-            <div class="item-poupe">
-              <input id="pm" v-model="times.deliveryTime" type="radio" value="12:00-15:00"><label for="pm">12:00-15:00</label>
-            </div>
-            <div class="item-poupe">
-              <input id="pm" v-model="times.deliveryTime" type="radio" value="15:00-18:00"><label for="pm">15:00-18:00</label>
-            </div>
-            <div class="item-poupe">
-              <input id="pm" v-model="times.deliveryTime" type="radio" value="18:00-21:00"><label for="pm">18:00-21:00</label>
-            </div>
+      <div class="date-top">配送日期</div>
+      <!-- {{forbidden}} -->
+      <div class="con">
+        <div class="date titles">配送日期</div>
+        <div class="date-select clear">
+          <div
+            class="item-poupe"
+            v-for="(item,index) in DateData"
+            :key="index"
+            
+          >
+            <input
+              id="dates"
+              :class="(index==0&&noSelected)?'todayForbidden':''"
+              :disabled="index==0&&noSelected"
+              v-model="times.deliveryDate"
+              type="radio"
+              :value="sendData[index]"
+            >
+            <label for="dates">{{item}}</label>
           </div>
         </div>
-        <button class="confirm" @click="checkTime">确定</button>
+        <div class="time titles">配送时间</div>
+        <div class="time-select">
+          <div class="item-poupe" v-for="(item,index) in timeList" :key="index" :class="{isForbidden:forbidden[index]}">
+            <input
+              id="am"
+              :disabled="forbidden[index]"
+              v-model="times.deliveryTime"
+              type="radio"
+              :value="item"
+            >
+            <label for="am">{{item}}</label>
+          </div>
+          
+        </div>
+      </div>
+      <button class="confirm" @click="checkTime">确定</button>
+    </mt-popup>
+    <mt-popup v-model="popupVisible1" position="bottom">
+      <mt-picker :slots="slots" ref="picker" :show-toolbar="true">
+        <p class="mint-picker-top">配送方式</p>
+      </mt-picker>
+      <button class="confirm" @click="setTypeVal">确定</button>
     </mt-popup>
   </div>
 </template>
 <script>
 import { getCookie } from "../../util";
-import { receiveAddress,InvoiceTitleList } from "../../api";
+import { receiveAddress, InvoiceTitleList } from "../../api";
 import { mapState } from "vuex";
 import { Indicator } from "mint-ui";
 export default {
@@ -159,17 +178,29 @@ export default {
       noAdderss: false,
       hasAdderss: false,
       addressList: [],
-      showAll:false,
-      popupVisible:false,
+      showAll: false,
+      popupVisible: false, //配送时间
+      popupVisible1: false, //配送方式
       // deliveryTime:'',
       // deliveryDate:'',
-      DateData:[],
-      sendData:[],
-      list:[]
+      DateData: [],
+      sendData: [],
+      list: [],
+      forbidden: [false, false, false, false],
+      noSelected: false, //今天不可选
+      slots: [
+        {
+          flex: 1,
+          values: ["爱酷士配送", "顺丰配送"],
+          textAlign: "center"
+        }
+      ],
+      
+      timeList:['09:00-12:00','12:00-15:00','15:00-18:00','18:00-21:00']
     };
   },
   computed: {
-    ...mapState(["addressIndex",'times','invoiceTitle']),
+    ...mapState(["addressIndex", "times", "invoiceTitle",'currentVal']),
     summary() {
       let sum = parseInt(this.params.price) * parseInt(this.params.sum);
       return sum;
@@ -178,8 +209,7 @@ export default {
       let data = this.addressList[this.addressIndex];
       data = data ? data.areaName + data.address : "";
       return data;
-    },
-
+    }
   },
   mounted() {
     let params = this.$route.params;
@@ -190,7 +220,7 @@ export default {
     Indicator.open();
     receiveAddress({ token: this.token })
       .then(res => {
-        console.log(res);
+        //console.log(res);
         Indicator.close();
         this.showAll = true;
         if (res.result === false) {
@@ -210,16 +240,17 @@ export default {
       })
       .catch();
     InvoiceTitleList({
-      token:this.token
-    }).then(res=>{
-      console.log(res);
-      if(res.result === true){
-        this.list = res.data;
-      }else{
-        console.log(res.msg);
-      }
-    }).catch();
-    
+      token: this.token
+    })
+      .then(res => {
+        //console.log(res);
+        if (res.result === true) {
+          this.list = res.data;
+        } else {
+          console.log(res.msg);
+        }
+      })
+      .catch();
   },
   methods: {
     addAddress() {
@@ -228,10 +259,12 @@ export default {
     submitOrder() {
       this.jumpUrl("payType");
     },
-    setInvoiceTitle(){
+    setInvoiceTitle() {
       let len = this.list.length;
-      if(len>0){
-
+      if (len > 0) {
+        this.$router.push({ name: "invoiceList", params: { origin: "order" } });
+      } else {
+        this.jumpUrl("invoiceTitle");
       }
     },
     discount() {
@@ -251,48 +284,111 @@ export default {
     jumpUrl(url) {
       this.$router.push("/" + url);
     },
-    choiceTime(){
+    choiceType() {
+      this.popupVisible1 = true;
+    },
+    choiceTime() {
       this.popupVisible = true;
       this.initFourDay();
+      this.initToday();
     },
-    checkTime(){
-      if(!this.times.deliveryTime || !this.times.deliveryDate){
-        this.$toast('请选择时间和日期');
+    checkTime() {
+      if (!this.times.deliveryTime || !this.times.deliveryDate) {
+        this.$toast("请选择时间和日期");
         return;
       }
-      this.popupVisible = false;//关闭时间选择 弹框
+      this.popupVisible = false; //关闭时间选择 弹框
     },
-    initFourDay(){//配送日期 今天往后推四天
-      let yearArr = [];//年
-      let monthArr = [];//月
-      let dayArr = [];//日
-      let weekNumArr = [];//周 阿拉伯数字
+    setTypeVal() {
+      this.popupVisible1 = false;
+      this.$store.commit('setDeliveryType',this.$refs.picker.getValues()[0]); 
+    },
+    initFourDay() {
+      //配送日期 今天往后推四天
+      let yearArr = []; //年
+      let monthArr = []; //月
+      let dayArr = []; //日
+      let weekNumArr = []; //周 阿拉伯数字
       let weekWordArr = []; //周 汉字
-      let week = ["[周日]","[周一]","[周二]","[周三]","[周四]","[周五]","[周六]"]; 
-      let needArr = [];//渲染用
-      let sendArr = [];//推数据用
+      let week = [
+        "[周日]",
+        "[周一]",
+        "[周二]",
+        "[周三]",
+        "[周四]",
+        "[周五]",
+        "[周六]"
+      ];
+      let needArr = []; //渲染用
+      let sendArr = []; //推数据用
       let nowDate = new Date();
       let year = nowDate.getFullYear();
 
-      for(let i=0;i<4;i++){
+      for (let i = 0; i < 4; i++) {
         monthArr[i] = nowDate.getMonth() + 1;
         dayArr[i] = nowDate.getDate() + i;
         weekNumArr[i] = nowDate.getDay() + i;
-        monthArr[i] = monthArr[i] > 10 ? monthArr[i] : ('0' + monthArr[i]);
-        dayArr[i] = dayArr[i] > 10 ? dayArr[i] : ('0' + dayArr[i]);
+        if (weekNumArr[i] >= 7) {
+          weekNumArr[i] = weekNumArr[i] - 7;
+        }
+        monthArr[i] = monthArr[i] > 10 ? monthArr[i] : "0" + monthArr[i];
+        dayArr[i] = dayArr[i] > 10 ? dayArr[i] : "0" + dayArr[i];
         weekWordArr[i] = week[weekNumArr[i]];
-        if(i == 0) weekWordArr[0] = '[今天]';
-        needArr[i] = monthArr[i] + '月' + dayArr[i] + '日' + weekWordArr[i] ;
-        sendArr[i] = year + '-' + monthArr[i] + '-' + dayArr[i];
+        if (i == 0) weekWordArr[0] = "[今天]";
+        needArr[i] = monthArr[i] + "月" + dayArr[i] + "日" + weekWordArr[i];
+        sendArr[i] = year + "-" + monthArr[i] + "-" + dayArr[i];
       }
+
       this.DateData = needArr;
       this.sendData = sendArr;
+    },
+    initToday() {
+      let nowHours = new Date().getHours();
+      //let nowHours =22;
+      if (nowHours >= 21) {
+        this.noSelected = true;
+      }
+    },
+    choiceDate(index) {
+      let nowHours = new Date().getHours();
+      let arr = [12, 15, 18, 21];
+      let indexArr = [];
+      for (let i in arr) {
+        if (arr[i] <= nowHours) {
+          indexArr.push(i);
+        }
+      }
+      if (index == 0) {
+        for (let j in indexArr) {
+          this.forbidden[parseInt(indexArr[j])] = true;
+        }
+      } else {
+        for (let i = 0; i < this.forbidden.length; i++) {
+          this.forbidden[i] = false;
+        }
+      }
     }
   }
 };
 </script>
 <style lang="less" scoped>
-.mint-popup-bottom{
+.mint-picker-top {
+  text-align: center;
+  line-height: 1rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+.isForbidden {
+  background: #f0f0f0;
+  color: #999;
+}
+.todayForbidden + label {
+  color: #999;
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: #f0f0f0;
+}
+.mint-popup-bottom {
   width: 100%;
   height: 55vh;
 }
@@ -405,6 +501,7 @@ export default {
     padding-right: 0.28rem;
     border-bottom: 1px solid #f0f0f0;
     font-weight: 300;
+    &:nth-child(1),
     &:nth-child(2),
     &:nth-child(3),
     &:nth-child(4) {
@@ -541,80 +638,79 @@ export default {
     }
   }
 }
-.date-top{
+.date-top {
   height: 1rem;
   text-align: center;
   line-height: 1rem;
-  font-size: .28rem;
+  font-size: 0.28rem;
   color: #333;
   border-bottom: 1px solid #f0f0f0;
 }
-.con{
-  padding: .28rem;
+.con {
+  padding: 0.28rem;
   color: #333;
-  
-  .titles{
-    font-size: .24rem;
-    padding-left: .36rem;
-    margin-top: .1rem;
-    &.date{
-      background: url('../../assets/img/date@2x.png') no-repeat 0 center;
-      background-size: .3rem .3rem;
+
+  .titles {
+    font-size: 0.24rem;
+    padding-left: 0.36rem;
+    margin-top: 0.1rem;
+    &.date {
+      background: url("../../assets/img/date@2x.png") no-repeat 0 center;
+      background-size: 0.3rem 0.3rem;
     }
-    &.time{
-      background: url('../../assets/img/time@2x.png') no-repeat;
-      background-size: .3rem .3rem;
+    &.time {
+      background: url("../../assets/img/time@2x.png") no-repeat;
+      background-size: 0.3rem 0.3rem;
     }
   }
-  .time-select{
+  .time-select {
     overflow: hidden;
-    padding: .3rem 0;
+    padding: 0.3rem 0;
   }
 }
-.date-select{
-  padding: .3rem 0;
-  .item-poupe{
+.date-select {
+  padding: 0.3rem 0;
+  .item-poupe {
     width: 3rem;
   }
 }
-.item-poupe{
-    width: 1.52rem;
-    height: .52rem;
-    border: 1px solid #f0f0f0;
-    border-radius: 4px;
-    font-size: .22rem;
-    text-align: center;
-    line-height: .52rem;
-    float: left;
-    margin: 0 .2rem .2rem 0;
-    position: relative;
-    &:last-child{
-      margin-right: 0;
-    }
-    input[type="radio"]{
-      position: absolute;
-      top: 0;
-      left: 0;
+.item-poupe {
+  width: 1.52rem;
+  height: 0.52rem;
+  border: 1px solid #f0f0f0;
+  border-radius: 4px;
+  font-size: 0.22rem;
+  text-align: center;
+  line-height: 0.52rem;
+  float: left;
+  margin: 0 0.2rem 0.2rem 0;
+  position: relative;
+  &:last-child {
+    margin-right: 0;
+  }
+  input[type="radio"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    &:checked + label {
+      background: #333;
+      color: #fff;
       width: 100%;
       height: 100%;
-      z-index: 100;
-      &:checked + label{
-        background: #333;
-        color: #fff;
-        width: 100%;
-        height: 100%;
-        display: block;
-        border-radius: 4px;
-      }
+      display: block;
+      border-radius: 4px;
     }
   }
-.order .confirm{
+}
+.order .confirm {
   margin-top: 0;
 }
-
 </style>
 <style>
-.mint-toast.is-placemiddle{
+.mint-toast.is-placemiddle {
   z-index: 2002;
 }
 </style>

@@ -118,6 +118,9 @@ export default {
           }  
           setCookie('token',res.data.token,7);
           setCookie('username',res.data.username,7);
+          setCookie('nickname',res.data.name,7);
+          setCookie('isUpdate',res.data.isUpdate,7);
+          setCookie('gender',res.data.gender,7);
           this.alerts(res.msg,()=>{
             setTimeout(()=>{
               if(result===true){ 

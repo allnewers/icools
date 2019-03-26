@@ -19,7 +19,7 @@
           <span class="more"></span>
         </div>
       </li>
-      <li style="margin-top:.2rem;" >
+      <li style="margin-top:.2rem;" @click="jumpUrl('aboutUs')">
         <div class="top">
           关于我们
           <span class="more"></span>

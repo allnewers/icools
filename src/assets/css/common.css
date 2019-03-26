@@ -188,3 +188,7 @@ button:focus {
   display: block;
   border-radius: 4px;
 }
+.mint-msgbox-confirm{
+  background: #333;
+  color: #fff;
+}

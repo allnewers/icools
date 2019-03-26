@@ -49,7 +49,11 @@ export const deleteAddress = (params) => $fetch('get','member/deleteReceiver',''
 
 export const addInvoiceTitle = (params) => $fetch('get','member/saveInvoice','',params);
 export const InvoiceTitleList = (params) => $fetch('get','member/listInvoice','',params);
-
+export const collectList = (params) => $fetch('get','search/getGroupFavoriteProducts','',params);
+export const updateInvoice = (params) => $fetch('get','member/updateInvoice','',params);
+export const getInvoiceDetailById = (params) => $fetch('get','member/getInvoiceById','',params);
+export const deleteInvoice = (params) => $fetch('get','member/deleteInvoice','',params);
+export const updateUserInfo = (params) => $fetch('get','member/updateMemberInfo','',params);
 
 
 

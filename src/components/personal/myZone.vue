@@ -50,15 +50,15 @@
             <img src="../../assets/img/notice@2x.png" alt>
             <p>消息中心</p>
           </li>
-          <li>
+          <li @click="goList()">
             <img src="../../assets/img/fapiao@2x.png" alt>
             <p>发票管理</p>
           </li>
-          <li>
+          <li @click="jumpUrl('addressList')">
             <img src="../../assets/img/address@2x.png" alt>
             <p>收货地址</p>
           </li>
-          <li>
+          <li @click="jumpUrl('updateUserInfo')">
             <img src="../../assets/img/infos@2x.png" alt>
             <p>信息管理</p>
           </li>
@@ -110,6 +110,9 @@ export default {
   methods: {
     jumpUrl(url) {
       this.$router.push("/" + url);
+    },
+    goList(){
+      this.$router.push({name:'invoiceList',params:{origin:'myZone'}});
     },
     getMycount: function() {
       let self = this;

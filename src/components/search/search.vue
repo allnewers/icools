@@ -65,20 +65,24 @@ export default {
       if (keywords == "") {
         keywords = this.tips;
       }
-      Indicator.open();//加载中....
-      search({ keyword: keywords,token:this.token,pageNum:1})
-        .then(res => {
-          let data = res.data.page.list;
-          this.$store.commit("changeSearchList", data);
-          Indicator.close();//数据加载完成，关闭加载中
-          this.$router.push({
-            name: "tuanList",
-            params: { keyword: keywords }
-          });
-        })
-        .catch(err => {
-          this.$toast('系统出错了哦~');
-        });
+      this.$router.push({
+        name: "tuanList",
+        params: { keyword: keywords }
+      });
+      // Indicator.open();//加载中....
+      // search({ keyword: keywords,token:this.token,pageNum:1})
+      //   .then(res => {
+      //     let data = res.data.page.list;
+      //     this.$store.commit("changeSearchList", data);
+      //     Indicator.close();//数据加载完成，关闭加载中
+      //     this.$router.push({
+      //       name: "tuanList",
+      //       params: { keyword: keywords }
+      //     });
+      //   })
+      //   .catch(err => {
+      //     this.$toast('系统出错了哦~');
+      //   });
     }
   }
 };

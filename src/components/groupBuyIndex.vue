@@ -68,6 +68,18 @@
       </div>
     </div>
     <div class="preload" v-if="!allshow"></div>
+    <div class="adv" v-show="tanchu" @touchmove.prevent>
+      <div class="content">
+        <h2>1000元新人礼</h2>
+        <h3>内含5张优惠券</h3>
+        <p>个人中心-优惠券 查看详情</p>
+        <div class="btn" @click="getDiscount">{{got?'去逛逛':'立刻领取'}}</div>
+        <div v-show="got" class="hadgot"></div>
+        <div class="closeAdv" @click="closeAdv">
+          <img src="../assets/img/ad-close.png" alt="">
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -113,7 +125,9 @@ export default {
           id: 2,
           image: navImg3
         }
-      ]
+      ],
+      got:false,
+      tanchu:true
     };
   },
   computed: {
@@ -126,6 +140,7 @@ export default {
   },
   mounted() {
     this.navBgChange();
+    this.$store.commit("changeNotice", false);
     Indicator.open();
     getIndexData()
       .then(res => {
@@ -135,6 +150,10 @@ export default {
         //this.load = false;
         this.faddish = data.faddish;
         this.newProduct = data.newProduct;
+        setTimeout(()=>{
+          this.tanchu = true;
+        },2000);
+        
         Indicator.close();
         this.allshow =true;
         if (this.faddish.length === 0) {
@@ -185,6 +204,16 @@ export default {
         this.$router.push("/" + urlCode);
       }
     },
+    closeAdv(){
+      this.tanchu = false;
+    },
+    getDiscount(){
+      if(this.token != null){
+
+      }else{
+        this.$router.push()
+      }
+    },
     navBgChange() {
       window.addEventListener("scroll", () => {
         let top =
@@ -204,6 +233,78 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang="less" scoped>
+.adv{
+  width: 100%;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: rgba(0,0,0,.4);
+  z-index: 1000;
+  .content{
+    width: 80%;
+    height: 70vh;
+    margin: 1rem auto;
+    background: url('../assets/img/adv.png') no-repeat 0 center;
+    background-size: 100%;
+    overflow: hidden;
+    text-align: center;
+    text-indent: .3rem;
+    position: relative;
+    h2{
+      margin-top: 3.6rem;
+      color: #fff;
+      font-size: .48rem;
+      font-weight: bold;
+    }
+    h3{
+      color: orange;
+      font-weight: 500;
+      line-height: .8rem;
+    }
+    p{
+      font-size: .22rem;
+      color:#fff;
+      font-weight: 300;
+    }
+    .btn{
+      color: #f0304a;
+      width: 60%;
+      height: .9rem;
+      text-align: center;
+      line-height: .8rem;
+      text-indent: 0;
+      background: url('../assets/img/btn-bg.png') no-repeat center;
+      margin: .6rem 0 0 1.4rem;
+      background-size: 100%;
+      position: relative;
+      z-index: 1002;
+    }
+    .hadgot{
+      width: 1.26rem;
+      height: 1.26rem;
+      position: absolute;
+      background: url('../assets/img/lingqu.png') no-repeat 6px center;
+      background-size: 100%;
+      left: 4rem;
+      bottom: 2.4rem;
+      z-index: 1001;
+    }
+    .closeAdv{
+      width: .6rem;
+      height: 1.3rem;
+      position: relative;
+      float: right;
+      left: -1rem;
+      top: .4rem;
+      img{
+        width: 100%;
+        position: relative;
+        z-index: -1;
+      }
+    }
+  }
+}
 .wraps .bgActive {
   background: rgba(0, 0, 0, 0.5);
 }

@@ -13,22 +13,22 @@
   </body>
   <script>
     //苹果禁止缩放
-    window.onload = function () {
-      document.documentElement.addEventListener('touchstart', function () {
-        if (event.touches.length > 1) {
-          event.preventDefault()
-        }
-      })
-      var lastTouchEnd = 0
-      document.documentElement.addEventListener('touchend', function () {
-        var now = (new Date()).getTime()
-        if (now - lastTouchEnd < 300) {
-          event.preventDefault()
-        }
-        lastTouchEnd = now
-      }, false)
-    }
-   
+    // window.onload = function () {
+    //   document.documentElement.addEventListener('touchstart', function () {
+    //     if (event.touches.length > 1) {
+    //       event.preventDefault()
+    //     }
+    //   })
+    //   var lastTouchEnd = 0
+    //   document.documentElement.addEventListener('touchend', function () {
+    //     var now = (new Date()).getTime()
+    //     if (now - lastTouchEnd < 300) {
+    //       event.preventDefault()
+    //     }
+    //     lastTouchEnd = now
+    //   }, false)
+    // }
+    
   </script>
   <!-- 引入组件库 -->
   <!-- <script src="https://unpkg.com/mint-ui/lib/index.js"></script> -->

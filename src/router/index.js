@@ -74,7 +74,12 @@ export default new Router({
       component:()=>import("@/components/order/invoiceTitle")
     },
     {
-      path:'/invoiceList',
+      path:'/invoiceDetail/:id',
+      name:'invoiceDetail',
+      component:()=>import("@/components/order/invoiceDetail")
+    },
+    {
+      path:'/invoiceList/:origin',
       name:'invoiceList',
       component:()=>import("@/components/order/invoiceList")
     },
@@ -102,6 +107,16 @@ export default new Router({
       path:'/myZone',
       name:'myZone',
       component:()=>import("@/components/personal/myZone")
+    },
+    {
+      path:'/updateUserInfo',
+      name:'updateUserInfo',
+      component:()=>import("@/components/personal/updateUserInfo")
+    },
+    {
+      path:'/aboutUs',
+      name:'aboutUs',
+      component:()=>import("@/components/personal/aboutUs")
     },
     {
       path:'/settings',

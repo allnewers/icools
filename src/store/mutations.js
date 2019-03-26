@@ -20,5 +20,8 @@ const mutations = {
   changeInvoiceTitle(state,newVal){
     state.invoiceTitle = newVal;
   },
+  setDeliveryType(state,newVal){
+    state.currentVal = newVal;
+  }
 }
 export default mutations;

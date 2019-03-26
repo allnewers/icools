@@ -34,7 +34,7 @@
           ref="loadmore"
         >
           <ul>
-            <li v-for="item in searchList" :key="item.id">
+            <li v-for="item in searchList" :key="item.id" @click="goDetail(item.sn)">
               <img v-lazy="imgBaseUrl+item.imag" alt>
               <h2>{{item.name}}</h2>
               <div class="prices clear">
@@ -70,6 +70,7 @@ import { mapState } from "vuex";
 import { search } from "../../api";
 import { getCookie,imgBaseUrl } from "../../util";
 import { Indicator } from "mint-ui";
+import { setTimeout } from 'timers';
 export default {
   name: "tuanList",
   data() {
@@ -84,7 +85,9 @@ export default {
       bottomStatus: "",
       scrollMode: "touch", //ios下loadmore和-webkit-overflow-scrolling：touch 属性冲突无法上拉问题
       reverse: false,
-      imgBaseUrl:imgBaseUrl
+      imgBaseUrl:imgBaseUrl,
+      searchList:[],
+      params:{}
     };
   },
   mounted() {
@@ -92,24 +95,56 @@ export default {
     this.tips = key;
     let token = getCookie("token");
     this.token = token;
+    this.params = {
+      keyword: this.tips, token: this.token, pageNum: this.currentPage 
+    };
     if (this.searchList.length == 0) {
       //解决vuex刷新，数据丢失
       Indicator.open();
-      this.firstPage({ keyword: key, token: token, pageNum: this.currentPage });
+      //console.log(this.params);
+      this.firstPage(this.params);
     }
   },
   computed: {
-    ...mapState(["searchList"])
+    //...mapState(["searchList"])
   },
   methods: {
     tab(index) {
+      // if(this.isActive == index){
+      //   return;
+      // }
       this.isActive = index;
+      if(index == 0){
+        this.initData('');//综合
+        Indicator.open();
+        this.firstPage(this.params);
+      }
+      if(index == 1){
+        this.initData('salesDesc');//销量降序
+        //console.log(this.params);
+        Indicator.open();
+        this.firstPage(this.params);
+      }
       if (index == 2) {
-        this.reverse = !this.reverse;
-        if(this.reverse){
+        //this.reverse = !this.reverse;
+        if(!this.reverse){
           this.isActive = '3';
+          this.params.orderType = 'priceAsc';//价格升序
+          Indicator.open();
+          //console.log(this.params);
+          this.firstPage(this.params);
+          setTimeout(()=>{
+            this.reverse = true;
+          },0)
         }else{
           this.isActive = index;
+          //this.initData('priceAsc');
+          this.params.orderType = 'priceDesc';//价格降序
+          Indicator.open();
+          this.firstPage(this.params);
+          setTimeout(()=>{
+            this.reverse = false;
+          },0)
         }
 
       }else{
@@ -130,17 +165,38 @@ export default {
         this.$refs.loadmore.onBottomLoaded(); //通知loadmore组件从新渲染，计算
       }
     },
+    initData(can){
+      this.currentPage = 1;
+      this.allLoaded = false;
+      this.searchList = [];//清除缓存
+      this.params.orderType = can;
+    },
+    goDetail(sn) {
+      this.$router.push({ name: "detail", params: { sn: sn } });
+    },
     firstPage(params) {
       search(params)
         .then(res => {
-          //console.info(res);
-          let data = res.data.page.list;
-          //alert(data.length)
-          if (data.length == 0) {
-            this.noData = true;
-          }
-          this.$store.commit("changeSearchList", data);
+          console.info(res);
           Indicator.close();
+          if (res.result === true) {
+            let data = res.data.page.list;
+            let lastPage = res.data.page.lastPage;//总共页数
+            //alert(data.length)
+            if (data.length == 0) {
+              this.noData = true;
+            }
+            if (lastPage <= this.currentPage) { 
+              this.allLoaded = true; //禁止上拉
+            } else{
+              this.allLoaded = false;
+            }
+            //this.$store.commit("changeSearchList", data);
+            this.searchList = data;
+          }else{
+            console.log(res.msg);
+          }
+          
         })
         .catch(err => {
           console.info(err);
@@ -149,22 +205,28 @@ export default {
     nextPage() {
       ++this.currentPage;
       //alert(this.currentPage)
-      search({
-        keyword: this.tips,
-        token: this.token, //记录 标签
-        pageNum: this.currentPage
-      })
+      search(this.params)
         .then(res => {
-          let data = res.data.page.list;
-          data.forEach(element => {
-            this.searchList.push(element);
-          });
-          if (data.length < 10) {
-            this.allLoaded = true;
-          } else if (data.length >= 10) {
-            this.allLoaded = false;
-          }
           Indicator.close(); //数据加载完成，关闭加载中
+          if (res.result === true) {
+            let data = res.data.page.list;
+            let lastPage = res.data.page.lastPage;
+            if (data.length == 0) {
+              this.noData = true;
+            }
+            data.forEach(element => {
+              this.searchList.push(element);
+            });
+            if (lastPage <= this.currentPage) { 
+              this.allLoaded = true; //禁止上拉
+            } else{
+              this.allLoaded = false;
+            }
+            
+          }else{
+            console.log(res.msg);
+          }
+
         })
         .catch(err => {
           this.$toast(err);

@@ -9,7 +9,8 @@ const state = {
     deliveryDate:'',
     deliveryTime:'',
   },
-  invoiceTitle:''
+  invoiceTitle:'',
+  currentVal: "", //配送方式 选中值
   
 }
 export default state;
