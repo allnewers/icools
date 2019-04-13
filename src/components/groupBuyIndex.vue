@@ -33,7 +33,7 @@
               <div class="prices clear">
                 <p class="price fl">
                   ￥{{item.groupPrice}}
-                  <span>￥{{item.price}}</span>
+                  <!-- <span>￥{{item.price}}</span> -->
                 </p>
                 <p class="num fr">{{item.number}}人拼</p>
               </div>
@@ -51,7 +51,7 @@
               <div class="prices clear">
                 <p class="price fl">
                   ￥{{item.groupPrice}}
-                  <span>￥{{item.price}}</span>
+                  <!-- <span>￥{{item.price}}</span> -->
                 </p>
                 <p class="num fr">{{item.number}}人拼</p>
               </div>
@@ -401,7 +401,6 @@ export default {
       }
       h2 {
         font-size: 0.26rem;
-        font-family: MicrosoftYaHei;
         font-weight: 400;
         color: rgba(51, 51, 51, 1);
         padding: 0.2rem 0.28rem;
@@ -414,7 +413,6 @@ export default {
     }
     .price {
       font-size: 0.3rem;
-      font-family: MicrosoftYaHei;
       font-weight: 500;
       color: rgba(255, 70, 70, 1);
       span {
@@ -434,7 +432,6 @@ export default {
       border: 1px solid rgba(255, 70, 70, 1);
       border-radius: 0.05rem;
       font-size: 0.2rem;
-      font-family: MicrosoftYaHei;
       font-weight: 400;
       color: rgba(255, 70, 70, 1);
       margin-top: 0.05rem;

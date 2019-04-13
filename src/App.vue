@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <transition :name="direction">
-      <keep-alive include="GBindex,collectList,notice">
+      <keep-alive include="GBindex,collectList,notice,awaitPay">
         <router-view/>
       </keep-alive>
     </transition>
@@ -13,6 +13,28 @@ export default {
   name: "App",
   mounted() {
     this.reset();
+    window.onload = function() {
+      document.documentElement.addEventListener("touchstart", function() {
+        if (event.touches.length > 1) {
+          event.preventDefault();
+        }
+      });
+      var lastTouchEnd = 0;
+      document.documentElement.addEventListener(
+        "touchend",
+        function() {
+          var now = new Date().getTime();
+          if (now - lastTouchEnd < 300) {
+            event.preventDefault();
+          }
+          lastTouchEnd = now;
+        },
+        false
+      );
+    };
+    document.addEventListener("gesturestart", function(event) {
+      event.preventDefault();
+    });
   },
   computed: {
     direction() {
@@ -22,7 +44,7 @@ export default {
       if (viewDir === "right") {
         tranName = "view-right";
       } else {
-        tranName = "fade";
+        //tranName = "fade";
       }
 
       return tranName;
@@ -115,7 +137,7 @@ export default {
       } else {
         this.$router.push("/" + urlCode);
       }
-    },
+    }
   }
 };
 </script>

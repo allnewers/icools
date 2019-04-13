@@ -34,7 +34,7 @@ export default new Router({
       component:()=>import("@/components/detail")
     },
     {
-      path:'/comments',
+      path:'/comments/:goodsId',
       name:'comments',
       component:()=>import("@/components/comments")
     },
@@ -44,14 +44,14 @@ export default new Router({
       component:()=>import("@/components/game")
     },
     {
-      path:'/order/:productId/:thumbnail/:sum/:title/:price',
+      path:'/order',
       name:'order',
       component:()=>import("@/components/order/order")
     },
     {
       path:'/payType',
       name:'payType',
-      component:()=>import("@/components/payType") 
+      component:()=>import("@/components/pay/payType") 
     },
     {
       path:'/orderinfos',
@@ -129,6 +129,21 @@ export default new Router({
       component:()=>import("@/components/personal/collectList")
     },
     {
+      path:'/couponList',
+      name:'couponList',
+      component:()=>import("@/components/personal/couponList")
+    },
+    {
+      path:'/awaitPay',
+      name:'awaitPay',
+      component:()=>import("@/components/pay/awaitPay")
+    },
+    {
+      path:'/payDetail/:origin/:sn',
+      name:'payDetail',
+      component:()=>import("@/components/pay/payDetail")
+    },
+    {
       path:'/feedback',
       name:'feedback',
       component:()=>import("@/components/personal/feedback")
@@ -142,6 +157,16 @@ export default new Router({
       path:'/deal',
       name:'deal',
       component:()=>import("@/components/personal/deal")
+    },
+    {
+      path:'/awaitshare',
+      name:'awaitshare',
+      component:()=>import("@/components/share/awaitshare")
+    },
+    {
+      path:'/payOver',
+      name:'payOver',
+      component:()=>import("@/components/pay/payOver")
     },
   ]
 })

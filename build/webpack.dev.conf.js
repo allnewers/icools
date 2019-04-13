@@ -22,6 +22,7 @@ const devWebpackConfig = merge(baseWebpackConfig, {
 
   // these devServer options should be customized in /config/index.js
   devServer: {
+    disableHostCheck: true,//跳过域名检查
     clientLogLevel: 'warning',
     historyApiFallback: {
       rewrites: [

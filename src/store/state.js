@@ -11,6 +11,6 @@ const state = {
   },
   invoiceTitle:'',
   currentVal: "", //配送方式 选中值
-  
+  imgUrl:''
 }
 export default state;

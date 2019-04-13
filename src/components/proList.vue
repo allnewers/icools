@@ -377,7 +377,7 @@ export default {
         color: rgba(51, 51, 51, 1);
         span {
           border-bottom: 1px solid #333;
-          padding: 0.1rem;
+          padding: 0.1rem .1rem .3rem;
         }
       }
     }

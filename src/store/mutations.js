@@ -22,6 +22,10 @@ const mutations = {
   },
   setDeliveryType(state,newVal){
     state.currentVal = newVal;
+  },
+  updateUserImg(state,newVal){
+    //console.log(newVal);
+    state.imgUrl = newVal
   }
 }
 export default mutations;

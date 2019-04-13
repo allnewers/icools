@@ -1,36 +1,70 @@
 <template>
   <div>
     <div class="money clear">
-      <div class="img fl"><img src="../assets/img/piao@2x.png" alt=""></div>
-      <div class="amount fl">¥6000.00</div>
+      <div class="img fl"><img src="../../assets/img/piao@2x.png" alt=""></div>
+      <div class="amount fl">¥{{price | returnFloat}}</div>
     </div>
-    <div class="bg-img"><img src="../assets/img/bgimg@2x.png" alt=""></div>
+    <div class="bg-img"><img src="../../assets/img/bgimg@2x.png" alt=""></div>
     <div class="paytype">
       <h3>支付方式</h3>
       <ul>
-        <li><input type="radio" value="weixin" v-model="values"><label for=""><img src="../assets/img/weixinpay.png" alt=""> 微信支付</label></li>
-        <li><input type="radio" value="ali" v-model="values"><label for=""><img src="../assets/img/alipay.png" alt=""> 支付宝支付</label></li>
+        <li><input type="radio" value="weixin" v-model="values"><label for=""><img src="../../assets/img/weixinpay.png" alt=""> 微信支付</label></li>
+        <li><input type="radio" value="ali" v-model="values"><label for=""><img src="../../assets/img/alipay.png" alt=""> 支付宝支付</label></li>
       </ul>
     </div>
-    <div class="pay" @click="pay">确认支付¥6000.00</div>
+    <div class="pay" @click="pay">确认支付 ¥{{price | returnFloat}}</div>
   </div>
 </template>
 <script>
+import { baseURL,payOrder } from '../../api'
+import { getCookie } from "../../util";
+import { Indicator } from "mint-ui";
 export default {
   name:'payType',
   data(){
     return {
-      values:''
+      values:'',
+      price:0,
+      sn:'',
+      token:'',
+      typeId:''
     }
   },
   mounted(){
-
+    // let params = this.$route.params;
+    // this.price = params.price;
+    // this.sn = params.sn;
+    let token = getCookie('token');
+    this.token = token;
+    
   },
   methods:{
     pay(){
-      this.$router.push('/orderInfos');
+      if(this.values == '') {this.$toast('请选择支付方式'); return false;}
+      if(this.values == 'ali'){
+        
+        this.typeId = 2;
+        window.location.href = baseURL + 'order/payOrderForH5?token='+this.token+'&sn='+this.sn+'&paymentMethodId='+this.typeId;
+      }else if(this.values == 'weixin'){
+        this.typeId = 1;
+        this.payApi();
+      }
+     
+      //this.$router.push('/orderInfos');
+    },
+    async payApi(){
+      Indicator.open();
+      let data = {
+        token:this.token,
+        sn:this.sn,
+        paymentMethodId:this.typeId//1-微信支付;2-支付宝支付
+      };
+      let res = await payOrder(data);
+      console.log(res);
+      
     }
-  }
+  },
+  
 }
 </script>
 <style lang="less" scoped>
@@ -84,7 +118,7 @@ export default {
         width: .52rem;
         height: .52rem;
         border-radius: 50%;
-        background: url('../assets/img/radio.png') no-repeat;
+        background: url('../../assets/img/radio.png') no-repeat;
         background-size: 100%;
         position:absolute;
         top: .23rem;
@@ -99,7 +133,7 @@ export default {
         z-index: 100;  
         &:checked+label::after{
           content: ' ';
-          background: url('../assets/img/dui.png') no-repeat;
+          background: url('../../assets/img/dui.png') no-repeat;
           background-size: 100%;
         }
       }

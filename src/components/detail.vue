@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div class="wrapper">
-      <div class="content" v-if="allshow">
+    <div class="wrapper" :style="{overflow:isScroll,height:limitH,position:pos,width:widths}">
+      <div class="content" v-if="allshow" >
         <div class="banner">
           <swiper :options="swiperOption1" ref="mySwiper">
             <swiper-slide v-for="(item,index) in detailBanner" :key="item.id">
@@ -64,7 +64,7 @@
         </div>
         <!-- 商品评价 -->
         <div class="comments">
-          <div class="top" @click="jumpUrl('comments')">
+          <div class="top" @click="goComments()">
             商品评价({{comments.length}})
             <span></span>
           </div>
@@ -133,7 +133,7 @@
       <transition name="slideUp">
         <div class="selectC" v-show="dialog">
           <Selects @closeD="closeDialog">
-            <div class="wrap">
+            <div class="wrap" >
               <div class="product-top clear">
                 <img class="fl" :src="'http://eicools.oss-cn-beijing.aliyuncs.com/'+ thumbnail" alt>
                 <div class="baseInfo fl">
@@ -221,7 +221,7 @@
                   </li>
                 </ul>
               </div>
-              <div class="g-top ziti">仅显示5个正在凑团的人</div>
+              <div class="g-top ziti">最多仅显示5个正在凑团的人</div>
             </div>
           </Selects>
         </div>
@@ -243,7 +243,7 @@ import {
   updateGroupPrice,
   updateSinglePrice
 } from "../api";
-import { getCookie } from "../util";
+import { getCookie,toTop,setCookie } from "../util";
 import { mapState, mapGetters } from "vuex";
 import CountDown from "vue2-countdown";
 import { Indicator } from "mint-ui";
@@ -274,7 +274,7 @@ export default {
       noRendered: false,
       detailAllData: "",
       comments: [],
-      goodsId: 1500,
+      goodsId: '',
       groupingNum: "", //正在拼团的 列表
       SpecificationInfo: [], //规格详情
       slideMore: false,
@@ -300,6 +300,10 @@ export default {
       thumbnail: "", //手机缩略图
       title: "",
       sn:'',
+      isScroll:'auto',
+      limitH:'auto',
+      pos:'initial',
+      widths:'100%'
     };
   },
   components: {
@@ -332,7 +336,7 @@ export default {
     }
   },
   mounted() {
-    this.toTop(); //进入详情页 到顶部显示
+    toTop(); //进入详情页 到顶部显示
     let sn = this.$route.params.sn;
     let token = getCookie("token");
     this.sn = sn;
@@ -352,7 +356,7 @@ export default {
         //alert(JSON.stringify(this.defaultSpecification));
         this.allSpecificationCombined = res.data.goodsSpecificationList;
         //this.moreSpecification = res.data.parameterList.slice(2);
-        //this.goodsId = res.data.id;
+        this.goodsId = res.data.id;
         this.$store.commit("changeDetailBanner", res.data.productImageVos);
         //console.log(this.detailBanner);
         this.thumbnail = this.detailBanner[0].listMedium; //初始化 规格选择 缩略图
@@ -379,6 +383,8 @@ export default {
           .catch(err => {});
         this.getNowchoice(); //默认选中的 规格 及商品id，title
         this.checkItem(); //初始化选中
+        setCookie('productId',this.productId,7);//cookie 存储商品id
+
       })
       .catch(err => {});
     // this.$nextTick(() => {
@@ -457,6 +463,7 @@ export default {
       this.dialog = true;
       this.buyType = type;
       this.refreshPrice();
+      setCookie('buyType',this.buyType,7);//cookie 存储 团购或单买
     },
     goBuyList(val) {
       //参与拼团列表 购买入口
@@ -470,6 +477,7 @@ export default {
     },
     refreshPrice() {
       if (this.buyType == "single") {
+        setCookie('sum',1,7);
         updateSinglePrice({ id: this.productId })
           .then(res => {
             if (res.result === true) {
@@ -485,6 +493,7 @@ export default {
           })
           .catch();
       } else {
+        setCookie('sum',1,7);
         updateGroupPrice({ id: this.productId })
           .then(res => {
             if (res.result === true) {
@@ -502,10 +511,12 @@ export default {
     },
     increase() {
       ++this.snum;
+      setCookie('sum',this.snum,7);//cookie 存储 购买的 商品数量
     },
     decrease() {
       if (this.snum > 1) {
         --this.snum;
+        setCookie('sum',this.snum,7);//cookie 存储 购买的 商品数量
       }
     },
     closeDialog(val) {
@@ -529,7 +540,8 @@ export default {
           thumbnail: this.thumbnail,
           sum: this.snum,
           title: this.title,
-          price: this.price
+          price: this.price,
+          buyType:this.buyType
         }
       });
       this.$store.commit("toggleDialog", false);
@@ -550,6 +562,9 @@ export default {
         index: index
       });
     },
+    goComments(){
+      this.$router.push({name:'comments',params:{goodsId:this.goodsId}});
+    },
     collect() {
       collectProduct({ token: this.token, productId: this.detailAllData.id })
         .then(res => {
@@ -561,18 +576,6 @@ export default {
     countDownE_cb() {
       //倒计时结束回调
       this.groupEnd = true;
-    },
-    toTop() {
-      if (
-        document.documentElement.scrollTop &&
-        document.documentElement.scrollTop > 0
-      ) {
-        document.documentElement.scrollTop = 0;
-      } else if (document.body.scrollTop && document.body.scrollTop > 0) {
-        document.body.scrollTop = 0;
-      } else {
-        window.pageYOffset = 0;
-      } //要做兼容 在模拟器能正常获取scrolltop在微信h5页面和手机的浏览器页面一直为0
     }
   },
   watch: {
@@ -590,6 +593,17 @@ export default {
     //   },
     //   deep: false
     // }
+    dialog(val){
+      if(val){
+        this.isScroll = 'hidden';
+        this.limitH = '100vh';
+        this.pos = 'fixed';
+      }else{
+        this.isScroll = 'auto';
+        this.limitH = 'auto';
+        this.pos = 'initial';
+      }
+    }
   }
 };
 </script>

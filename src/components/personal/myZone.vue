@@ -1,9 +1,10 @@
 <template>
-  <div class="wrap">
+  <div class="wrap" v-if="imgUrl">
     <div class="content" v-if="isLogin">
       <div class="header">
         <div class="user clear">
-          <img class="fl" src="../../assets/img/avatar@2x.png" alt>
+          <img class="fl" :src="imgUrl || userImg || defaultUserImg" alt>
+          <input type="file" accept="image/*" @change="uploadImg()">
           <p class="fl">{{username+'，'+hoursTip}}</p>
         </div>
 
@@ -21,13 +22,12 @@
             <span class="more">查看全部</span>
           </div>
         </div>
-
         <ul>
-          <li>
+          <li @click="jumpUrl('awaitPay')">
             <img src="../../assets/img/topay@2x.png" alt>
             <p>待付款</p>
           </li>
-          <li>
+          <li @click="jumpUrl('awaitshare')">
             <img src="../../assets/img/share@2x.png" alt>
             <p>待分享</p>
           </li>
@@ -62,11 +62,11 @@
             <img src="../../assets/img/infos@2x.png" alt>
             <p>信息管理</p>
           </li>
-          <li>
+          <!-- <li>
             <img src="../../assets/img/reset@2x.png" alt>
             <p>重置密码</p>
-          </li>
-          <li>
+          </li> -->
+          <li @click="jumpUrl('couponList')">
             <img src="../../assets/img/discount@2x.png" alt>
             <p>优惠券</p>
           </li>
@@ -81,19 +81,33 @@
 </template>
 <script>
 import { getCookie } from "../../util";
+import { updateAvatar ,getAvatar} from '../../api'
+import { mapActions,mapState } from 'vuex'
+import defaultUserImg from '../../assets/img/avatar@2x.png'
+import { Indicator } from "mint-ui";
 export default {
   name: "myZone",
   data() {
     return {
       isLogin: false,
       username: "ttt",
-      hoursTip: " "
+      hoursTip: " ",
+      token:'',
+      defaultUserImg:defaultUserImg,
+      userImg:''
     };
+  },
+  computed:{
+    ...mapState(['imgUrl'])
   },
   mounted() {
     let token = getCookie("token");
     let username = getCookie("username");
+    let imgUrl = getCookie('userAvatar');
+    this.token = token;
     this.username = username;
+    this.userImg = imgUrl;
+    
     if (token === null) {
       this.$toast({ message: "您尚未登录，请登录", duration: 1500 });
       setTimeout(() => {
@@ -104,13 +118,18 @@ export default {
       }, 1500);
     } else {
       this.isLogin = true;
+      if(this.imgUrl == ''){//刷新 vuex 'imgUrl'丢失，重新获取头像
+        this.getUserImg(this.token);
+      }
     }
     this.getMycount();
   },
   methods: {
+    ...mapActions(['uploadImg','getUserImg']),
     jumpUrl(url) {
       this.$router.push("/" + url);
     },
+    
     goList(){
       this.$router.push({name:'invoiceList',params:{origin:'myZone'}});
     },
@@ -136,15 +155,26 @@ export default {
   position: relative;
   .user {
     padding: 0.71rem 0.84rem;
+    position: relative;
     img {
       width: 1.2rem;
       height: 1.2rem;
+      border-radius: 50%;
     }
     p {
       color: #fff;
       line-height: 1.2rem;
       padding-left: 0.2rem;
       font-size: 0.28rem;
+    }
+    input{
+      position: absolute;
+      width: 1.2rem;
+      height: 1.2rem;
+      left: .84rem;
+      top: .71rem;
+      z-index: 100;
+      opacity: 0;
     }
   }
   .settings {

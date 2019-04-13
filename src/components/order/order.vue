@@ -21,13 +21,13 @@
         <div class="goods">
           <div class="tops clear">
             <div class="img fl">
-              <img :src="'http://eicools.oss-cn-beijing.aliyuncs.com/'+params.thumbnail" alt>
+              <img :src="imgBaseUrl+orderInfo.thumbnail" alt>
             </div>
             <div class="txt fl">
-              <p>{{params.title}}</p>
+              <p>{{orderInfo.fullName}}</p>
               <p>
-                <span>¥{{parseInt(params.price)}}</span>
-                ×{{params.sum}}
+                <span>¥{{parseInt(buyType == 'single'?orderInfo.price:orderInfo.groupPrice)}}</span>
+                ×{{sum}}
               </p>
             </div>
           </div>
@@ -160,21 +160,27 @@
   </div>
 </template>
 <script>
-import { getCookie } from "../../util";
-import { receiveAddress, InvoiceTitleList } from "../../api";
+import { getCookie,imgBaseUrl, setCookie } from "../../util";
+import { receiveAddress, InvoiceTitleList ,saveOrderGroup,saveOrderSingle,getOrderInfo} from "../../api";
 import { mapState } from "vuex";
 import { Indicator } from "mint-ui";
+import { prototype } from 'stream';
 export default {
   name: "order",
   data() {
     return {
-      snum: 1,
+      productId:'',
+      sum: 1,
+      price:0,
+      buyType:'',
+      imgBaseUrl:imgBaseUrl,
       dialog: false,
       tabBar: ["可用优惠券（1）", "不可用优惠券（2）"],
       isActive: "0",
       noUse: false,
       params: {},
       token: "",
+      orderInfo:{},
       noAdderss: false,
       hasAdderss: false,
       addressList: [],
@@ -191,38 +197,62 @@ export default {
       slots: [
         {
           flex: 1,
-          values: ["爱酷士配送", "顺丰配送"],
+          values: ["酷急送快递","顺丰快递",'到店自提'],
           textAlign: "center"
         }
       ],
-      
       timeList:['09:00-12:00','12:00-15:00','15:00-18:00','18:00-21:00']
     };
   },
   computed: {
     ...mapState(["addressIndex", "times", "invoiceTitle",'currentVal']),
     summary() {
-      let sum = parseInt(this.params.price) * parseInt(this.params.sum);
+      let price = this.buyType == 'single'?this.orderInfo.price:this.orderInfo.groupPrice;
+
+      let sum = parseInt(price) * parseInt(this.sum);
       return sum;
     },
     address() {
       let data = this.addressList[this.addressIndex];
       data = data ? data.areaName + data.address : "";
       return data;
+    },
+    addressId(){
+      return this.addressList[this.addressIndex]?this.addressList[this.addressIndex]['id']:'';
+    },
+    isInvoice(){
+      if(this.list[this.invoiceTitle]){
+        return true;
+      }else{
+        return false;
+      }
+    },
+    invoiceTitleCan(){
+      let val;
+      return val = this.list[this.invoiceTitle]?this.list[this.invoiceTitle].title:'';
+    },
+    invoiceNum(){
+      let val;
+       return val = this.list[this.invoiceTitle]?this.list[this.invoiceTitle].identifyNumber:'';
     }
   },
   mounted() {
-    let params = this.$route.params;
+    // let params = this.$route.params;
+    // this.params = params;
+    // console.log(params);
     let token = getCookie("token");
+    let productId = getCookie("productId");
+    let buyType = getCookie("buyType");
+    this.sum = getCookie("sum");
+    this.productId = productId;
+    this.buyType = buyType;
     //console.info(params);
-    this.params = params;
+    
     this.token = token;
     Indicator.open();
     receiveAddress({ token: this.token })
       .then(res => {
         //console.log(res);
-        Indicator.close();
-        this.showAll = true;
         if (res.result === false) {
           this.noAdderss = true;
         } else {
@@ -237,13 +267,29 @@ export default {
           }
           this.hasAdderss = true;
         }
+        getOrderInfo({
+          productId:this.productId
+        }).then(res=>{
+          
+          console.log(res);
+          this.showAll = true;
+          if(res.result === true){
+            this.orderInfo = res.data;
+          }else{
+            this.$toast(res.msg);
+          }
+          Indicator.close();
+        }).catch(err=>{
+          console.log(err);
+        });
+
       })
       .catch();
     InvoiceTitleList({
       token: this.token
     })
       .then(res => {
-        //console.log(res);
+        console.log(res);
         if (res.result === true) {
           this.list = res.data;
         } else {
@@ -251,13 +297,27 @@ export default {
         }
       })
       .catch();
+    
   },
   methods: {
     addAddress() {
       this.jumpUrl("addAddress");
     },
     submitOrder() {
-      this.jumpUrl("payType");
+      //let buyType = this.params.buyType;
+      if(this.addressId == ''){
+        this.$toast('请填写收货地址');
+        return;
+      }
+      Indicator.open();
+      //console.log(this.isInvoice,this.invoiceTitleCan,this.invoiceNum)
+      //单买 、团购分开 调接口
+      if(this.buyType === 'single'){//单买 保存订单接口
+        this.singleOrder();
+      }else if(this.buyType === 'group'){//团购 保存订单接口
+        this.tuanOrder();
+      }
+      
     },
     setInvoiceTitle() {
       let len = this.list.length;
@@ -266,6 +326,58 @@ export default {
       } else {
         this.jumpUrl("invoiceTitle");
       }
+    },
+    tuanOrder(){
+      saveOrderGroup({
+        token:this.token,
+        productId:this.productId,//商品id
+        quantity:this.sum,//商品数量
+        receiverId :this.addressId,//地址id
+        shippingMethodId:1,//配送方式id
+        isInvoice:this.isInvoice,//是否开发票
+        invoiceTitle:this.invoiceTitleCan,// 发票抬头
+        identifyNumber:this.invoiceNum,//发票税号,
+        memo:this.times.deliveryDate +' '+ this.times.deliveryTime,// 订单备注
+        couponCodeId:'',//优惠卷id
+        groupMethod:1,//
+      }).then(res=>{
+        Indicator.close();
+        console.log(res);
+        if(res.result === true){
+          //this.$router.push({ name: "payType", params: { sn: res.data,price:this.params.price } });
+          setCookie('orderSn',res.data);
+          this.$router.push('/payType');
+        }else{
+          this.$toast(res.msg);
+        }
+      }).catch();
+    },
+    singleOrder(){
+      saveOrderSingle({
+        token:this.token,
+        productId:this.productId,//商品id
+        quantity:this.sum,//商品数量
+        receiverId :this.addressId,//地址id
+        shippingMethodId:1,//配送方式id
+        paymentMethodId:1,
+        isInvoice:this.isInvoice,//是否开发票
+        invoiceTitle:this.invoiceTitleCan,// 发票抬头
+        identifyNumber:this.invoiceNum,//发票税号,
+        memo:this.times.deliveryDate +' '+ this.times.deliveryTime,// 订单备注
+        couponCodeId:'',//优惠卷id
+      }).then(res=>{
+        Indicator.close();
+        console.log(res);
+        if(res.result === true){
+          //this.$router.push({ name: "payType", params: { sn: res.data,price:this.params.price } });
+          setCookie('orderSn',res.data);
+          this.$router.push('/payType');
+        }else{
+          this.$toast(res.msg);
+        }
+      }).catch(err=>{
+          
+      });
     },
     discount() {
       this.dialog = true;
@@ -331,8 +443,8 @@ export default {
         if (weekNumArr[i] >= 7) {
           weekNumArr[i] = weekNumArr[i] - 7;
         }
-        monthArr[i] = monthArr[i] > 10 ? monthArr[i] : "0" + monthArr[i];
-        dayArr[i] = dayArr[i] > 10 ? dayArr[i] : "0" + dayArr[i];
+        monthArr[i] = monthArr[i] >= 10 ? monthArr[i] : "0" + monthArr[i];
+        dayArr[i] = dayArr[i] >= 10 ? dayArr[i] : "0" + dayArr[i];
         weekWordArr[i] = week[weekNumArr[i]];
         if (i == 0) weekWordArr[0] = "[今天]";
         needArr[i] = monthArr[i] + "月" + dayArr[i] + "日" + weekWordArr[i];

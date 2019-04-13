@@ -29,7 +29,8 @@ import md5 from "js-md5";
 import { sendLoginCode, signIn } from "../../api";
 import Qs from "qs";
 import { setInterval, clearInterval, setTimeout } from "timers";
-import { setCookie,CookieEnable } from "../../util";
+import { setCookie,CookieEnable,getCookie } from "../../util";
+import { mapActions } from 'vuex'
 export default {
   name: "phonelogin",
   data() {
@@ -67,6 +68,7 @@ export default {
 
   },
   methods: {
+    ...mapActions(['getUserImg']),
     changeBg(){
       if(this.formData.mobile != '' && this.loginData.code !=''){
         this.islogin = true;
@@ -110,6 +112,7 @@ export default {
         .then(res => {
           console.log(res);
           let result = res.result;
+          let token;
           //设置cookie
           // document.cookie = `token=${escape(res.data.token)};`
           if(!CookieEnable()){
@@ -121,6 +124,7 @@ export default {
           setCookie('nickname',res.data.name,7);
           setCookie('isUpdate',res.data.isUpdate,7);
           setCookie('gender',res.data.gender,7);
+         // setCookie('userAvatar',res.data.imgUrl,7);
           this.alerts(res.msg,()=>{
             setTimeout(()=>{
               if(result===true){ 

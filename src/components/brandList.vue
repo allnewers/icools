@@ -74,7 +74,7 @@ export default {
       bottomStatus: "",
       thirdNavList: [],
       productList: [],
-      currentPage: 2,
+      currentPage: 1,
       imgBaseUrl:imgBaseUrl,
       swiperOption: {
         // autoplay: {
@@ -108,7 +108,7 @@ export default {
       this.d3 = id3;
       this.noData = false;
       this.allLoaded = false;
-      this.currentPage = 2;
+      this.currentPage = 1;
       this.firstPage();
     },
     handleBottomChange(status) {
@@ -130,9 +130,15 @@ export default {
           //console.log(res);
           if (res.result === true) {
             let data = res.data.page.list;
+            let lastPage = res.data.page.lastPage;//总共页数
             this.productList = res.data.page.list;
             if (data.length == 0) {
               this.noData = true;
+            }
+            if (lastPage <= this.currentPage) { 
+              this.allLoaded = true; //禁止上拉
+            } else{
+              this.allLoaded = false;
             }
             Indicator.close();
           } else {
@@ -145,6 +151,7 @@ export default {
     },
     nextPage() {
       //alert(this.currentPage);
+      ++this.currentPage;
       search({
         id1: this.d1,
         id2: this.d2,
@@ -156,15 +163,16 @@ export default {
           if (res.result === true) {
             let data = res.data.page.list;
             this.productList = res.data.page.list;
+            let lastPage = res.data.page.lastPage;
             data.forEach(element => {
               this.productList.push(element);
             });
-            if (data.length < 10) {
+            if (lastPage <= this.currentPage) {
               this.allLoaded = true;
-            } else if (data.length >= 10) {
+            } {
               this.allLoaded = false;
             }
-            ++this.currentPage;
+            
             Indicator.close(); //数据加载完成，关闭加载中
           } else {
             console.log(res.msg);
@@ -212,7 +220,7 @@ export default {
     line-height: 0.7rem;
     color: #666;
     font-size: 0.28rem;
-    padding: 0.05rem 0.1rem;
+    padding: 0.05rem 0.1rem .16rem;
     &.actives {
       border-bottom: 1px solid #333;
       color: #333;

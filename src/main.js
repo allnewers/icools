@@ -14,6 +14,9 @@ import 'babel-polyfill'
 import { Toast,Lazyload,InfiniteScroll,Spinner ,Picker ,Popup,Indicator} from 'mint-ui'
 import VueImageSwipe from 'vue-image-swipe'
 import 'vue-image-swipe/dist/vue-image-swipe.css'
+import clipboard from 'clipboard';
+//注册到vue原型上
+Vue.prototype.clipboard = clipboard;
 Vue.use(VueImageSwipe)
 Vue.component(Toast.name, Toast);
 Vue.component(Spinner.name, Spinner);

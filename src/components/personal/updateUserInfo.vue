@@ -23,7 +23,7 @@
         <mt-picker :slots="genderslots" ref="picker1" :show-toolbar="true">
           <p class="mint-picker-top">请选择性别</p>
         </mt-picker>
-        <button class="confirm" @click="setgenderVal">确定</button>
+        <button class="confirm userEdit" @click="setgenderVal">确定</button>
     </mt-popup>
   </div>
 </template>
@@ -113,6 +113,9 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.userEdit{
+  margin: .5rem auto 0;
+}
 input:disabled{
   -webkit-text-fill-color: #999;
   opacity: 1;
