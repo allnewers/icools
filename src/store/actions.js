@@ -1,4 +1,4 @@
-import { compress, dataURItoBlob, getCookie ,setCookie} from '../util'
+import { compress, dataURItoBlob, getCookie } from '../util'
 import { updateAvatar,getAvatar,baseURL } from '../api'
 import { Indicator } from "mint-ui";
 import axios from 'axios'

@@ -16,7 +16,7 @@
   </div>
 </template>
 <script>
-import { baseURL,payOrder } from '../../api'
+import { baseURL,payOrder,getOrderPrice } from '../../api'
 import { getCookie } from "../../util";
 import { Indicator } from "mint-ui";
 export default {
@@ -35,8 +35,22 @@ export default {
     // this.price = params.price;
     // this.sn = params.sn;
     let token = getCookie('token');
+    let sn = getCookie('orderSn');
+    this.sn = sn;
     this.token = token;
-    
+    Indicator.open();
+    getOrderPrice({
+      token:this.token,
+      sn:this.sn
+    }).then(res=>{
+      console.log(res);
+      if(res.result === true){
+        Indicator.close();
+        this.price = res.data;
+      }else{
+        this.$toast(res.msg);
+      }
+    }).catch();
   },
   methods:{
     pay(){
@@ -61,7 +75,11 @@ export default {
       };
       let res = await payOrder(data);
       console.log(res);
-      
+      if(res.result === true){
+        window.location.href = res.data.mweb_url;
+      }else{
+        this.$toast(res.msg);
+      }   
     }
   },
   

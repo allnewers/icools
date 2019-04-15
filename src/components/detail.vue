@@ -118,11 +118,11 @@
               <p>收藏</p>
             </li>
             <li @click="goBuy(detailAllData.price,'single')">
-              <p>¥{{detailAllData.price | toFixed}}</p>
+              <p>¥{{detailAllData.price | returnFloat}}</p>
               <div>单买</div>
             </li>
             <li @click="goBuy(detailAllData.groupPrice,'group')">
-              <p>¥{{detailAllData.groupPrice | toFixed}}</p>
+              <p>¥{{detailAllData.groupPrice | returnFloat}}</p>
               <div>一键开团</div>
             </li>
           </ul>
@@ -139,8 +139,8 @@
                 <div class="baseInfo fl">
                   <h2>{{detailAllData.name}}</h2>
                   <!-- <div class="balance">库存100件</div> -->
-                  <p class="price" v-if="parseInt(price)">¥{{price | toFixed}}</p>
-                  <p class="price" v-else>{{price}}</p>
+                  <p class="price" v-if="parseFloat(price)">¥{{price | returnFloat}}</p>
+                  <p class="price" v-else>{{price | returnFloat}}</p>
                 </div>
               </div>
               <div class="rules wrapper" ref="wrapper">

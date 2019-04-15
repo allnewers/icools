@@ -26,7 +26,7 @@
             <div class="txt fl">
               <p>{{orderInfo.fullName}}</p>
               <p>
-                <span>¥{{parseInt(buyType == 'single'?orderInfo.price:orderInfo.groupPrice)}}</span>
+                <span>¥{{buyType == 'single'?orderInfo.price:orderInfo.groupPrice | returnFloat}}</span>
                 ×{{sum}}
               </p>
             </div>
@@ -50,7 +50,7 @@
             </li>
             <li>
               <span>商品金额</span>
-              <span class="red">¥{{summary}}</span>
+              <span class="red">¥{{summary | returnFloat}}</span>
             </li>
             <!-- <li>
             <span>数量</span>
@@ -62,7 +62,7 @@
             </li>-->
             <li>
               <span>运费</span>
-              <span class="red">¥0</span>
+              <span class="red">¥0.00</span>
             </li>
           </ul>
         </div>
@@ -72,7 +72,7 @@
         <div class="summary">
           共
           <span>{{params.sum}}</span>件，合计：
-          <i>¥{{summary}}</i>
+          <i>¥{{summary | returnFloat}}</i>
         </div>
         <div class="submit" @click="submitOrder">提交订单</div>
       </div>
@@ -209,7 +209,7 @@ export default {
     summary() {
       let price = this.buyType == 'single'?this.orderInfo.price:this.orderInfo.groupPrice;
 
-      let sum = parseInt(price) * parseInt(this.sum);
+      let sum = parseFloat(price) * parseFloat(this.sum);
       return sum;
     },
     address() {
@@ -345,7 +345,7 @@ export default {
         console.log(res);
         if(res.result === true){
           //this.$router.push({ name: "payType", params: { sn: res.data,price:this.params.price } });
-          setCookie('orderSn',res.data);
+          setCookie('orderSn',res.data,7);
           this.$router.push('/payType');
         }else{
           this.$toast(res.msg);
@@ -370,7 +370,7 @@ export default {
         console.log(res);
         if(res.result === true){
           //this.$router.push({ name: "payType", params: { sn: res.data,price:this.params.price } });
-          setCookie('orderSn',res.data);
+          setCookie('orderSn',res.data,7);
           this.$router.push('/payType');
         }else{
           this.$toast(res.msg);

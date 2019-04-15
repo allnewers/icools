@@ -1,5 +1,5 @@
 <template>
-  <div class="wrap" v-if="imgUrl">
+  <div class="wrap">
     <div class="content" v-if="isLogin">
       <div class="header">
         <div class="user clear">
@@ -94,7 +94,8 @@ export default {
       hoursTip: " ",
       token:'',
       defaultUserImg:defaultUserImg,
-      userImg:''
+      userImg:'',
+
     };
   },
   computed:{

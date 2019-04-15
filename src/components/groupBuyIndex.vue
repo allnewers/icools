@@ -127,7 +127,7 @@ export default {
         }
       ],
       got:false,
-      tanchu:true
+      tanchu:false
     };
   },
   computed: {
@@ -150,9 +150,9 @@ export default {
         //this.load = false;
         this.faddish = data.faddish;
         this.newProduct = data.newProduct;
-        setTimeout(()=>{
-          this.tanchu = true;
-        },2000);
+        // setTimeout(()=>{//弹窗
+        //   this.tanchu = true;
+        // },2000);
         
         Indicator.close();
         this.allshow =true;

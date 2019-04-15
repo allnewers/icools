@@ -3,11 +3,12 @@ import { getCookie } from "../util";
 import qs from 'qs'
 //Axios.defaults.baseURL = 'http://192.168.0.200:9898/';
 let instance = Axios.create({
-  baseURL: 'http://192.168.0.200:9898/',
+  baseURL: 'http://192.168.0.200:9898/',//内部服务器
   //baseURL:'http://2443934eq9.qicp.vip:29031/'
+  //baseURL:'http://tuan.eicools.com:9898/'
 });
 //let baseURLs='http://192.168.0.200:9898/';
-let baseURLs='http://2443934eq9.qicp.vip:29031/';//付永花生壳
+//let baseURLs='http://2443934eq9.qicp.vip:29031/';//付永花生壳
 //let baseURLs = 'http://eic.natapp1.cc/';
 function $fetch(method, url, data, params) {
   return new Promise((reslove, reject) => {
@@ -48,6 +49,7 @@ function $axiosPost(url, data) {
 
 }
 export const baseURL = 'http://192.168.0.200:9898/';
+//export const baseURL = 'http://tuan.eicools.com:9898/'
 export const getIndexData = () => $fetch('get', 'homePage/details');
 export const sendLoginCode = (params) => $fetch('get', 'sms/sendSms', '', params);
 export const signIn = (params) => $fetch('get', 'mobileLogin', '', params);
@@ -86,11 +88,13 @@ export const getCommentList = (params) => $fetch('get', 'product/listReview', ''
 export const awaitXX = (params) => $fetch('get', 'order/listGroupOrder', '', params);
 export const orderDetail = (params) => $fetch('get', 'order/viewOrder', '', params);
 export const getAvatar = (params) => $fetch('get', 'member/getMemberInfo', '', params);
-export const updateAvatar = (data) => $fetch('post', 'member/updateMemberImage', data, '');
+export const updateAvatar = (data) => $axiosPost(baseURL+'member/updateMemberImage', data);
 
 //export const payOrder = (data) => $axiosPost(baseURLs+'order/payOrderForH5', data);
 
 export const payOrder = (data) => $fetch('post','order/payOrderForH5',data);
+export const getOrderPrice = (params) => $fetch('get', 'order/orderPrice', '', params);
+
 
 
 

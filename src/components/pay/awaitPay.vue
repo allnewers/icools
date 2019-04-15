@@ -161,6 +161,9 @@ export default {
 };
 </script>
 <style lang="less" scoped>
+.nomore{
+  margin-top: .2rem;
+}
 .payList {
   height: 100vh;
   overflow: scroll;
