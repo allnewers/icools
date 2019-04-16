@@ -94,6 +94,7 @@ export const updateAvatar = (data) => $axiosPost(baseURL+'member/updateMemberIma
 
 export const payOrder = (data) => $fetch('post','order/payOrderForH5',data);
 export const getOrderPrice = (params) => $fetch('get', 'order/orderPrice', '', params);
+export const checkOrderPayStatus = (data) => $fetch('post','order/checkPayment',data);
 
 
 

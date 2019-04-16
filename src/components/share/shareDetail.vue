@@ -81,17 +81,17 @@
     <div class="blank" style="height:1.5rem;"></div>
     <div class="fun-btn">
       <button class="cancel" @click="cancelOrder">取消订单</button>
-      <button class="toPay" @click="pay">付款</button>
+      <button class="toPay" v-clipboard:copy="copyUrl" v-clipboard:error="onError" v-clipboard:success="onCopy" @click="share(sn)">分享出去</button>
     </div>
   </div>
 </template>
 <script>
 import { MessageBox } from "mint-ui";
 import { orderDetail } from '../../api'
-import { getCookie,imgBaseUrl,toTop,setCookie } from "../../util";
+import { getCookie,imgBaseUrl,toTop,setCookie,isWeixin } from "../../util";
 import { Indicator } from "mint-ui";
 export default {
-  name: "payDetail",
+  name: "shareDetail",
   data() {
     return {
       values: "",
@@ -100,7 +100,8 @@ export default {
       allData:'',
       info:'',
       imgBaseUrl:imgBaseUrl,
-      comeData:false
+      comeData:false,
+      copyUrl:''
     };
   },
   mounted(){
@@ -137,7 +138,7 @@ export default {
       });
     },
     cancelOrder(){
-      MessageBox.alert("保存订单后，1小时之内未付款，将自动取消订单", "暂时无法取消订单");
+      MessageBox.alert("发起拼单24小时后，若拼单未成功将自动取消 并退款哦", "暂时无法取消订单");
     },
     pay(){
       // if(this.values == ''){
@@ -150,6 +151,19 @@ export default {
       // }
       setCookie('orderSn',this.sn);
       this.$router.push('/payType');
+    },
+    share(sn) {
+      let browser = isWeixin();
+      let shareBaseUrl = window.location.href.split('#')[0];
+      if(!browser){
+        this.copyUrl = shareBaseUrl + '#/detail/' + sn;
+      }
+    },
+    onCopy(){
+      this.$toast('链接已复制，发给好友一起拼团吧~');
+    },
+    onError(){
+       console.log('复制链接失败');
     } 
   }
 };
@@ -176,10 +190,10 @@ export default {
     padding-left: 0.3rem;
   }
   &.await {
-    background: #fff4ea;
-    color: #ff7f01;
+    background: #FFF5F5;
+    color: #F24848;
     i {
-      background: #ff7f01;
+      background: #F24848;
     }
   }
 }

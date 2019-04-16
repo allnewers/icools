@@ -31,11 +31,11 @@
             <img src="../../assets/img/share@2x.png" alt>
             <p>待分享</p>
           </li>
-          <li>
+          <li @click="jumpUrl('awaitReceive')">
             <img src="../../assets/img/shouhuo@2x.png" alt>
             <p>待收货</p>
           </li>
-          <li>
+          <li @click="jumpUrl('awaitComment')">
             <img src="../../assets/img/comment@2x.png" alt>
             <p>待评价</p>
           </li>
@@ -66,10 +66,10 @@
             <img src="../../assets/img/reset@2x.png" alt>
             <p>重置密码</p>
           </li> -->
-          <li @click="jumpUrl('couponList')">
+          <!-- <li @click="jumpUrl('couponList')">
             <img src="../../assets/img/discount@2x.png" alt>
             <p>优惠券</p>
-          </li>
+          </li> -->
           <li @click="jumpUrl('collectList')">
             <img src="../../assets/img/collect@2x.png" alt>
             <p>商品收藏</p>

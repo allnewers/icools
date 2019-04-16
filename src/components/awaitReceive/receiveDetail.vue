@@ -4,14 +4,14 @@
       <i>!</i>
       <span>{{allData.typeName}}</span>
     </div>
-    <div class="address">
+    <!-- <div class="address">
       <h3>收货地址</h3>
       <div class="nameTel">
         <span>{{allData.consignee}}</span>
         <span>{{allData.phone}}</span>
       </div>
       <p class="words">{{allData.areaName}}{{allData.address}}</p>
-    </div>
+    </div> -->
     <div class="order-info">
       <div class="brief clear">
         <div class="thumbnail fl">
@@ -80,18 +80,18 @@
     </div>
     <div class="blank" style="height:1.5rem;"></div>
     <div class="fun-btn">
-      <button class="cancel" @click="cancelOrder">取消订单</button>
-      <button class="toPay" @click="pay">付款</button>
+      <button class="cancel" @click="cancelOrder">提醒发货</button>
+      <button class="toPay" @click="toConfirm">确认收货</button>
     </div>
   </div>
 </template>
 <script>
 import { MessageBox } from "mint-ui";
 import { orderDetail } from '../../api'
-import { getCookie,imgBaseUrl,toTop,setCookie } from "../../util";
+import { getCookie,imgBaseUrl,toTop,setCookie,isWeixin } from "../../util";
 import { Indicator } from "mint-ui";
 export default {
-  name: "payDetail",
+  name: "receiveDetail",
   data() {
     return {
       values: "",
@@ -100,7 +100,8 @@ export default {
       allData:'',
       info:'',
       imgBaseUrl:imgBaseUrl,
-      comeData:false
+      comeData:false,
+      copyUrl:''
     };
   },
   mounted(){
@@ -137,20 +138,14 @@ export default {
       });
     },
     cancelOrder(){
-      MessageBox.alert("保存订单后，1小时之内未付款，将自动取消订单", "暂时无法取消订单");
+      this.$toast('已提醒发货！');
     },
-    pay(){
-      // if(this.values == ''){
-      //   this.$toast('请选择支付方式');
-      // }
-      // if(this.values === 'weixin'){
-      //   this.$toast('weixin');
-      // }else if(this.values === 'ali'){
-      //   this.$toast('ali');
-      // }
-      setCookie('orderSn',this.sn);
-      this.$router.push('/payType');
-    } 
+    
+    toConfirm(){
+       MessageBox.confirm("确定已收货?", "温馨提示").then(res=>{
+         
+       }).catch(err=>{})
+    }
   }
 };
 </script>
@@ -176,10 +171,10 @@ export default {
     padding-left: 0.3rem;
   }
   &.await {
-    background: #fff4ea;
-    color: #ff7f01;
+    background: #FFF5F5;
+    color: #F24848;
     i {
-      background: #ff7f01;
+      background: #F24848;
     }
   }
 }

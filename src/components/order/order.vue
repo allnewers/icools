@@ -160,7 +160,7 @@
   </div>
 </template>
 <script>
-import { getCookie,imgBaseUrl, setCookie } from "../../util";
+import { getCookie,imgBaseUrl, setCookie,delCookie } from "../../util";
 import { receiveAddress, InvoiceTitleList ,saveOrderGroup,saveOrderSingle,getOrderInfo} from "../../api";
 import { mapState } from "vuex";
 import { Indicator } from "mint-ui";
@@ -305,6 +305,7 @@ export default {
     },
     submitOrder() {
       //let buyType = this.params.buyType;
+      delCookie('isPay');
       if(this.addressId == ''){
         this.$toast('请填写收货地址');
         return;

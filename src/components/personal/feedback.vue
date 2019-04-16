@@ -31,6 +31,7 @@ export default {
   mounted() {
     let browername = getBrowser();
     let self = this;   
+    //alert(browername)
     if (browername == 'safari') {
       this.$refs.text.addEventListener("blur", self.trigger, false);
     } else{

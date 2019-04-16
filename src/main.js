@@ -15,6 +15,9 @@ import { Toast,Lazyload,InfiniteScroll,Spinner ,Picker ,Popup,Indicator} from 'm
 import VueImageSwipe from 'vue-image-swipe'
 import 'vue-image-swipe/dist/vue-image-swipe.css'
 import clipboard from 'clipboard';
+import VueClipboard from 'vue-clipboard2'
+ 
+Vue.use(VueClipboard)
 //注册到vue原型上
 Vue.prototype.clipboard = clipboard;
 Vue.use(VueImageSwipe)

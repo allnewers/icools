@@ -13,11 +13,18 @@
       </ul>
     </div>
     <div class="pay" @click="pay">确认支付 ¥{{price | returnFloat}}</div>
+    <mt-popup v-model="popupVisible" position="center" :closeOnClickModal="false">
+      <div class="status-guide">
+        <h3>请确认微信支付是否完成</h3>
+        <p @click="getPayStatus">已完成支付</p>
+        <p @click="againPay">支付遇到问题，重新支付</p>
+      </div>
+    </mt-popup>
   </div>
 </template>
 <script>
-import { baseURL,payOrder,getOrderPrice } from '../../api'
-import { getCookie } from "../../util";
+import { baseURL,payOrder,getOrderPrice,checkOrderPayStatus } from '../../api'
+import { getCookie,setCookie,delCookie } from "../../util";
 import { Indicator } from "mint-ui";
 export default {
   name:'payType',
@@ -27,18 +34,25 @@ export default {
       price:0,
       sn:'',
       token:'',
-      typeId:''
+      typeId:'',
+      popupVisible:false
     }
   },
   mounted(){
     // let params = this.$route.params;
     // this.price = params.price;
     // this.sn = params.sn;
+    
+    let isPay = getCookie('isPay');
     let token = getCookie('token');
     let sn = getCookie('orderSn');
     this.sn = sn;
     this.token = token;
+    if(isPay && isPay === 'true'){
+      this.popupVisible = true;
+    }
     Indicator.open();
+    //alert(this.token);
     getOrderPrice({
       token:this.token,
       sn:this.sn
@@ -77,15 +91,41 @@ export default {
       console.log(res);
       if(res.result === true){
         window.location.href = res.data.mweb_url;
+        Indicator.close();
+        setCookie('isPay','true',7);
       }else{
         this.$toast(res.msg);
       }   
-    }
+    },
+    async getPayStatus(){
+      let res =await checkOrderPayStatus({
+        token:this.token,
+        os:'h5',
+        sn:this.sn
+      });
+      //alert(JSON.stringify(res));
+      if(res.result === true){
+        delCookie('isPay');
+        this.$router.push('/payOver');
+      }else{
+        delCookie('isPay'); 
+        this.$toast('您尚未完成支付！');
+      }
+    },
+    againPay(){
+      this.popupVisible = false;
+      delCookie('isPay'); 
+      location.reload();
+    },
   },
   
 }
 </script>
 <style lang="less" scoped>
+.mint-popup{
+  border-radius: 4px;
+  width: 80%;
+}
 .money{
   background: #fff;
   padding: .28rem;
@@ -169,6 +209,30 @@ export default {
   background: #333;
   color:#fff;
   border-radius: 4px;
+}
+.status-guide{
+  border-radius: 4px;
+  text-align: center;
+  h3{
+    font-size: .26rem;
+    font-weight: 400;
+    line-height: 1rem;
+    border-bottom: 1px solid #f0f0f0;
+    padding: 0 .4rem;
+    color: #333;
+  }
+  p{
+    padding: 0 .4rem;
+    font-size: .26rem;
+    line-height: .8rem;
+    border-bottom: 1px solid #f0f0f0;
+    color: #f24848;
+    cursor: pointer;
+    &:last-child{
+      border: none;
+      color: #999;
+    }
+  }
 }
 </style>
 

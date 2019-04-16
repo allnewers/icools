@@ -1,6 +1,7 @@
 <template>
   <div>
-    <div class="payList" :style="{'-webkit-overflow-scrolling': scrollMode}">
+    <div>
+    <div class="awaitreceive" :style="{'-webkit-overflow-scrolling': scrollMode}">
       
         <mt-loadmore
           v-if="!showNoData"
@@ -30,8 +31,8 @@
                 </div>
               </div>
               <div class="fun-btn">
-                <button class="cancel" @click="cancelOrder">取消订单</button>
-                <button class="toPay" @click="pay(item.sn)">去支付</button>
+                <button class="cancel" @click="seeDetail(item.sn)">查看详情</button>
+                <button class="toPay" @click="toConfirm(item.sn)">确认收货</button>
               </div>
             </li>
           </ul>
@@ -52,14 +53,17 @@
       </div>
    
   </div>
+  </div>
 </template>
 <script>
+import wx from "weixin-js-sdk";
+import axios from "axios";
 import { MessageBox } from "mint-ui";
 import { awaitXX } from "../../api";
-import { getCookie, imgBaseUrl } from "../../util";
+import { getCookie, imgBaseUrl,isWeixin } from "../../util";
 import { Indicator } from "mint-ui";
 export default {
-  name: "awaitPay",
+  name: "awaitReceive",
   data() {
     return {
       token: "",
@@ -69,21 +73,82 @@ export default {
       allLoaded:false,
       showNoData:false,
       scrollMode:'touch',
-      currentPage:1
+      currentPage:1,
+      copyUrl:''
     };
   },
-  
   mounted() {
+    // axios.get('http://192.168.0.103:9898/share/wx',{
+    //   params: {
+    //     url: 'http://24b39x8901.qicp.vip:10989/#/awaitshare'
+    //   }
+    // }).then(res=>{
+    //   console.log(res);
+    // }).catch(err=>{
+    //   console.log(err);
+    // });
     let token = getCookie("token");
     this.token = token;
     this.initData();
+    //this.init();
   },
   methods: {
+    cancelOrder() {},
+    invite() {},
+    async init() {
+      let _this = this;
+      let url = encodeURIComponent(window.location.href.split('#')[0]);
+      // let data = await axios.get("http://192.168.0.103:9898/share/wx", {
+      //   params: {
+      //     url: url
+      //   }
+      // });
+      //console.log(data, data.data.appId,data.data.noncestr);
+
+      wx.config({
+        debug: true,
+        appId: data.data.appId, // 和获取Ticke的必须一样------必填，公众号的唯一标识
+        timestamp: data.data.timestamp, // 必填，生成签名的时间戳
+        nonceStr: data.data.noncestr, // 必填，生成签名的随机串
+        signature: data.data.signature, // 必填，签名，见附录1
+        //需要分享的列表项:发送给朋友，分享到朋友圈，分享到QQ，分享到QQ空间
+        jsApiList: [
+          "onMenuShareAppMessage",
+          //"onMenuShareTimeline",
+          //"onMenuShareQQ",
+          //"onMenuShareQZone"
+        ]
+      });
+      //处理验证失败的信息
+      wx.error(function(res) {
+        _this.$toast("验证失败返回的信息:", res);
+      });
+      wx.ready(function() {
+        //分享给朋友
+        wx.onMenuShareAppMessage({
+          title: "_this.newDetailObj.title", // 分享标题
+          desc: "_this.desc", // 分享描述
+          link: window.location.href.split("#")[0], // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
+          imgUrl: "", // 分享图标
+          type: "", // 分享类型,music、video或link，不填默认为link
+          dataUrl: "", // 如果type是music或video，则要提供数据链接，默认为空
+          success: function(res) {
+            // 用户确认分享后执行的回调函数
+            _this.$toast("分享给朋友成功返回的信息为:", res);
+          },
+          cancel: function(res) {
+            // 用户取消分享后执行的回调函数
+            _this.$toast("取消分享给朋友返回的信息为:", res);
+          }
+        });
+        
+      });
+    },
     async initData() {
       Indicator.open();
       let res = await awaitXX({
         token: this.token,
-        type: "1" ,//0-全部；1-待付款；2-待收货；3-待评价；4-交易完成；5-已关闭；
+        type: "2" ,//0-全部；1-待付款；2-待收货；3-待评价；4-交易完成；5-已关闭,6-待分享；
         pageNum:this.currentPage
       });
       console.log(res);
@@ -116,14 +181,17 @@ export default {
       Indicator.open();
       let res = await awaitXX({
         token: this.token,
-        type: "1", //0-全部；1-待付款；2-待收货；3-待评价；4-交易完成；5-已关闭；
+        type: "2", //0-全部；1-待付款；2-待收货；3-待评价；4-交易完成；5-已关闭；
         pageNum:this.currentPage
       });
 
       console.log(res);
       if (res.result === true) {
         let lastPage = res.data.lastPage;
-        let data = res.data.list;
+        let data = [];
+        if(res.data.list.length>=1){
+          data = res.data.list;
+        } 
         if (this.awaitList.length == 0) {
           this.showNoData = true;
         }
@@ -145,18 +213,18 @@ export default {
       //alert(status);
       this.bottomStatus = status;
     },
-    cancelOrder() {
-      MessageBox.alert(
-        "保存订单后，1小时之内未付款，将自动取消订单",
-        "暂时无法取消订单"
-      );
-    },
-    pay(sn) {
+    seeDetail(sn){
       this.$router.push({
-        name: "payDetail",
-        params: { origin: "awaitpay", sn: sn }
+        name: "receiveDetail",
+        params: { origin: "receive", sn: sn }
       });
+    },
+    toConfirm(){
+       MessageBox.confirm("确定已收货?", "温馨提示").then(res=>{
+         
+       }).catch(err=>{})
     }
+   
   }
 };
 </script>
@@ -164,8 +232,8 @@ export default {
 .nomore{
   margin-top: .2rem;
 }
-.payList {
-  height: 100vh;
+.awaitreceive {
+  height: 90vh;
   overflow: scroll;
   li {
     background: #fff;

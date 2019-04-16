@@ -54,16 +54,16 @@ export function checkEmail(val) {
 }
 export function toTop() {
     if (
-      document.documentElement.scrollTop &&
-      document.documentElement.scrollTop > 0
+        document.documentElement.scrollTop &&
+        document.documentElement.scrollTop > 0
     ) {
-      document.documentElement.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
     } else if (document.body.scrollTop && document.body.scrollTop > 0) {
-      document.body.scrollTop = 0;
+        document.body.scrollTop = 0;
     } else {
-      window.pageYOffset = 0;
+        window.pageYOffset = 0;
     } //要做兼容 在模拟器能正常获取scrolltop在微信h5页面和手机的浏览器页面一直为0
-  }
+}
 export function getBrowser(getVersion) {//判断浏览器类型
     //注意关键字大小写
     var ua_str = navigator.userAgent.toLowerCase(),
@@ -133,23 +133,33 @@ export function getBrowser(getVersion) {//判断浏览器类型
     return verStr;
 }
 
+export function isWeixin() {
+    var ua = navigator.userAgent.toLowerCase();//获取判断用的对象
+    if (ua.match(/MicroMessenger/i) == "micromessenger") {
+        //在微信中打开
+        return true;
+    }else{
+        return false;
+    }
+}
+
 export function dataURItoBlob(base64Data) {
     var byteString;
     if (base64Data.split(",")[0].indexOf("base64") >= 0)
-      byteString = atob(base64Data.split(",")[1]);
+        byteString = atob(base64Data.split(",")[1]);
     else byteString = unescape(base64Data.split(",")[1]);
     var mimeString = base64Data
-      .split(",")[0]
-      .split(":")[1]
-      .split(";")[0];
+        .split(",")[0]
+        .split(":")[1]
+        .split(";")[0];
     var ia = new Uint8Array(byteString.length);
     for (var i = 0; i < byteString.length; i++) {
-      ia[i] = byteString.charCodeAt(i);
+        ia[i] = byteString.charCodeAt(i);
     }
     return new Blob([ia], { type: mimeString });
-  }
+}
 
-  export  function compress(img,imgType) {
+export function compress(img, imgType) {
     let canvas = document.createElement("canvas");
     let ctx = canvas.getContext("2d");
     let initSize = img.src.length;
@@ -164,10 +174,10 @@ export function dataURItoBlob(base64Data) {
     //console.log("*******压缩前的图片大小*******");
     //console.log(initSize);
     //进行最小压缩
-    let ndata = canvas.toDataURL("image/"+imgType, 0.1);
+    let ndata = canvas.toDataURL("image/" + imgType, 0.1);
     //console.log("*******压缩后的图片大小*******");
     //console.log(ndata)
     //console.log(ndata.length);
     return ndata;
-  }
+}
 export const imgBaseUrl = 'http://eicools.oss-cn-beijing.aliyuncs.com/';

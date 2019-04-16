@@ -144,6 +144,16 @@ export default new Router({
       component:()=>import("@/components/pay/payDetail")
     },
     {
+      path:'/receiveDetail/:origin/:sn',
+      name:'receiveDetail',
+      component:()=>import("@/components/awaitReceive/receiveDetail")
+    },
+    {
+      path:'/shareDetail/:origin/:sn',
+      name:'shareDetail',
+      component:()=>import("@/components/share/shareDetail")
+    },
+    {
       path:'/feedback',
       name:'feedback',
       component:()=>import("@/components/personal/feedback")
@@ -167,6 +177,16 @@ export default new Router({
       path:'/payOver',
       name:'payOver',
       component:()=>import("@/components/pay/payOver")
+    },
+    {
+      path:'/awaitReceive',
+      name:'awaitReceive',
+      component:()=>import("@/components/awaitReceive/receive")
+    },
+    {
+      path:'/awaitComment',
+      name:'awaitComment',
+      component:()=>import("@/components/awaitComment/comments")
     },
   ]
 })

@@ -31,8 +31,8 @@
                 </div>
               </div>
               <div class="fun-btn">
-                <button class="cancel" @click="cancelOrder">取消订单</button>
-                <button class="toPay" @click="pay(item.sn)">去支付</button>
+                <button class="cancel" @click="seeDetail(item.sn)">查看详情</button>
+                <button class="toPay" v-clipboard:copy="copyUrl" v-clipboard:error="onError" v-clipboard:success="onCopy" @click="share(item.sn)">去分享</button>
               </div>
             </li>
           </ul>
@@ -60,7 +60,7 @@ import wx from "weixin-js-sdk";
 import axios from "axios";
 import { MessageBox } from "mint-ui";
 import { awaitXX } from "../../api";
-import { getCookie, imgBaseUrl } from "../../util";
+import { getCookie, imgBaseUrl,isWeixin } from "../../util";
 import { Indicator } from "mint-ui";
 export default {
   name: "awaitshare",
@@ -73,7 +73,8 @@ export default {
       allLoaded:false,
       showNoData:false,
       scrollMode:'touch',
-      currentPage:1
+      currentPage:1,
+      copyUrl:''
     };
   },
   mounted() {
@@ -89,7 +90,7 @@ export default {
     let token = getCookie("token");
     this.token = token;
     this.initData();
-    this.init();
+    //this.init();
   },
   methods: {
     cancelOrder() {},
@@ -180,14 +181,17 @@ export default {
       Indicator.open();
       let res = await awaitXX({
         token: this.token,
-        type: "1", //0-全部；1-待付款；2-待收货；3-待评价；4-交易完成；5-已关闭；
+        type: "6", //0-全部；1-待付款；2-待收货；3-待评价；4-交易完成；5-已关闭；
         pageNum:this.currentPage
       });
 
       console.log(res);
       if (res.result === true) {
         let lastPage = res.data.lastPage;
-        let data = res.data.list;
+        let data = [];
+        if(res.data.list.length>=1){
+          data = res.data.list;
+        } 
         if (this.awaitList.length == 0) {
           this.showNoData = true;
         }
@@ -209,17 +213,24 @@ export default {
       //alert(status);
       this.bottomStatus = status;
     },
-    cancelOrder() {
-      MessageBox.alert(
-        "发起拼单24小时后，若拼单未成功将自动取消 并退款哦",
-        "暂时无法取消订单"
-      );
-    },
-    pay(sn) {
+    seeDetail(sn) {
       this.$router.push({
-        name: "payDetail",
+        name: "shareDetail",
         params: { origin: "awaitpay", sn: sn }
       });
+    },
+    share(sn) {
+      let browser = isWeixin();
+      let shareBaseUrl = window.location.href.split('#')[0];
+      if(!browser){
+        this.copyUrl = shareBaseUrl + '#/detail/' + sn;
+      }
+    },
+    onCopy(){
+      this.$toast('链接已复制，发给好友一起拼团吧~');
+    },
+    onError(){
+       console.log('复制链接失败');
     }
   }
 };
@@ -229,7 +240,7 @@ export default {
   margin-top: .2rem;
 }
 .awaitshare {
-  height: 100vh;
+  height: 90vh;
   overflow: scroll;
   li {
     background: #fff;
