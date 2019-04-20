@@ -103,8 +103,8 @@
     </div>
     <div class="blank" style="height:1.5rem;"></div>
     <div class="fun-btn">
-      <button v-if="isAction" class="cancel" @click="cancelOrder">提醒发货</button>
-      <button class="toPay"  @click="toConfirm">{{shipTxts}}</button>
+      <!-- <button v-if="isAction" class="cancel" @click="cancelOrder">提醒发货</button> -->
+      <button class="toPay"  @click="toComment">{{shipTxts}}</button>
     </div>
   </div>
 </template>
@@ -114,7 +114,7 @@ import { orderDetail,getShipInfo,goodsOrderConfirm } from "../../api";
 import { getCookie, imgBaseUrl, toTop, setCookie, isWeixin } from "../../util";
 import { Indicator } from "mint-ui";
 export default {
-  name: "receiveDetail",
+  name: "commentDetail",
   data() {
     return {
       values: "",
@@ -126,7 +126,7 @@ export default {
       comeData: false,
       copyUrl: "",
       shipInfos:'',
-      shipTxts:'确认收货',
+      shipTxts:'立即评价',
       isAction:true
     };
   },
@@ -179,30 +179,9 @@ export default {
       this.$toast("已提醒发货！");
     },
 
-    toConfirm() {
-      MessageBox.confirm("为了保障您的售后权益，请收货确认无误后，再确认收货哦！", "温馨提示")
-        .then(res => {
-          this.goodsConfirm();
-        })
-        .catch(err => {});
+    toComment() {
+      
     },
-    async goodsConfirm(){
-      Indicator.open();
-      let confirmRes = await goodsOrderConfirm({
-        token: this.token,
-        sn: this.sn
-      });
-      console.log(confirmRes);
-      if(confirmRes.result === true){
-        this.$toast({'message':confirmRes.msg,'duration':1000});
-        setTimeout(() => {
-          this.$router.go(-1);
-        }, 1000);
-      }else{
-        this.$toast(confirmRes.msg);
-      }
-      Indicator.close();
-    }
 
   }
 };
@@ -473,7 +452,7 @@ export default {
         }
       }
       .line{
-        height: 2rem;
+        height: 1.6rem;
         width: 1px;
         position: absolute;
         background: #BDBDBD;

@@ -76,7 +76,7 @@ export default {
         if(res.result === true){ 
           this.$toast({message:'添加成功',duration:1000});
           setTimeout(()=>{
-            this.$router.push({name:'invoiceList',params:{origin:'increase'}});
+            this.$router.push({name:'invoiceList',params:{origin:'order'}});
           },1000);
         }else{
            this.$toast(res.msg);

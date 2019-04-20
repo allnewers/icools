@@ -8,7 +8,7 @@
         </li>
         <li @click="popupVisible1 = true">
           <label for>性别</label>
-          <input type="text" :value="currentgenderVal?currentgenderVal:'请选择(必填)'"  unselectable="on" onfocus="this.blur()" readonly>
+          <input type="text" ref="gender" :value="currentgenderVal[0]?currentgenderVal[0]:'请选择(必填)'"  unselectable="on" onfocus="this.blur()" readonly>
         </li>
         <li>
           <label for>电话</label>
@@ -57,7 +57,7 @@ export default {
       popupVisible1:false,
       currentVal:[],
       county:'',
-      currentgenderVal:'',
+      currentgenderVal:[],
       slots:[
         {
           flex: 1,
@@ -94,7 +94,8 @@ export default {
         //isDefault:false
       },
       editData:{},
-      len:0
+      len:0,
+      val:''
     };
   },
   computed:{
@@ -113,6 +114,7 @@ export default {
       //console.log(editData);
       this.editData = editData;
       this.fillData();
+      //console.log(this.currentgenderVal);
     }
   },
   methods:{
@@ -122,6 +124,7 @@ export default {
       this.formData.gender =  this.editData.gender;//性别id
       this.formData.areaName = this.editData.areaName;
       this.formData.address = this.editData.address;
+      this.val = this.editData.gender;
       this.getGenderById();//展示性别
       this.formData.phone = this.editData.phone; 
       this.currentVal = [areaName.substr(0,3),areaName.substr(3,3),areaName.substr(6,3)];//地区名称 省 县 市
@@ -129,13 +132,12 @@ export default {
       this.formData.area = this.editData.area;
     },
     getGenderById(){
-      let val = this.editData.gender;
-      if(val == 0){
-        this.currentgenderVal = "男";
-      }else if(val == 1){
-        this.currentgenderVal = "女";
+      if(this.val == 0){
+        this.currentgenderVal[0] = "男";
+      }else if(this.val == 1){
+        this.currentgenderVal[0] = "女";
       }else{
-        this.currentgenderVal = "保密";
+        this.currentgenderVal[0] = "保密";
       }
     },
     submit(){
@@ -154,19 +156,24 @@ export default {
     setgenderVal(){
       this.popupVisible1 = false;
       this.currentgenderVal = this.$refs.picker1.getValues();
+      //console.log(this.currentgenderVal);
     },
     getVal(){
-      let districtVal = this.currentVal.join(' ');
+      let districtVal = this.currentVal.join('');
       this.formData.areaName = districtVal? districtVal:''; //获取地区名称
-      if(this.currentgenderVal == "男"){
+      this.getGenderId();
+    },
+    getGenderId(){
+      if(this.currentgenderVal[0] == "男"){
         this.formData.gender = 0;
-      }else if(this.currentgenderVal == "女"){
+      }else if(this.currentgenderVal[0] == "女"){
         this.formData.gender = 1;
-      }else if(this.currentgenderVal == "保密"){
+      }else if(this.currentgenderVal[0] == "保密"){
         this.formData.gender = 2;
       }else{
         this.formData.gender = '';
       }
+      //console.log(this.formData.gender);
     },
     getCountyId(){//获取县的id
       if(this.county == '樊城区'){
@@ -175,8 +182,6 @@ export default {
         this.formData.area = 1738;
       }else if(this.county == "襄州区"){
         this.formData.area = 1740;
-      }else{
-        this.formData.gender = '';
       }
     },
     validPhoneNum(num) {
@@ -192,6 +197,8 @@ export default {
     },
     editAddress(){
       this.formData.id = this.editData.id;
+      this.getVal();
+      this.getCountyId();
       Indicator.open();
       updateAddress(this.formData).then(res=>{
         //console.log(res);
@@ -211,7 +218,7 @@ export default {
         this.$toast('请输入姓名');
         return;
       } 
-      if(this.currentgenderVal == ''){
+      if(this.currentgenderVal[0] == ''){
         this.$toast('请选择性别');
         return;
       }

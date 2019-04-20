@@ -18,7 +18,7 @@
                 <p class="fl">订单编号：{{item.sn}}</p>
                 <span class="fr">{{item.typeName}}</span>
               </div>
-              <div class="brief clear">
+              <div class="brief clear" @click="seeDetail(item.sn)">
                 <div class="thumbnail fl">
                   <img :src="imgBaseUrl+item.thumbnail" alt>
                 </div>
@@ -31,7 +31,7 @@
                 </div>
               </div>
               <div class="fun-btn">
-                <button class="cancel" @click="seeDetail(item.sn)">查看详情</button>
+                <button class="cancel" @click="seeDetail(item.sn)">查看物流</button>
                 <button class="toPay" @click="toConfirm(item.sn)">确认收货</button>
               </div>
             </li>
@@ -59,7 +59,7 @@
 import wx from "weixin-js-sdk";
 import axios from "axios";
 import { MessageBox } from "mint-ui";
-import { awaitXX } from "../../api";
+import { awaitXX,goodsOrderConfirm} from "../../api";
 import { getCookie, imgBaseUrl,isWeixin } from "../../util";
 import { Indicator } from "mint-ui";
 export default {
@@ -67,6 +67,7 @@ export default {
   data() {
     return {
       token: "",
+      sn:'',
       awaitList: [],
       imgBaseUrl: imgBaseUrl,
       bottomStatus: "",
@@ -219,10 +220,27 @@ export default {
         params: { origin: "receive", sn: sn }
       });
     },
-    toConfirm(){
-       MessageBox.confirm("确定已收货?", "温馨提示").then(res=>{
-         
+    toConfirm(sn){
+       MessageBox.confirm("为了保障您的售后权益，请收货确认无误后，再确认收货哦！", "温馨提示").then(res=>{
+         this.goodsConfirm(sn);
        }).catch(err=>{})
+    },
+    async goodsConfirm(sn){
+      Indicator.open();
+      let confirmRes = await goodsOrderConfirm({
+        token: this.token,
+        sn: sn
+      });
+      console.log(confirmRes);
+      if(confirmRes.result === true){
+        this.$toast({'message':confirmRes.msg,'duration':1000});
+        setTimeout(() => {
+          this.$router.go(-1);
+        }, 1000);
+      }else{
+        this.$toast(confirmRes.msg);
+      }
+      Indicator.close();
     }
    
   }

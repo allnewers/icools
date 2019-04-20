@@ -26,6 +26,15 @@ const mutations = {
   updateUserImg(state,newVal){
     //console.log(newVal);
     state.imgUrl = newVal
+  },
+  redisplay(state,newVal){
+    state.imgPath.push(newVal);
+  },
+  saveBlobs(state,newVal){
+    state.blobs.push(newVal);
+  },
+  changeInputType(state,newVal){
+    state.inputType = newVal;
   }
 }
 export default mutations;

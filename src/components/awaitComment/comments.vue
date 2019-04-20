@@ -17,7 +17,7 @@
                 <p class="fl">订单编号：{{item.sn}}</p>
                 <span class="fr">{{item.typeName}}</span>
               </div>
-              <div class="brief clear">
+              <div class="brief clear" @click="seeDetail(item.sn)">
                 <div class="thumbnail fl">
                   <img :src="imgBaseUrl+item.thumbnail" alt>
                 </div>
@@ -31,7 +31,7 @@
               </div>
               <div class="fun-btn">
                 <button class="cancel" @click="service">申请售后</button>
-                <button class="toPay" @click="comment(item.sn)">立即评价</button>
+                <button class="toPay" @click="comment(item.thumbnail,item.sn,item.productId)">立即评价</button>
               </div>
             </li>
           </ul>
@@ -64,7 +64,7 @@ import wx from "weixin-js-sdk";
 import axios from "axios";
 import { MessageBox } from "mint-ui";
 import { awaitXX } from "../../api";
-import { getCookie, imgBaseUrl, isWeixin } from "../../util";
+import { getCookie, imgBaseUrl, isWeixin, setCookie } from "../../util";
 import { Indicator } from "mint-ui";
 export default {
   name: "awaitComment",
@@ -215,13 +215,16 @@ export default {
       //alert(status);
       this.bottomStatus = status;
     },
-    cancelOrder() {
-      MessageBox.alert(
-        "发起拼单24小时后，若拼单未成功将自动取消 并退款哦",
-        "暂时无法取消订单"
-      );
+    seeDetail(sn){
+      this.$router.push({
+        name: "commentDetail",
+        params: { origin: "comment", sn: sn }
+      });
     },
-    comment(sn) {},
+    comment(url,sn,id) {
+      setCookie('thumbnail',url,7);
+      this.$router.push({name:'commentEdit',params:{orderSn:sn,productId:id}});
+    },
     service() {
       this.popupVisible = true;
     }

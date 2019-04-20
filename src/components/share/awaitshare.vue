@@ -18,7 +18,7 @@
                 <p class="fl">订单编号：{{item.sn}}</p>
                 <span class="fr">{{item.typeName}}</span>
               </div>
-              <div class="brief clear">
+              <div class="brief clear" @click="seeDetail(item.sn)">
                 <div class="thumbnail fl">
                   <img :src="imgBaseUrl+item.thumbnail" alt>
                 </div>
@@ -31,8 +31,8 @@
                 </div>
               </div>
               <div class="fun-btn">
-                <button class="cancel" @click="seeDetail(item.sn)">查看详情</button>
-                <button class="toPay" v-clipboard:copy="copyUrl" v-clipboard:error="onError" v-clipboard:success="onCopy" @click="share(item.sn)">去分享</button>
+                <button class="cancel" @click="cancelOrder">取消订单</button>
+                <button class="toPay" v-clipboard:copy="copyUrl" v-clipboard:error="onError" v-clipboard:success="onCopy" @click="share(item.productSn)">去分享</button>
               </div>
             </li>
           </ul>
@@ -74,7 +74,8 @@ export default {
       showNoData:false,
       scrollMode:'touch',
       currentPage:1,
-      copyUrl:''
+      copyUrl:'',
+      
     };
   },
   mounted() {
@@ -225,6 +226,12 @@ export default {
       if(!browser){
         this.copyUrl = shareBaseUrl + '#/detail/' + sn;
       }
+    },
+    cancelOrder() {
+      MessageBox.alert(
+        "发起拼单24小时后，若拼单未成功将自动取消 并退款哦",
+        "暂时无法取消订单"
+      );
     },
     onCopy(){
       this.$toast('链接已复制，发给好友一起拼团吧~');

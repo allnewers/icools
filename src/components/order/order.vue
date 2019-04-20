@@ -44,10 +44,10 @@
               <span>发票</span>
               <span>{{list[invoiceTitle]?list[invoiceTitle].title:'不开发票'}}</span>
             </li>
-            <li @click="discount">
+            <!-- <li @click="discount">
               <span>优惠券</span>
               <span>暂无可用</span>
-            </li>
+            </li> -->
             <li>
               <span>商品金额</span>
               <span class="red">¥{{summary | returnFloat}}</span>
@@ -324,7 +324,7 @@ export default {
       let len = this.list.length;
       if (len > 0) {
         this.$router.push({ name: "invoiceList", params: { origin: "order" } });
-      } else {
+      }else {
         this.jumpUrl("invoiceTitle");
       }
     },
@@ -617,7 +617,7 @@ export default {
     &:nth-child(1),
     &:nth-child(2),
     &:nth-child(3),
-    &:nth-child(4) {
+     {
       padding-right: 0.5rem;
       background: url("../../assets/img/right.png") no-repeat 98.5% center;
       background-size: 20px 24px;

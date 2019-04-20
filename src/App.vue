@@ -143,7 +143,9 @@ export default {
 </script>
 
 <style>
-#app {
+#app~div{
+  /* display: none; 
+	opacity:0; */
 }
 
 @keyframes slideInRight {

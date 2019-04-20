@@ -11,6 +11,9 @@ const state = {
   },
   invoiceTitle:'',
   currentVal: "", //配送方式 选中值
-  imgUrl:''
+  imgUrl:'',
+  imgPath:[],//回显图片
+  blobs:[],//提交给后台的 blog 图片
+  inputType:'file'
 }
 export default state;

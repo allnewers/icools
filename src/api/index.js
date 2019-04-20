@@ -50,6 +50,7 @@ function $axiosPost(url, data) {
 }
 export const baseURL = 'http://192.168.0.200:9898/';
 //export const baseURL = 'http://tuan.eicools.com:9898/'
+//export const baseURL = 'http://2443934eq9.qicp.vip:29031/'
 export const getIndexData = () => $fetch('get', 'homePage/details');
 export const sendLoginCode = (params) => $fetch('get', 'sms/sendSms', '', params);
 export const signIn = (params) => $fetch('get', 'mobileLogin', '', params);
@@ -61,6 +62,8 @@ export const eachGoodsBuyList = (params) => $fetch('get', 'product/getGroupbuyin
 export const updateGroupPrice = (params) => $fetch('get', 'product/refreshGroupProduct', '', params);
 export const updateSinglePrice = (params) => $fetch('get', 'product/refreshProduct', '', params);
 export const getOrderInfo = (params) => $fetch('get', 'product/productInfoBrief', '', params);
+export const getShipInfo = (params) => $fetch('get', 'order/ordershipinfo', '', params);
+
 //需要 传token的 接口
 export const search = (params) => $fetch('get', 'search/groupProductPage', '', params);
 export const searchTag = (params) => $fetch('get', 'search/getSearch', '', params);
@@ -95,7 +98,7 @@ export const updateAvatar = (data) => $axiosPost(baseURL+'member/updateMemberIma
 export const payOrder = (data) => $fetch('post','order/payOrderForH5',data);
 export const getOrderPrice = (params) => $fetch('get', 'order/orderPrice', '', params);
 export const checkOrderPayStatus = (data) => $fetch('post','order/checkPayment',data);
-
+export const goodsOrderConfirm = (params) => $fetch('get','order/confirmRec','',params);
 
 
 

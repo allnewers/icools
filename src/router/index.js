@@ -149,6 +149,16 @@ export default new Router({
       component:()=>import("@/components/awaitReceive/receiveDetail")
     },
     {
+      path:'/commentDetail/:origin/:sn',
+      name:'commentDetail',
+      component:()=>import("@/components/awaitComment/commentDetail")
+    },
+    {
+      path:'/commentEdit/:orderSn/:productId',
+      name:'commentEdit',
+      component:()=>import("@/components/awaitComment/commentEdit")
+    },
+    {
       path:'/shareDetail/:origin/:sn',
       name:'shareDetail',
       component:()=>import("@/components/share/shareDetail")

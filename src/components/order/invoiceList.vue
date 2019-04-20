@@ -77,7 +77,7 @@ export default {
       this.id = id;
       if (this.origin == "order") {
         this.$store.commit("changeInvoiceTitle", index);
-        this.$router.go(-1);
+        this.$router.push('/'+ this.origin);
       } else {
         this.$router.push({ name: "invoiceDetail", params: { id: this.id } });
       }
@@ -98,6 +98,9 @@ export default {
               //console.log(res);
               if (res.result === true) {
                 this.list.splice(this.idIndex[id], 1); //ui 删除
+                if(this.list.length == 0){
+                  location.reload();
+                }
                 this.$toast("删除成功");
               }
             })

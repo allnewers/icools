@@ -1070,7 +1070,7 @@ export default {
 }
 .mint-indicator {
   position: relative;
-  z-index: 106;
+  z-index: 2006!important;
 }
 </style>
 

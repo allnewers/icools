@@ -17,7 +17,7 @@
                 <p class="fl">订单编号：{{item.sn}}</p>
                 <span class="fr">{{item.typeName}}</span>
               </div>
-              <div class="brief clear">
+              <div class="brief clear" @click="pay(item.sn)">
                 <div class="thumbnail fl">
                   <img :src="imgBaseUrl+item.thumbnail" alt>
                 </div>
