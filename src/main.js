@@ -81,13 +81,4 @@ router.beforeEach((to, from, next) => {
 
   next();
 })
-// alert(showDialog)
-// vm.$watch(showDialog,(val)=>{
-//   if (val === true) {
-//     this.noScroll();
-//   } else {
-//     this.canScroll();
-//   }
-//   document.body.scrollTop = this.pageScrollYoffset;
-//   window.scroll(0, this.pageScrollYoffset);
-// })
+

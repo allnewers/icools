@@ -5,10 +5,14 @@
         <router-view/>
       </keep-alive>
     </transition>
+    <div class="myZone" @click="checkLogin('myZone')">
+      <img src="./assets/img/avatar@2x.png" alt>
+    </div>
   </div>
 </template>
 
 <script>
+import { getCookie } from "./util";
 export default {
   name: "App",
   mounted() {
@@ -132,7 +136,7 @@ export default {
           duration: 1000
         });
         setTimeout(() => {
-          this.$router.push({ name: "login", params: { urlCode: urlCode } });
+          this.$router.push({ name: "phonelogin", params: { urlCode: urlCode } });
         }, 1000);
       } else {
         this.$router.push("/" + urlCode);
@@ -142,12 +146,27 @@ export default {
 };
 </script>
 
-<style>
+<style lang="less">
 #app~div{
   /* display: none; 
 	opacity:0; */
 }
-
+.myZone {
+  width: 1.13rem;
+  height: 0.92rem;
+  position: fixed;
+  bottom: 1.48rem;
+  background: rgba(0, 0, 0, 0.15);
+  right: 0;
+  border-radius: 0.7rem 0 0 0.7rem;
+  z-index: 10000;
+  img {
+    width: 0.84rem;
+    position: relative;
+    left: 0.04rem;
+    top: 0.04rem;
+  }
+}
 @keyframes slideInRight {
   from {
     -webkit-transform: translate3d(100%, 0, 0);

@@ -3,9 +3,9 @@ import { getCookie } from "../util";
 import qs from 'qs'
 //Axios.defaults.baseURL = 'http://192.168.0.200:9898/';
 let instance = Axios.create({
-  baseURL: 'http://192.168.0.200:9898/',//内部服务器
+  //baseURL: 'http://192.168.0.200:9898/',//内部服务器
   //baseURL:'http://2443934eq9.qicp.vip:29031/'
-  //baseURL:'http://tuan.eicools.com:9898/'
+  baseURL:'http://tuan.eicools.com:9898/'
 });
 //let baseURLs='http://192.168.0.200:9898/';
 //let baseURLs='http://2443934eq9.qicp.vip:29031/';//付永花生壳
@@ -48,8 +48,8 @@ function $axiosPost(url, data) {
   });
 
 }
-export const baseURL = 'http://192.168.0.200:9898/';
-//export const baseURL = 'http://tuan.eicools.com:9898/'
+//export const baseURL = 'http://192.168.0.200:9898/';
+export const baseURL = 'http://tuan.eicools.com:9898/'
 //export const baseURL = 'http://2443934eq9.qicp.vip:29031/'
 export const getIndexData = () => $fetch('get', 'homePage/details');
 export const sendLoginCode = (params) => $fetch('get', 'sms/sendSms', '', params);
@@ -63,6 +63,10 @@ export const updateGroupPrice = (params) => $fetch('get', 'product/refreshGroupP
 export const updateSinglePrice = (params) => $fetch('get', 'product/refreshProduct', '', params);
 export const getOrderInfo = (params) => $fetch('get', 'product/productInfoBrief', '', params);
 export const getShipInfo = (params) => $fetch('get', 'order/ordershipinfo', '', params);
+export const getCommentsNum = (params) => $fetch('get', 'product/getReviewCount', '', params);
+export const wxShareConfig = (params) => $fetch('get', 'share/wx', '', params);
+
+export const wxOpenId = (params) => $fetch('get', 'order/openid','',params);
 
 //需要 传token的 接口
 export const search = (params) => $fetch('get', 'search/groupProductPage', '', params);
@@ -99,6 +103,8 @@ export const payOrder = (data) => $fetch('post','order/payOrderForH5',data);
 export const getOrderPrice = (params) => $fetch('get', 'order/orderPrice', '', params);
 export const checkOrderPayStatus = (data) => $fetch('post','order/checkPayment',data);
 export const goodsOrderConfirm = (params) => $fetch('get','order/confirmRec','',params);
+
+export const wxPayment = (data) => $fetch('post','order/payOrderForWXJSAPI',data,'');
 
 
 

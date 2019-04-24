@@ -63,16 +63,16 @@
           <span class="more" @click="jumpUrl('game')">玩法详情</span>
         </div>
         <!-- 商品评价 -->
-        <div class="comments">
+        <div class="comments" v-if="comments.length>=1">
           <div class="top" @click="goComments()">
-            商品评价({{comments.length}})
-            <span></span>
+            商品评价
+            <span>查看更多</span>
           </div>
           <div class="lu">
             <swiper :options="swiperOption" ref="mySwiper">
               <!-- slides -->
               <swiper-slide v-for="item in comments" :key="item.id">
-                <div class="item clear" @click="jumpUrl('comments')">
+                <div class="item clear" @click="goComments">
                   <div class="txt fl">
                     <div class="userInfo">
                       <img v-lazy="item.userImage" alt>
@@ -80,7 +80,7 @@
                     </div>
                     <p>{{item.content}}</p>
                   </div>
-                  <img class="fr prod" v-lazy="item.imgurl" alt>
+                  <img class="fr prod" v-lazy="imgBaseUrl+item.imgurlArr[0]" alt>
                 </div>
               </swiper-slide>
               <!-- Optional controls -->
@@ -140,7 +140,7 @@
                   <h2>{{detailAllData.name}}</h2>
                   <!-- <div class="balance">库存100件</div> -->
                   <p class="price" v-if="parseFloat(price)">¥{{price | returnFloat}}</p>
-                  <p class="price" v-else>{{price | returnFloat}}</p>
+                  <p class="price" v-else>{{price}}</p>
                 </div>
               </div>
               <div class="rules wrapper" ref="wrapper">
@@ -243,7 +243,7 @@ import {
   updateGroupPrice,
   updateSinglePrice
 } from "../api";
-import { getCookie,toTop,setCookie } from "../util";
+import { getCookie,toTop,setCookie,imgBaseUrl } from "../util";
 import { mapState, mapGetters } from "vuex";
 import CountDown from "vue2-countdown";
 import { Indicator } from "mint-ui";
@@ -251,6 +251,7 @@ export default {
   name: "detail",
   data() {
     return {
+      imgBaseUrl,
       swiperOption: {
         //autoplay:true,
         //spaceBetween: 20,
@@ -410,23 +411,26 @@ export default {
     //}
     //},
     specificationBtn(itemValue, thumbnail, index, n) {
-      if (thumbnail != "") {
-        this.thumbnail = thumbnail;
+      this.setThumbnailColorValue(itemValue, thumbnail, index, n);//点击 重置 商品规格的 值，按钮高亮，缩略图
+      this.checkItem();//点击 重置 规格值 及下标
+      this.checkMoney();//点击 刷新 相应规格 的 价格
+    },
+    setThumbnailColorValue(val,img,index,n){
+      if (img != "") {
+        this.thumbnail = img;
       }
-      if (this.selectArr[index] != itemValue) {
-        this.selectArr[index] = itemValue; //选中的值
+      if (this.selectArr[index] != val) {
+        this.selectArr[index] = val; //选中的值
         this.subIndex[index] = n;
       } else {
         //this.selectArr[index] = "";
         this.subIndex[index] = -1; //去掉选中的颜色
         return;
       }
-      this.checkItem();
-      this.checkMoney();
     },
     checkItem() {
       for (let i in this.SpecificationList) {
-        let str = this.selectArr[i]; //默认选中的规格
+        let str = this.selectArr[i]; //选中的规格
         //alert(str);
         for (let k in this.SpecificationList[i].specificationValues) {
           if (this.SpecificationList[i].specificationValues[k].name == str) {
@@ -437,7 +441,8 @@ export default {
       }
       this.$forceUpdate(); //重绘
     },
-    getNowchoice() {
+    getNowchoice() {//默认选中的 规格 及商品id，title
+      //console.log(this.defaultSpecification)
       for (let i in this.defaultSpecification) {
         this.selectArr[i] = this.defaultSpecification[i].name;
       }
@@ -451,7 +456,7 @@ export default {
       //alert(choiceStr)
       this.productId = this.shopItemInfo[choiceStr].productId;
       //console.log(Object.keys(this.shopItemInfo)[0] === choiceStr)
-
+      setCookie('productId',this.productId,7);//cookie 存储商品id
       this.refreshPrice();
     },
     moreGroup() {
@@ -563,7 +568,7 @@ export default {
       });
     },
     goComments(){
-      this.$router.push({name:'comments',params:{goodsId:this.goodsId}});
+      this.$router.push({name:'totalComments',params:{goodsId:this.goodsId}});
     },
     collect() {
       collectProduct({ token: this.token, productId: this.detailAllData.id })
@@ -921,9 +926,13 @@ export default {
       font-size: 0.28rem;
       font-weight: 400;
       color: rgba(102, 102, 102, 1);
-      white-space: nowrap;
+      //white-space: nowrap;
       text-overflow: ellipsis;
-      width: 3.4rem;
+      width: 3.8rem;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
     }
     .balance {
       font-size: 0.24rem;
@@ -948,7 +957,7 @@ export default {
   // left: .3rem;
   // top: 2.3rem;
   ul {
-    min-height: 4.4rem;
+    //min-height: 4.4rem;
     li {
       color: rgba(51, 51, 51, 1);
       font-size: 0.28rem;

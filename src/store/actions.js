@@ -75,7 +75,7 @@ const actions = {
     Indicator.close();
   },
   
-  commentsUpload({commit,state},_this){
+  commentsUpload({commit,state},[_this,doc]){
     //Indicator.open();
     let len = state.imgPath.length;
     //console.log(len);
@@ -84,6 +84,7 @@ const actions = {
       return;
     }
     let file = event.currentTarget.files[0];
+    if(!file) return;
     let imgType = file.type.split('/')[1].toUpperCase();
     if (!/image\/\w+/.test(file.type)) {//检验是否上传的是图片格式
       alert("请选择图片上传");
@@ -110,14 +111,15 @@ const actions = {
         
         commit('redisplay',urlimg);//前端回显图片
         commit('saveBlobs',blob);//提交给后台的blog格式图片
-        commit('changeInputType','text');
-        commit('changeInputType','file');
+        // commit('changeInputType','text');
+        // commit('changeInputType','file');
         //console.log(state.imgPath);
         //console.log(imgArr);
         //console.log("********将blob对象转成formData对象********");
         //console.log(formData_comments.get('imgUrl'));
       }
     }
+    doc.querySelector('.uploadimg').value = '';//多次上传同一张图片
   },
   deleteImg({commit,state},index){
     state.imgPath.splice(index,1);
@@ -143,9 +145,13 @@ const actions = {
     formData_comments.append('content',content);
     formData_comments.append('isAnonymous',isAnonymous);
     axios.post(baseURL+'product/addReview',formData_comments).then(res=>{
-      //console.log(res)
+      //console.log(res);return;
       if(res.data.result === true){ 
-        _this.$toast('评论成功！')
+        Indicator.close();
+        _this.$toast({message:'评论成功！',duration:1000});
+        setTimeout(()=>{
+          _this.$router.push('/');
+        },1000);
       }else{
         alert(res.data.msg);
       }

@@ -25,7 +25,7 @@
           ref="loadmore"
         >
           <ul>
-            <li v-for="(item,index) in productList" :key="item.id">
+            <li v-for="(item,index) in productList" :key="item.id" @click="goDetail(item.sn)">
               <img v-lazy="imgBaseUrl+item.imag" alt>
               <h2>{{item.name}}</h2>
               <div class="prices clear">
@@ -121,6 +121,9 @@ export default {
         this.nextPage();
         this.$refs.loadmore.onBottomLoaded(); //通知loadmore组件从新渲染，计算
       }
+    },
+    goDetail(sn) {
+      this.$router.push({ name: "detail", params: { sn: sn } });
     },
     firstPage() {
       this.productList = [];

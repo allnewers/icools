@@ -11,7 +11,7 @@
           >{{item + '('+ subNum[index]['len'] + ')'}}</li>
         </ul>
       </div>
-      <div class="comments-list" :style="{'-webkit-overflow-scrolling': scrollMode}">
+      <div class="comments-list" v-show="!showNoData" :style="{'-webkit-overflow-scrolling': scrollMode}">
         <mt-loadmore
           v-if="!showNoData"
           :bottom-method="loadBottom"
@@ -32,18 +32,9 @@
               <span>{{item.createDate | time}}</span>
               <span>{{item.sku}}</span>
             </div>
-            <div class="uploadImg">
-              <div class="img-item">
-                <img src="../assets/img/prod@2x.png" alt>
-              </div>
-              <div class="img-item">
-                <img src="../assets/img/prod@2x.png" alt>
-              </div>
-              <div class="img-item">
-                <img src="../assets/img/prod@2x.png" alt>
-              </div>
-              <div class="img-item">
-                <img src="../assets/img/prod@2x.png" alt>
+            <div class="uploadImg" v-if="item.imgurlArr.length>=1">
+              <div class="img-item" v-for="(v,n) in item.imgurlArr" :key="n">
+                <img :src="imgBaseUrl + v" alt>
               </div>
             </div>
           </li>
@@ -67,10 +58,11 @@
   </div>
 </template>
 <script>
-import { getCommentList } from "../api";
+import { getCommentList,getCommentsNum } from "../api";
+import { imgBaseUrl } from '../util'
 import { Indicator } from "mint-ui";
 export default {
-  name: "comments",
+  name: "totalComments",
   data() {
     return {
       tabBar: ["全部", "好评", "中评", "差评", "晒图"],
@@ -81,14 +73,26 @@ export default {
       commentsList:[],
       showNoData:false,
       allLoaded: false, //商品 是否全部加载。 true时，表示禁止 调用loadBottom
-      subNum:[{len:0},{len:1},{len:3},{len:0},{len:0}],
+      subNum:[{len:0},{len:0},{len:0},{len:0},{len:0}],
       type:1,
       scrollMode:"touch",
       bottomStatus: "",
+      imgBaseUrl,
     };
   },
   mounted() {
     this.goodsId = this.$route.params.goodsId;
+    getCommentsNum({
+      id:this.goodsId
+    }).then(res=>{
+      //console.log(res);
+      let data = res.data;
+      this.subNum[0]['len'] = data.allCount;
+      this.subNum[1]['len'] = data.positiveCount;
+      this.subNum[2]['len'] = data.moderateCount;
+      this.subNum[3]['len'] = data.negativeCount;
+      this.subNum[4]['len'] = data.hasPicCount;
+    }).catch(err=>{});
     this.initComments(); //默认展示全部评论 第一页 1-全部；2-好评；3-中评；4-差评；5-晒图
   },
   methods: {
@@ -96,6 +100,9 @@ export default {
       let arr = [1,2,3,4,5];
       if(this.isActive == index) return;
       this.isActive = index;
+      this.currentPage = 1;
+      this.showNoData = false;
+      this.allLoaded = false;
       this.commentsList = [];
       this.type = arr[index];
       this.initComments();
@@ -113,8 +120,13 @@ export default {
           if (res.result === true) {
             this.showContent = true;
             let data = res.data.list 
+            let lastPage = res.data.lastPage;
             this.commentsList = data;
-            this.subNum[0]['len'] = data.length;
+            if (lastPage <= this.currentPage) { 
+              this.allLoaded = true; //禁止上拉
+            } else{
+              this.allLoaded = false;
+            }
             if(data.length == 0){
               this.showNoData = true;
             }
@@ -151,7 +163,7 @@ export default {
             this.showContent = true;
             let data = res.data.list ;
             let lastPage = res.data.lastPage;
-            this.subNum[0]['len'] = data.length;
+            //this.subNum[0]['len'] = data.length;
 
             data.forEach(element => {
               this.commentsList.push(element);
@@ -255,8 +267,15 @@ export default {
       float: left;
       margin-right: 0.1rem;
       margin-bottom: 0.1rem;
+      img{
+        width: 100%;
+        height: 100%;
+      }
     }
   }
+}
+.nomore{
+  padding-top: 10px;
 }
 </style>
 

@@ -63,9 +63,7 @@
         <Load/>
       </div> -->
       <div class="noData" v-if="noData">暂无数据</div>
-      <div class="myZone" @click="checkLogin('myZone')">
-        <img src="../assets/img/avatar@2x.png" alt>
-      </div>
+      
     </div>
     <div class="preload" v-if="!allshow"></div>
     <div class="adv" v-show="tanchu" @touchmove.prevent>
@@ -451,20 +449,6 @@ export default {
   padding: 0.4rem 0;
   color: #666;
 }
-.myZone {
-  width: 1.13rem;
-  height: 0.92rem;
-  position: fixed;
-  bottom: 1.48rem;
-  background: rgba(0, 0, 0, 0.15);
-  right: 0;
-  border-radius: 0.7rem 0 0 0.7rem;
-  img {
-    width: 0.84rem;
-    position: relative;
-    left: 0.04rem;
-    top: 0.04rem;
-  }
-}
+
 </style>
 

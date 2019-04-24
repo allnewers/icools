@@ -30,7 +30,7 @@
       <div class="upload-btn">
         <img src="../../assets/img/camera.png" alt="">
         <p>{{imgPath.length}} / 4 </p>
-        <input :type="inputType" accept="image/*" multiple="multiple" @change="commentsUpload(that)">
+        <input class="uploadimg" :type="inputType" accept="image/*" multiple="multiple" @change="commentsUpload([that,doc])">
       </div>
     </div>
     <div class="serviceScore">
@@ -64,6 +64,7 @@ export default {
   name: "commentEdit",
   data() {
     return {
+      doc:document,
       that:this,
       imgBaseUrl,
       thumbnail: "",
@@ -131,9 +132,7 @@ export default {
     commentLevel2(num) {
       this.shipStar = parseInt(num) + 1;
     },
-    submit() {
-      console.log(this.productStar);
-    }
+    
     
   }
 };

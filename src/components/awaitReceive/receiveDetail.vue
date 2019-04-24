@@ -482,7 +482,7 @@ export default {
         z-index: 1;
       }
       .txts{
-        padding:0 0 .8rem .45rem ;
+        padding:0 0 1rem .45rem ;
         h4{
           font-size:.28rem;
           font-weight:500;

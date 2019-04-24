@@ -3,6 +3,7 @@ import Router from 'vue-router'
 Vue.use(Router)
 
 export default new Router({
+  //mode:'history',
   routes: [
     {
       path:'/',
@@ -34,9 +35,9 @@ export default new Router({
       component:()=>import("@/components/detail")
     },
     {
-      path:'/comments/:goodsId',
-      name:'comments',
-      component:()=>import("@/components/comments")
+      path:'/totalComments/:goodsId',
+      name:'totalComments',
+      component:()=>import("@/components/totalComments")
     },
     {
       path:'/game',

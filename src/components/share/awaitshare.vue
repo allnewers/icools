@@ -33,6 +33,7 @@
               <div class="fun-btn">
                 <button class="cancel" @click="cancelOrder">取消订单</button>
                 <button class="toPay" v-clipboard:copy="copyUrl" v-clipboard:error="onError" v-clipboard:success="onCopy" @click="share(item.productSn)">去分享</button>
+                <!-- <button v-else class="toPay" @click="getWxConfig(item.thumbnail,item.fullName,item.productSn)">去分享</button> -->
               </div>
             </li>
           </ul>
@@ -59,9 +60,10 @@
 import wx from "weixin-js-sdk";
 import axios from "axios";
 import { MessageBox } from "mint-ui";
-import { awaitXX } from "../../api";
+import { awaitXX,wxShareConfig } from "../../api";
 import { getCookie, imgBaseUrl,isWeixin } from "../../util";
 import { Indicator } from "mint-ui";
+import { wxConfig,shareMessage,shareTimeline } from '../../wx'
 export default {
   name: "awaitshare",
   data() {
@@ -75,74 +77,43 @@ export default {
       scrollMode:'touch',
       currentPage:1,
       copyUrl:'',
-      
+      isWx:false,
     };
   },
   mounted() {
-    // axios.get('http://192.168.0.103:9898/share/wx',{
-    //   params: {
-    //     url: 'http://24b39x8901.qicp.vip:10989/#/awaitshare'
-    //   }
-    // }).then(res=>{
-    //   console.log(res);
-    // }).catch(err=>{
-    //   console.log(err);
-    // });
     let token = getCookie("token");
     this.token = token;
+    this.isWx = isWeixin();
     this.initData();
-    //this.init();
+    //this.getWxConfig();
   },
   methods: {
-    cancelOrder() {},
-    invite() {},
-    async init() {
+    getWxConfig(imgUrl,title,sn) {
       let _this = this;
       let url = encodeURIComponent(window.location.href.split('#')[0]);
-      // let data = await axios.get("http://192.168.0.103:9898/share/wx", {
-      //   params: {
-      //     url: url
-      //   }
-      // });
-      //console.log(data, data.data.appId,data.data.noncestr);
-
-      wx.config({
-        debug: true,
-        appId: data.data.appId, // 和获取Ticke的必须一样------必填，公众号的唯一标识
-        timestamp: data.data.timestamp, // 必填，生成签名的时间戳
-        nonceStr: data.data.noncestr, // 必填，生成签名的随机串
-        signature: data.data.signature, // 必填，签名，见附录1
-        //需要分享的列表项:发送给朋友，分享到朋友圈，分享到QQ，分享到QQ空间
-        jsApiList: [
-          "onMenuShareAppMessage",
-          //"onMenuShareTimeline",
-          //"onMenuShareQQ",
-          //"onMenuShareQZone"
-        ]
-      });
-      //处理验证失败的信息
-      wx.error(function(res) {
-        _this.$toast("验证失败返回的信息:", res);
-      });
-      wx.ready(function() {
-        //分享给朋友
-        wx.onMenuShareAppMessage({
-          title: "_this.newDetailObj.title", // 分享标题
-          desc: "_this.desc", // 分享描述
-          link: window.location.href.split("#")[0], // 分享链接，该链接域名或路径必须与当前页面对应的公众号JS安全域名一致
-          imgUrl: "", // 分享图标
-          type: "", // 分享类型,music、video或link，不填默认为link
-          dataUrl: "", // 如果type是music或video，则要提供数据链接，默认为空
-          success: function(res) {
-            // 用户确认分享后执行的回调函数
-            _this.$toast("分享给朋友成功返回的信息为:", res);
-          },
-          cancel: function(res) {
-            // 用户取消分享后执行的回调函数
-            _this.$toast("取消分享给朋友返回的信息为:", res);
-          }
-        });
+      //alert(window.location.href.split('#')[0]);
+      let links = window.location.href.split('#')[0] + '#/detail/' + sn;
+      //let links = window.location.href.split('#')[0];
+      //let link = encodeURIComponent(links);
+      let link = links;
+      wxShareConfig({
+        url:url
+      }).then(res=>{
+        if(res.result = true){
+          let data = res.data;
+          alert(JSON.stringify(data));
+          wxConfig(data.appId,data.timestamp,data.noncestr,data.signature);
+          
+          wx.ready(()=>{
+            shareMessage(title,'desc',link,imgUrl);
+            shareTimeline(title,link,imgUrl);
+          });
+        }else{
+          this.$toast(res.msg);
+        }
         
+      }).catch(err=>{
+        this.$toast(err);
       });
     },
     async initData() {
