@@ -66,7 +66,7 @@ export const getShipInfo = (params) => $fetch('get', 'order/ordershipinfo', '', 
 export const getCommentsNum = (params) => $fetch('get', 'product/getReviewCount', '', params);
 export const wxShareConfig = (params) => $fetch('get', 'share/wx', '', params);
 
-export const wxOpenId = (params) => $fetch('get', 'order/openid','',params);
+export const wxOpenId = (data) => $fetch('post', 'order/openid',data,'');
 
 //需要 传token的 接口
 export const search = (params) => $fetch('get', 'search/groupProductPage', '', params);
@@ -105,6 +105,8 @@ export const checkOrderPayStatus = (data) => $fetch('post','order/checkPayment',
 export const goodsOrderConfirm = (params) => $fetch('get','order/confirmRec','',params);
 
 export const wxPayment = (data) => $fetch('post','order/payOrderForWXJSAPI',data,'');
+
+export const feedBacks = (params) => $fetch('get','member/addSuggestion','',params);
 
 
 

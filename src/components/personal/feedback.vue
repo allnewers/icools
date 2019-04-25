@@ -13,14 +13,17 @@
   </div>
 </template>
 <script>
-import { getBrowser } from '../../util'
+import { getBrowser ,getCookie} from '../../util'
+import { feedBacks } from '../../api'
+import { setTimeout } from 'timers';
 export default {
   name: "feedback",
   data() {
     return {
       tel: "",
       word: "",
-      isForbid: false
+      isForbid: false,
+      token:''
     };
   },
   computed: {
@@ -29,8 +32,10 @@ export default {
     }
   },
   mounted() {
+    let token = getCookie('token');
     let browername = getBrowser();
     let self = this;   
+    this.token = token;
     //alert(browername)
     if (browername == 'safari') {
       this.$refs.text.addEventListener("blur", self.trigger, false);
@@ -47,10 +52,23 @@ export default {
       }
     },
     submit() {
-      alert(1111);
-    },
-
-    
+      feedBacks({
+        token:this.token,
+        title:'拼团意见反馈',
+        content:this.word
+      }).then(res=>{
+        if(res.result === true){
+          this.$toast({message:'反馈成功！',duration:1000});
+          setTimeout(()=>{
+            this.$router.go(-1);
+          },1000);
+        }else{
+          this.$toast(res.msg);
+        }
+      }).catch(err=>{
+        this.$toast(err);
+      });
+    },  
   }
 };
 </script>

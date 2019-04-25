@@ -101,7 +101,6 @@ export default {
         .then(res => {
           if (res.result === true) {
             this.wxPayCan();
-            this.onBridgeReady(this.params);
           } else {
             this.$toast(res.msg);
           }
@@ -138,11 +137,13 @@ export default {
         }
       }
     },
-    async wxPay() {//微信浏览器打开 调起微信支付的url
+    wxPay() {//微信浏览器打开 调起微信支付的url
+      //setCookie('comeInNum',2,7);
       let APPID = "wx2154ea226f52f94c";
       let url = window.location.href;
+      //let url = 'http://tuan.eicools.com'
       let REDIRECT_URI = encodeURIComponent(url);
-      let SCOPE = "snsapi_base"; //静默授权 ；若为 snsapi_userinfo 则弹出授权页
+      let SCOPE = "snsapi_userinfo"; //snsapi_base 静默授权 ；若为 snsapi_userinfo 则弹出授权页
       window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${APPID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${SCOPE}&state=STATE#wechat_redirect`;
     },
     async wxPayCan() {//获取微信支付接口 参数
@@ -152,6 +153,8 @@ export default {
       });
       if (canRes.result === true) {
         this.params = canRes.data;
+        alert(JSON.stringify(this.params));
+        this.wxJSBridgeError();
       } else {
         this.$toast(canRes.msg);
       }
@@ -193,10 +196,17 @@ export default {
       delCookie("isPay");
       location.reload();
     },
-    onBridgeReady(params) {
+    onBridgeReady() {
       WeixinJSBridge.invoke(
         "getBrandWCPayRequest",
-        params,
+        {
+          "appId":this.params.appId,     //公众号名称，由商户传入     
+          "timeStamp":this.params.timeStamp,         //时间戳，自1970年以来的秒数     
+          "nonceStr":this.params.nonceStr, //随机串     
+          "package":this.params.package,     
+          "signType":this.params.signType,         //微信签名方式：     
+          "paySign":this.params.paySign //微信签名 
+        },
         (res) => {
           if (res.err_msg == "get_brand_wcpay_request:ok") {
             // 使用以上方式判断前端返回,微信团队郑重提示：
@@ -205,6 +215,29 @@ export default {
           }
         }
       );
+      // wx.chooseWXPay({
+      //   timestamp: params.timestamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
+      //   nonceStr: params., // 支付签名随机串，不长于 32 位
+      //   package: '', // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=\*\*\*）
+      //   signType: '', // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
+      //   paySign: '', // 支付签名
+      //   success: function (res) {
+      //   // 支付成功后的回调函数
+      //     this.$router.push('/payOver');
+      //   }
+      // });
+    },
+    wxJSBridgeError(){
+      if (typeof WeixinJSBridge == "undefined"){
+        if( document.addEventListener ){
+            document.addEventListener('WeixinJSBridgeReady', this.onBridgeReady, false);
+        }else if (document.attachEvent){
+            document.attachEvent('WeixinJSBridgeReady', this.onBridgeReady); 
+            document.attachEvent('onWeixinJSBridgeReady', this.onBridgeReady);
+        }
+      }else{
+        this.onBridgeReady();
+      }
     }
   }
 };

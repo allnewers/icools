@@ -1,5 +1,5 @@
 <template>
-  <div class="wraps">
+  <div class="wraps" v-if="!paycode">
     <div class="content" v-if="allshow">
       <!-- 轮播图 -->
       <Slide pos="index" :data="banners"/>
@@ -90,7 +90,7 @@ import navImg3 from "../assets/img/nav3@2x.png";
 import Slide from "./common/slide";
 import Top from "./common/top";
 import { getIndexData, getNoticeNum } from "../api";
-import { getCookie } from "../util";
+import { getCookie,GetRequest,setCookie } from "../util";
 import { setTimeout } from "timers";
 import Load from "./common/loading";
 import { mapState } from "vuex";
@@ -125,7 +125,8 @@ export default {
         }
       ],
       got:false,
-      tanchu:false
+      tanchu:false,
+      paycode:false,//微信浏览器内 支付 调取微信支付 的code参数
     };
   },
   computed: {
@@ -224,8 +225,10 @@ export default {
           this.isbgActive = false;
         }
       });
-    }
-  }
+    },
+    
+  },
+  
 };
 </script>
 

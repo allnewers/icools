@@ -68,6 +68,17 @@ var vm = new Vue({
 })
 //全局守卫
 router.beforeEach((to, from, next) => {
+  /* 路由发生变化修改页面meta */
+  if(to.meta.content){
+    let head = document.getElementsByTagName('head');
+    let meta = document.createElement('meta');
+    meta.content = to.meta.content;
+    head[0].appendChild(meta)
+  }
+  /* 路由发生变化修改页面title */
+  if (to.meta.title) {
+    document.title = to.meta.title;
+  }
   //vm.canScroll()  ;//进入路由，初始化 弹框状态
   const slideRoute = ['search','addAddress']//需要slide效果的组件
   let direction = ''
