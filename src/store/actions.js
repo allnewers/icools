@@ -61,18 +61,23 @@ const actions = {
       }
     }
   },
-  async getUserImg({commit},token){//刷新 vuex丢失，重新获取头像
+  async getUserImg({commit},[token,_this]){//刷新 vuex丢失，重新获取头像
     Indicator.open();
     let userRes = await getAvatar({
       token:token
     });
-    console.log(userRes);
+    //console.log(userRes);
+    if(userRes.errorCode == 10){
+      _this.$router.push({
+        name: "phonelogin",
+        params: { urlCode: "myZone" }
+      });
+    }
     if(userRes.result === true){ 
       commit('updateUserImg',userRes.data.imgUrl);
     }else{
       console.log(userRes.msg);
     }
-    Indicator.close();
   },
   
   commentsUpload({commit,state},[_this,doc]){

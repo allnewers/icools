@@ -1,8 +1,7 @@
 <template>
   <div>
     <div>
-    <div class="awaitshare" :style="{'-webkit-overflow-scrolling': scrollMode}">
-      
+      <div class="awaitreceive" :style="{'-webkit-overflow-scrolling': scrollMode}">
         <mt-loadmore
           v-if="!showNoData"
           :bottom-method="loadBottom"
@@ -31,9 +30,8 @@
                 </div>
               </div>
               <div class="fun-btn">
-                <button class="cancel" @click="cancelOrder">取消订单</button>
-                <button class="toPay" v-clipboard:copy="copyUrl" v-clipboard:error="onError" v-clipboard:success="onCopy" @click="share(item.productSn)">去分享</button>
-                <!-- <button v-else class="toPay" @click="getWxConfig(item.thumbnail,item.fullName,item.productSn)">去分享</button> -->
+                <button class="cancel" @click="service">申请售后</button>
+                <button class="toPay" @click="buyAgin(item.productSn)">再次购买</button>
               </div>
             </li>
           </ul>
@@ -52,94 +50,78 @@
           <span>暂无数据</span>
         </div>
       </div>
-   
-  </div>
+    </div>
+    <mt-popup v-model="popupVisible" position="center" :closeOnClickModal="true">
+      <div class="status-guide">
+        <h3>请拨打客服电话</h3>
+        <a href="tel:400-082-5588">400 082 5588</a>
+      </div>
+    </mt-popup>
   </div>
 </template>
 <script>
 import wx from "weixin-js-sdk";
 import axios from "axios";
 import { MessageBox } from "mint-ui";
-import { awaitXX,wxShareConfig } from "../../api";
-import { getCookie, imgBaseUrl,isWeixin } from "../../util";
+import { awaitXX, goodsOrderConfirm } from "../../api";
+import { getCookie, imgBaseUrl, isWeixin } from "../../util";
 import { Indicator } from "mint-ui";
-import { wxConfig,shareMessage,shareTimeline } from '../../wx'
 export default {
-  name: "awaitshare",
+  name: "awaitReceive",
   data() {
     return {
       token: "",
+      sn: "",
       awaitList: [],
       imgBaseUrl: imgBaseUrl,
       bottomStatus: "",
-      allLoaded:false,
-      showNoData:false,
-      scrollMode:'touch',
-      currentPage:1,
-      copyUrl:'',
-      isWx:false,
+      allLoaded: false,
+      showNoData: false,
+      scrollMode: "touch",
+      currentPage: 1,
+      copyUrl: "",
+      popupVisible: false
     };
   },
   mounted() {
+    // axios.get('http://192.168.0.103:9898/share/wx',{
+    //   params: {
+    //     url: 'http://24b39x8901.qicp.vip:10989/#/awaitshare'
+    //   }
+    // }).then(res=>{
+    //   console.log(res);
+    // }).catch(err=>{
+    //   console.log(err);
+    // });
     let token = getCookie("token");
     this.token = token;
-    this.isWx = isWeixin();
     this.initData();
-    //this.getWxConfig();
+    //this.init();
   },
   methods: {
-    getWxConfig(imgUrl,title,sn) {
-      let _this = this;
-      let url = encodeURIComponent(window.location.href.split('#')[0]);
-      //alert(window.location.href.split('#')[0]);
-      let links = window.location.href.split('#')[0] + '#/detail/' + sn;
-      //let links = window.location.href.split('#')[0];
-      //let link = encodeURIComponent(links);
-      let link = links;
-      wxShareConfig({
-        url:url
-      }).then(res=>{
-        if(res.result = true){
-          let data = res.data;
-          alert(JSON.stringify(data));
-          wxConfig(data.appId,data.timestamp,data.noncestr,data.signature);
-          
-          wx.ready(()=>{
-            shareMessage(title,'desc',link,imgUrl);
-            shareTimeline(title,link,imgUrl);
-          });
-        }else{
-          this.$toast(res.msg);
-        }
-        
-      }).catch(err=>{
-        this.$toast(err);
-      });
-    },
     async initData() {
       Indicator.open();
       let res = await awaitXX({
         token: this.token,
-        type: "6" ,//0-全部；1-待付款；2-待收货；3-待评价；4-交易完成；5-已关闭,6-待分享；
-        pageNum:this.currentPage
+        type: "4", //0-全部；1-待付款；2-待收货；3-待评价；4-交易完成；5-已关闭,6-待分享；
+        pageNum: this.currentPage
       });
       console.log(res);
       if (res.result === true) {
         let lastPage = res.data.lastPage;
         this.awaitList = res.data.list;
         if (this.awaitList.length == 0) {
-              this.showNoData = true;
-            }
-        if (lastPage <= this.currentPage) { 
+          this.showNoData = true;
+        }
+        if (lastPage <= this.currentPage) {
           this.allLoaded = true; //禁止上拉
-        } else{
+        } else {
           this.allLoaded = false;
         }
         Indicator.close();
       } else {
         console.log(res.msg);
       }
-      
     },
     loadBottom() {
       if (!this.allLoaded) {
@@ -148,38 +130,37 @@ export default {
         this.$refs.loadmore.onBottomLoaded(); //通知loadmore组件从新渲染，计算
       }
     },
-    async nextPage(){
+    async nextPage() {
       ++this.currentPage;
       Indicator.open();
       let res = await awaitXX({
         token: this.token,
-        type: "6", //0-全部；1-待付款；2-待收货；3-待评价；4-交易完成；5-已关闭；
-        pageNum:this.currentPage
+        type: "2", //0-全部；1-待付款；2-待收货；3-待评价；4-交易完成；5-已关闭；
+        pageNum: this.currentPage
       });
 
       console.log(res);
       if (res.result === true) {
         let lastPage = res.data.lastPage;
         let data = [];
-        if(res.data.list.length>=1){
+        if (res.data.list.length >= 1) {
           data = res.data.list;
-        } 
+        }
         if (this.awaitList.length == 0) {
           this.showNoData = true;
         }
         data.forEach(element => {
           this.awaitList.push(element);
         });
-        if (lastPage <= this.currentPage) { 
+        if (lastPage <= this.currentPage) {
           this.allLoaded = true; //禁止上拉
-        } else{
+        } else {
           this.allLoaded = false;
         }
         Indicator.close();
       } else {
         console.log(res.msg);
       }
-
     },
     handleBottomChange(status) {
       //alert(status);
@@ -187,37 +168,25 @@ export default {
     },
     seeDetail(sn) {
       this.$router.push({
-        name: "shareDetail",
-        params: { origin: "awaitpay", sn: sn }
+        name: "completeDetail",
+        params: { origin: "completeOrder", sn: sn }
       });
     },
-    share(sn) {
-      let wx = isWeixin();
-      let shareBaseUrl = window.location.host;//获取当前域名
-      if(!wx){
-        this.copyUrl = shareBaseUrl + '/detail/' + sn;
-      }
+    service() {
+      this.popupVisible = true;
     },
-    cancelOrder() {
-      MessageBox.alert(
-        "发起拼单24小时后，若拼单未成功将自动取消 并退款哦",
-        "暂时无法取消订单"
-      );
-    },
-    onCopy(){
-      this.$toast('链接已复制，发给好友一起拼团吧~');
-    },
-    onError(){
-       console.log('复制链接失败');
+    buyAgin(sn){
+      this.$router.push('/detail/'+ sn);
     }
+    
   }
 };
 </script>
 <style lang="less" scoped>
-.nomore{
-  margin-top: .2rem;
+.nomore {
+  margin-top: 0.2rem;
 }
-.awaitshare {
+.awaitreceive {
   height: 90vh;
   overflow: scroll;
   li {
@@ -292,6 +261,28 @@ export default {
         margin-left: 0.4rem;
       }
     }
+  }
+}
+.mint-popup {
+  border-radius: 4px;
+  width: 80%;
+}
+.status-guide {
+  border-radius: 4px;
+  text-align: center;
+  h3 {
+    font-size: 0.26rem;
+    font-weight: 400;
+    line-height: 1rem;
+    border-bottom: 1px solid #f0f0f0;
+    padding: 0 0.4rem;
+    color: #333;
+  }
+  a {
+    line-height: 1rem;
+    display: inline-block;
+    width: 100%;
+    color: #29a55e;
   }
 }
 </style>

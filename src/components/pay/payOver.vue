@@ -17,13 +17,12 @@
         <span>
           <img src="../../assets/img/default.png" alt>
         </span>
-        
       </div>
-      <div class="shareOut mt">分享出去</div>
+      <div class="shareOut mt" v-clipboard:copy="copyUrl" v-clipboard:error="onError" v-clipboard:success="onCopy">分享出去</div>
     </div>
     <div class="urlto">
-      <button>查看订单</button>
-      <button>返回首页</button>
+      <button @click="goShare">查看订单</button>
+      <button @click="goHome">返回首页</button>
     </div>
   </div>
 </template>
@@ -32,7 +31,30 @@ export default {
   name:"payOver",
   data(){
     return {
+      copyUrl:''
     }
+  },
+  methods:{
+    goShare(){
+      this.$router.replace('/awaitShare');
+    },
+    goHome(){
+      this.$router.replace('/');
+    },
+    share(sn) {
+      let wx = isWeixin();
+      let shareBaseUrl = window.location.host;//获取当前域名
+      if(!wx){
+        this.copyUrl = shareBaseUrl + '/detail/' + sn;
+      }
+    },
+    onCopy(){
+      this.$toast('链接已复制，发给好友一起拼团吧~');
+    },
+    onError(){
+      this.$toast('复制链接失败');
+    }
+
   }
 }
 </script>

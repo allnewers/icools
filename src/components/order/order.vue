@@ -346,7 +346,7 @@ export default {
         console.log(res);
         if(res.result === true){
           //this.$router.push({ name: "payType", params: { sn: res.data,price:this.params.price } });
-          setCookie('orderSn',res.data,7);
+          setCookie('orderSn',res.data,1);
           this.$router.push('/payType');
         }else{
           this.$toast(res.msg);

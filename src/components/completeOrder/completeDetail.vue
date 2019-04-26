@@ -1,16 +1,37 @@
 <template>
   <div v-if="comeData">
     <div class="status await">
-      <i>!</i>
+      <p>
+        <em></em>
+      </p>
       <span>{{allData.typeName}}</span>
     </div>
-    <div class="address">
-      <h3>收货地址</h3>
-      <div class="nameTel">
-        <span>{{allData.consignee}}</span>
-        <span>{{allData.phone}}</span>
+    <div class="wuliu">
+      <h3>物流信息</h3>
+      <div class="infoList">
+        <ul>
+          <li v-for="(item ,index) in shipInfos" :key="index">
+            <div class="circle">
+              <i></i>
+            </div>
+            <div class="line"></div>
+            <div class="txts">
+              <h4>{{item.content}}</h4>
+              <p>{{item.createDate}}</p>
+            </div>
+          </li>
+          <li v-if="isAction">
+            <div class="circle">
+              <i></i>
+            </div>
+            <div class="line"></div>
+            <div class="txts">
+              <h4>拼单已成功，商品等待发货。</h4>
+              <!-- <p>{{item.createDate}}</p> -->
+            </div>
+          </li>
+        </ul>
       </div>
-      <p class="words">{{allData.areaName}}{{allData.address}}</p>
     </div>
     <div class="order-info">
       <div class="brief clear">
@@ -34,7 +55,9 @@
           <span>优惠券</span>
           <span v-if="!allData.couponDiscount">无</span>
           <span v-if="allData.couponDiscount>=1">￥{{allData.couponDiscount}}</span>
-          <span v-if="allData.couponDiscount<1&&allData.couponDiscount>0">{{allData.couponDiscount*10}}折</span>
+          <span
+            v-if="allData.couponDiscount<1&&allData.couponDiscount>0"
+          >{{allData.couponDiscount*10}}折</span>
         </li>
         <li>
           <span>订单金额</span>
@@ -58,7 +81,7 @@
           </label>
         </li>
       </ul>
-    </div> -->
+    </div>-->
     <div class="orderNum">
       <h3>订单信息</h3>
       <ul>
@@ -80,50 +103,75 @@
     </div>
     <div class="blank" style="height:1.5rem;"></div>
     <div class="fun-btn">
-      <button class="cancel" @click="cancelOrder">取消订单</button>
-      <button class="toPay" v-clipboard:copy="copyUrl" v-clipboard:error="onError" v-clipboard:success="onCopy" @click="share(sn)">分享出去</button>
+      <button class="cancel" @click="service">申请售后</button>
+      <button class="toPay"  @click="buyAgin">{{shipTxts}}</button>
     </div>
+    <mt-popup v-model="popupVisible" position="center" :closeOnClickModal="true">
+      <div class="status-guide">
+        <h3>请拨打客服电话</h3>
+        <a href="tel:400-082-5588">400 082 5588</a>
+      </div>
+    </mt-popup>
   </div>
 </template>
 <script>
 import { MessageBox } from "mint-ui";
-import { orderDetail } from '../../api'
-import { getCookie,imgBaseUrl,toTop,setCookie,isWeixin } from "../../util";
+import { orderDetail,getShipInfo,goodsOrderConfirm } from "../../api";
+import { getCookie, imgBaseUrl, toTop, setCookie, isWeixin } from "../../util";
 import { Indicator } from "mint-ui";
 export default {
-  name: "shareDetail",
+  name: "completeDetail",
   data() {
     return {
       values: "",
-      sn:'',
-      token:'',
-      allData:'',
-      info:'',
-      imgBaseUrl:imgBaseUrl,
-      comeData:false,
-      copyUrl:''
+      sn: "",
+      token: "",
+      allData: "",
+      info: "",
+      imgBaseUrl: imgBaseUrl,
+      comeData: false,
+      copyUrl: "",
+      shipInfos:'',
+      shipTxts:'再次购买',
+      productSn:'',
+      popupVisible:false,
+      isAction:true
     };
   },
-  mounted(){
-    toTop();//到顶部
+  mounted() {
+    toTop(); //到顶部
     let token = getCookie("token");
     this.token = token;
     this.sn = this.$route.params.sn;
     this.initData();
   },
   methods: {
-    async initData(){
+    async initData() {
       Indicator.open();
+      
       let res = await orderDetail({
-        token:this.token,
+        token: this.token,
+        sn: this.sn
+      });
+      let shipRes = await getShipInfo({//物流信息
         sn:this.sn
       });
       console.log(res);
-      if(res.result === true){
+      if (res.result === true) {
         this.allData = res.data.order;
         this.info = res.data.order.items[0];
         this.comeData = true;
-      }else{
+        this.productSn = res.data.productSn;
+      } else {
+        console.log(res.msg);
+      }
+      //console.log(shipRes);
+      if(shipRes.result === true){
+        this.shipInfos = shipRes.data;
+        if(this.shipInfos.length>0){
+          this.isAction = false;
+        }
+      }else {
         console.log(res.msg);
       }
       Indicator.close();
@@ -137,34 +185,12 @@ export default {
         this.$toast("复制失败");
       });
     },
-    cancelOrder(){
-      MessageBox.alert("发起拼单24小时后，若拼单未成功将自动取消 并退款哦", "暂时无法取消订单");
+    service() {
+      this.popupVisible = true;
     },
-    pay(){
-      // if(this.values == ''){
-      //   this.$toast('请选择支付方式');
-      // }
-      // if(this.values === 'weixin'){
-      //   this.$toast('weixin');
-      // }else if(this.values === 'ali'){
-      //   this.$toast('ali');
-      // }
-      setCookie('orderSn',this.sn);
-      this.$router.push('/payType');
-    },
-    share(sn) {
-      let browser = isWeixin();
-      let shareBaseUrl = window.location.host;
-      if(!browser){
-        this.copyUrl = shareBaseUrl + '/detail/' + sn;
-      }
-    },
-    onCopy(){
-      this.$toast('链接已复制，发给好友一起拼团吧~');
-    },
-    onError(){
-       console.log('复制链接失败');
-    } 
+    buyAgin(){
+      this.$router.push('/detail/'+ this.productSn);
+    }
   }
 };
 </script>
@@ -174,7 +200,7 @@ export default {
   line-height: 1.5rem;
   position: relative;
   text-align: center;
-  i {
+  p {
     position: absolute;
     height: 0.3rem;
     width: 0.3rem;
@@ -185,37 +211,25 @@ export default {
     line-height: 0.3rem;
     left: 40%;
     top: 0.6rem;
+    em {
+      border-left: 1px solid #fff;
+      border-bottom: 1px solid #fff;
+      position: absolute;
+      width: 0.08rem;
+      height: 0.1rem;
+      top: 0.05rem;
+      left: 0.14rem;
+    }
   }
   span {
     padding-left: 0.3rem;
   }
   &.await {
-    background: #FFF5F5;
-    color: #F24848;
-    i {
-      background: #F24848;
-    }
-  }
-}
-.address {
-  padding: 0.28rem;
-  background: #fff;
-  h3 {
-    font-size: 0.3rem;
-    color: #333;
-  }
-  .nameTel {
-    margin-top: 0.2rem;
-    font-size: 0.3rem;
+    background: #f9faf9;
     color: #666;
-    span {
-      padding-right: 0.6rem;
+    p {
+      background: #00be12;
     }
-  }
-  .words {
-    margin-top: 0.2rem;
-    font-size: 0.26rem;
-    color: #666;
   }
 }
 .order-info {
@@ -365,33 +379,131 @@ export default {
     }
   }
 }
-.fun-btn{
-      height: 1.39rem;
-      line-height: 1.39rem;
-      text-align: right;
-      background: #fff;
-      width: 100%;
-      box-sizing: content-box;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      display: flex;
-      button{
-        width: 2rem;
-        height: 100%;
-        color: #fff;
-        font-size: .28rem;
+.fun-btn {
+  height: 1.39rem;
+  line-height: 1.39rem;
+  text-align: right;
+  background: #fff;
+  width: 100%;
+  box-sizing: content-box;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  button {
+    width: 2rem;
+    height: 100%;
+    color: #fff;
+    font-size: 0.28rem;
+    position: absolute;
+    text-align: center;
+  }
+  .cancel {
+    background: #333;
+    right: 2.6rem;
+  }
+  .toPay {
+    width: 2.6rem;
+    background: #ff3737;
+    right: 0;
+  }
+}
+.wuliu{
+  padding: .3rem;
+  background: #fff;
+
+  h3{
+    font-size: .3rem;
+    color: #333;
+  }
+  .infoList{
+    padding: .3rem 0;
+    li{
+      position: relative;
+      &:first-child{
+        .circle{
+          background: #333;
+        }
+        .txts{
+          h4{
+            color: #333;
+          }
+        }
+      }
+      &:last-child{
+        .txts{padding-bottom: 0;}
+        .line{
+          display: none;
+        }
+      }
+      .circle{
+        width: 15px;
+        height: 15px;
+        left: 0;
+        top: .1rem;
         position: absolute;
-        text-align: center;
+        border-radius: 50%;
+        background: #BDBDBD;
+        z-index: 2;
+        i:after{
+          content: '';
+          display: inline-block;
+          width: .08rem;
+          height: .08rem;
+          border-top: 1px solid #fff;
+          border-right: 1px solid #fff;
+          transform: rotate(-45deg);
+          position: relative;
+          top: -.1rem;
+          left: 5px;
+
+        }
       }
-      .cancel{
-        background: #333;
-        right: 2.6rem;
+      .line{
+        height: 2rem;
+        width: 1px;
+        position: absolute;
+        background: #BDBDBD;
+        top: .1rem;
+        left: .14rem;
+        z-index: 1;
       }
-      .toPay{
-        width: 2.6rem;
-        background: #FF3737;
-        right: 0;
+      .txts{
+        padding:0 0 1rem .45rem ;
+        h4{
+          font-size:.28rem;
+          font-weight:500;
+          color:rgba(189,189,189,1);
+        }
+        p{
+          font-size:.2rem;
+          font-weight:300;
+          color:rgba(102,102,102,1);
+        }
       }
     }
+  }
+}
+.mint-popup {
+  border-radius: 4px;
+  width: 80%;
+}
+.status-guide {
+  border-radius: 4px;
+  text-align: center;
+  h3 {
+    font-size: 0.26rem;
+    font-weight: 400;
+    line-height: 1rem;
+    border-bottom: 1px solid #f0f0f0;
+    padding: 0 0.4rem;
+    color: #333;
+  }
+  a {
+    line-height: 1rem;
+    display: inline-block;
+    width: 100%;
+    color: #29a55e;
+  }
+}
 </style>

@@ -19,25 +19,29 @@
         <div class="ma">
           <div class="top">
             我的订单
-            <span class="more">查看全部</span>
+            <span class="more" @click="jumpUrl('completeList')">查看全部</span>
           </div>
         </div>
         <ul>
           <li @click="jumpUrl('awaitPay')">
             <img src="../../assets/img/topay@2x.png" alt>
             <p>待付款</p>
+            <i v-if="awaitPayNum>0">{{awaitPayNum}}</i>
           </li>
           <li @click="jumpUrl('awaitshare')">
             <img src="../../assets/img/share@2x.png" alt>
             <p>待分享</p>
+            <i v-if="awaitShareNum>0">{{awaitShareNum}}</i>
           </li>
           <li @click="jumpUrl('awaitReceive')">
             <img src="../../assets/img/shouhuo@2x.png" alt>
             <p>待收货</p>
+            <i v-if="awaitReceiveNum>0">{{awaitReceiveNum}}</i>
           </li>
           <li @click="jumpUrl('awaitComment')">
             <img src="../../assets/img/comment@2x.png" alt>
             <p>待评价</p>
+            <i v-if="waitReview>0">{{waitReview}}</i>
           </li>
         </ul>
       </div>
@@ -81,7 +85,7 @@
 </template>
 <script>
 import { getCookie } from "../../util";
-import { updateAvatar ,getAvatar} from '../../api'
+import { updateAvatar ,getAvatar,initOrderNums } from '../../api'
 import { mapActions,mapState } from 'vuex'
 import defaultUserImg from '../../assets/img/avatar@2x.png'
 import { Indicator } from "mint-ui";
@@ -95,7 +99,10 @@ export default {
       token:'',
       defaultUserImg:defaultUserImg,
       userImg:'',
-
+      awaitPayNum:0,//待付款的总数
+      awaitShareNum:0,//待分享
+      awaitReceiveNum:0,//待收货
+      waitReview:0,//待评价
     };
   },
   computed:{
@@ -120,8 +127,9 @@ export default {
     } else {
       this.isLogin = true;
       if(this.imgUrl == ''){//刷新 vuex 'imgUrl'丢失，重新获取头像
-        this.getUserImg(this.token);
+        this.getUserImg([this.token,this]);
       }
+      this.preshowNum();
     }
     this.getMycount();
   },
@@ -130,7 +138,21 @@ export default {
     jumpUrl(url) {
       this.$router.push("/" + url);
     },
-    
+    async preshowNum(){
+      let numRes = await initOrderNums({
+        token:this.token
+      });
+      console.log(numRes);
+      Indicator.close();
+      if(numRes.result === true){
+        this.awaitPayNum = numRes.data.waitPay;
+        this.awaitShareNum = numRes.data.share;
+        this.awaitReceiveNum = numRes.data.waitReceive;
+        this.waitReview = numRes.data.waitReview;
+      }else{
+        this.$toast(numRes.msg);
+      }
+    },
     goList(){
       this.$router.push({name:'invoiceList',params:{origin:'myZone'}});
     },
@@ -189,6 +211,25 @@ export default {
   }
   .home {
     right: 0.38rem;
+  }
+}
+.orderRel{
+  li{
+    position: relative;
+    i{
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border:1px solid #F24848;
+      top: -8.4px;
+      border-radius: 50%;
+      left: 1rem;
+      font-size: .18rem;
+      color: #F24848;
+      line-height: 14px;
+      text-align: center;
+      background: #fff;
+    }
   }
 }
 .orderRel,

@@ -217,6 +217,30 @@ export default new Router({
       } 
     },
     {
+      path:'/completeList',
+      name:'completeList',
+      component:()=>import("@/components/completeOrder/completeList"),
+      meta:{
+        title:'全部订单'
+      } 
+    },
+    {
+      path:'/completeDetail',
+      name:'completeDetail',
+      component:()=>import("@/components/completeOrder/completeDetail"),
+      meta:{
+        title:'订单详情'
+      } 
+    },
+    {
+      path:'/payStatus',
+      name:'payStatus',
+      component:()=>import("@/components/pay/payStatus"),
+      meta:{
+        title:'支付状态'
+      } 
+    },
+    {
       path:'/payDetail/:origin/:sn',
       name:'payDetail',
       component:()=>import("@/components/pay/payDetail"),

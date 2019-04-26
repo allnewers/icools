@@ -107,6 +107,7 @@ export const goodsOrderConfirm = (params) => $fetch('get','order/confirmRec','',
 export const wxPayment = (data) => $fetch('post','order/payOrderForWXJSAPI',data,'');
 
 export const feedBacks = (params) => $fetch('get','member/addSuggestion','',params);
+export const initOrderNums = (params) => $fetch('get','order/getOrderNum','',params);
 
 
 
