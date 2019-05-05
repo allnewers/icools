@@ -187,7 +187,7 @@ export default {
   margin-top: 0.2rem;
 }
 .awaitreceive {
-  height: 90vh;
+  height: 100vh;
   overflow: scroll;
   li {
     background: #fff;

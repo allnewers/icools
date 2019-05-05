@@ -205,7 +205,10 @@ export default {
     nextPage() {
       ++this.currentPage;
       //alert(this.currentPage)
-      search(this.params)
+      let params = {
+        keyword: this.tips, token: this.token, pageNum: this.currentPage 
+      };
+      search(params)
         .then(res => {
           Indicator.close(); //数据加载完成，关闭加载中
           if (res.result === true) {
@@ -357,7 +360,7 @@ export default {
 .prolist {
   .list-show {
     margin-top: 1.8rem;
-    height: 76vh;
+    height: 85vh;
     overflow: scroll;
     ul {
       width: 100%;

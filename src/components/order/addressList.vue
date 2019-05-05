@@ -86,11 +86,13 @@ export default {
       if(this.n == index) return;//已为默认地址 不做操作
       let id = item.id;
       let data = item;
+      delete data.treePath;
+      //console.log(data);
       MessageBox.confirm("确定设置为默认地址?", "温馨提示")
         .then(() => {
           Indicator.open();
           data.isDefault = true; //设置默认地址
-          data.token = this.token; //携带coken
+          data.token = this.token; //携带Token
           data.id = id; //携带 地址 id
           //console.log(data);
           updateAddress(data)

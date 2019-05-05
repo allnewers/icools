@@ -161,18 +161,20 @@ export default {
     },
     async wxPayCan() {
       //微信内置浏览器 h5微信支付  获取微信支付接口 参数
+      Indicator.open();
       let canRes = await wxPayment({//统一下单接口
         token: this.token,
         sn: this.sn,
         openid: this.openId
       });
+      Indicator.close();
       if (canRes.result === true) {
         this.params = canRes.data;
         //alert(JSON.stringify(this.params));
         this.wxJSBridgeError();
       } else {
         this.$toast(canRes.msg);
-      }
+      }  
     },
     async payApi() {
       //浏览器h5 调起微信支付

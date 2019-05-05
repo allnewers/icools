@@ -5,7 +5,8 @@ import qs from 'qs'
 let instance = Axios.create({
   //baseURL: 'http://192.168.0.200:9898/',//内部服务器
   //baseURL:'http://2443934eq9.qicp.vip:29031/'
-  baseURL:'http://tuan.eicools.com:9898/'
+  //baseURL:'http://tuan.eicools.com:9898/'
+  baseURL:'http://app.icools.com/'////正式环境
 });
 //let baseURLs='http://192.168.0.200:9898/';
 //let baseURLs='http://2443934eq9.qicp.vip:29031/';//付永花生壳
@@ -49,8 +50,9 @@ function $axiosPost(url, data) {
 
 }
 //export const baseURL = 'http://192.168.0.200:9898/';
-export const baseURL = 'http://tuan.eicools.com:9898/'
+//export const baseURL = 'http://tuan.eicools.com:9898/'
 //export const baseURL = 'http://2443934eq9.qicp.vip:29031/'
+export const baseURL = 'http://app.icools.com/'//正式环境
 export const getIndexData = () => $fetch('get', 'homePage/details');
 export const sendLoginCode = (params) => $fetch('get', 'sms/sendSms', '', params);
 export const signIn = (params) => $fetch('get', 'mobileLogin', '', params);
@@ -67,7 +69,7 @@ export const getCommentsNum = (params) => $fetch('get', 'product/getReviewCount'
 export const wxShareConfig = (params) => $fetch('get', 'share/wx', '', params);
 
 export const wxOpenId = (data) => $fetch('post', 'order/openid',data,'');
-
+export const tuanAvatars = (params) => $fetch('get', 'order/returnpaysuccess', '', params);
 //需要 传token的 接口
 export const search = (params) => $fetch('get', 'search/groupProductPage', '', params);
 export const searchTag = (params) => $fetch('get', 'search/getSearch', '', params);
@@ -78,6 +80,7 @@ export const receiveAddress = (params) => $fetch('get', 'member/listReceiver', '
 export const saveAddress = (params) => $fetch('get', 'member/saveReceiver', '', params);
 export const updateAddress = (params) => $fetch('get', 'member/updateReceiver', '', params);
 export const deleteAddress = (params) => $fetch('get', 'member/deleteReceiver', '', params);
+export const updateDefaultAddress = (params) => $fetch('get', 'member/setDefaultReceiver', '', params);
 
 export const addInvoiceTitle = (params) => $fetch('get', 'member/saveInvoice', '', params);
 export const InvoiceTitleList = (params) => $fetch('get', 'member/listInvoice', '', params);

@@ -194,9 +194,7 @@ export default {
     share(sn) {
       let wx = isWeixin();
       let shareBaseUrl = window.location.host;//获取当前域名
-      if(!wx){
-        this.copyUrl = shareBaseUrl + '/detail/' + sn;
-      }
+      this.copyUrl = shareBaseUrl + '/detail/' + sn;
     },
     cancelOrder() {
       MessageBox.alert(
@@ -218,7 +216,7 @@ export default {
   margin-top: .2rem;
 }
 .awaitshare {
-  height: 90vh;
+  height: 100vh;
   overflow: scroll;
   li {
     background: #fff;

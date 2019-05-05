@@ -54,6 +54,7 @@ export default {
   position: absolute;
   bottom: 0;
   left: 0;
+  z-index: 1000;
   .close-dialog {
     position: absolute;
     top: 0.2rem;
@@ -76,7 +77,7 @@ export default {
   left: 0;
   background: rgba(0, 0, 0, 0.5);
   height: 100%;
-  z-index: -1;
+  z-index: 999;
 }
 
 </style>

@@ -1,12 +1,12 @@
 <template>
   <div>
-    <div class="wrapper" :style="{overflow:isScroll,height:limitH,position:pos,width:widths}">
+    <div class="wrapper" :style="{overflow:isScroll,height:limitH,position:pos,width:widths,zIndex:1000}">
       <div class="content" v-if="allshow" >
         <div class="banner">
           <swiper :options="swiperOption1" ref="mySwiper">
             <swiper-slide v-for="(item,index) in detailBanner" :key="item.id">
               <span class="img-banner" @click="preview(index)">
-                <img v-lazy="'http://eicools.oss-cn-beijing.aliyuncs.com/'+item.large" alt>
+                <img :src="'http://eicools.oss-cn-beijing.aliyuncs.com/'+item.large" alt>
               </span>
             </swiper-slide>
             <div class="swiper-pagination" slot="pagination"></div>
@@ -538,17 +538,7 @@ export default {
         this.$router.push({name:'phonelogin',params:{urlCode:'detail/'+this.sn}});
         return;
       }
-      this.$router.push({
-        name: "order",
-        params: {
-          productId: this.productId,
-          thumbnail: this.thumbnail,
-          sum: this.snum,
-          title: this.title,
-          price: this.price,
-          buyType:this.buyType
-        }
-      });
+      this.$router.push('/order');
       this.$store.commit("toggleDialog", false);
       
     },
@@ -562,6 +552,7 @@ export default {
     },
     preview(index) {
       //图片放大 预览
+      //console.log(this.bannerImgList);
       this.$imagePreview({
         images: this.bannerImgList,
         index: index

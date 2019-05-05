@@ -2,8 +2,8 @@
   <div>
     <div v-if="data.length>0">
       <swiper :options="swiperOption" ref="mySwiper">
-        <swiper-slide v-for="(item, index) in data" :key="item.id" @click="go(item.url)">
-          <img :src="item.path" alt>
+        <swiper-slide v-for="(item, index) in data" :key="item.id">
+          <img :src="item.path" @click="go(item.url)" alt>
         </swiper-slide>
         <div class="swiper-pagination" slot="pagination"></div>
       </swiper>
@@ -23,7 +23,7 @@ export default {
   data() {
     return {
       swiperOption: {
-        //autoplay:true,
+        autoplay:true,
         pagination: {
           el: ".swiper-pagination"
         }
@@ -36,9 +36,9 @@ export default {
     swiperSlide,
     Load
   },
-  mounted() {},
   methods: {
     go(url) {
+      //alert(url)
       window.location.href = url;
     }
   }
@@ -54,7 +54,7 @@ export default {
 </style>
 <style lang="less">
 .swiper-pagination-bullet-active {
-  background-color: #fff;
+  background-color: #fff!important;
 }
 .loading {
   height: 4.25rem;

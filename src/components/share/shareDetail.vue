@@ -153,11 +153,10 @@ export default {
       this.$router.push('/payType');
     },
     share(sn) {
-      let browser = isWeixin();
+      //let browser = isWeixin();
       let shareBaseUrl = window.location.host;
-      if(!browser){
-        this.copyUrl = shareBaseUrl + '/detail/' + sn;
-      }
+      this.copyUrl = shareBaseUrl + '/detail/' + sn;
+      
     },
     onCopy(){
       this.$toast('链接已复制，发给好友一起拼团吧~');

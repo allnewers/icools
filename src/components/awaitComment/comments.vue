@@ -236,7 +236,7 @@ export default {
   margin-top: 0.2rem;
 }
 .awaitcomment {
-  height: 90vh;
+  height: 100vh;
   overflow: scroll;
   li {
     background: #fff;

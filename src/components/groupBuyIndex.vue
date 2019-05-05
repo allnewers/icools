@@ -144,7 +144,7 @@ export default {
     getIndexData()
       .then(res => {
         let data = res.data;
-        //console.log(res);
+        console.log(res);
         this.banners = data.ad; //banner图数据
         //this.load = false;
         this.faddish = data.faddish;

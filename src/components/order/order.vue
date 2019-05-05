@@ -201,7 +201,8 @@ export default {
           textAlign: "center"
         }
       ],
-      timeList:['09:00-12:00','12:00-15:00','15:00-18:00','18:00-21:00']
+      timeList:['09:00-12:00','12:00-15:00','15:00-18:00','18:00-21:00'],
+      tokenExpire:false
     };
   },
   computed: {
@@ -253,10 +254,18 @@ export default {
     receiveAddress({ token: this.token })
       .then(res => {
         //console.log(res);
+        if(res.errorCode == 10){
+          this.tokenExpire = true;//服务器token过期
+        }
         if (res.result === false) {
           this.noAdderss = true;
         } else {
           this.addressList = res.data;
+          if(this.addressList.length>0){
+            this.hasAdderss = true;
+          }else{
+            this.noAdderss = true;
+          }
           if (this.addAddress === 0) {
             //（刷新 vuex值丢失）首次进入，设置默认地址
             res.data.forEach((element, index) => {
@@ -265,7 +274,7 @@ export default {
               }
             });
           }
-          this.hasAdderss = true;
+          
         }
         getOrderInfo({
           productId:this.productId
@@ -276,6 +285,9 @@ export default {
           if(res.result === true){
             this.orderInfo = res.data;
           }else{
+            if(res.errorCode == '1000'){//直接进入order 重定向到首页
+              this.$router.replace('/');
+            }
             this.$toast(res.msg);
           }
           Indicator.close();
@@ -301,6 +313,10 @@ export default {
   },
   methods: {
     addAddress() {
+      if(this.tokenExpire){
+        this.$router.push({ name: "phonelogin", params: { urlCode:'order' } });
+        return;
+      }
       this.jumpUrl("addAddress");
     },
     submitOrder() {

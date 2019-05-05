@@ -245,7 +245,7 @@ export default {
         font-size: .3rem;
         label{
           display: inline-block;
-          width: 30%;
+          width: 25%;
           color: #999;
         }
         input{

@@ -54,6 +54,7 @@ export default {
     //this.changeBg();
     let code = this.$route.params.urlCode;
     this.urlCode = code;
+    //alert(this.urlCode)
   },
   computed: {
     signs() {
@@ -119,17 +120,17 @@ export default {
             this.$toast('对不起，您的浏览器cookie功能被禁用，请开启并重启浏览器');
             return;
           }  
-          setCookie('token',res.data.token,7);
-          setCookie('username',res.data.username,7);
-          setCookie('nickname',res.data.name,7);
-          setCookie('isUpdate',res.data.isUpdate,7);
-          setCookie('gender',res.data.gender,7);
          // setCookie('userAvatar',res.data.imgUrl,7);
           this.alerts(res.msg,()=>{
             setTimeout(()=>{
               if(result===true){ 
+                setCookie('token',res.data.token,7);
+                setCookie('username',res.data.username,7);
+                setCookie('nickname',res.data.name,7);
+                setCookie('isUpdate',res.data.isUpdate,7);
+                setCookie('gender',res.data.gender,7);
                 this.$store.commit('changeNotice',true); //更新首页 消息状态 
-                this.$router.push('/'+this.urlCode);  
+                this.$router.replace('/'+ this.urlCode);  
               }
             },2000)
             

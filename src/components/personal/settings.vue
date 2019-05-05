@@ -53,7 +53,7 @@ export default {
           this.$toast({message:'登出成功',duration:1000});
           this.$store.commit('changeNotice',false);
           setTimeout(()=>{
-            this.$router.push('/');
+            this.$router.replace('/');
           },1000)
         }
         
