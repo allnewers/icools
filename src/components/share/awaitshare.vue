@@ -30,9 +30,10 @@
                   </p>
                 </div>
               </div>
-              <div class="fun-btn">
-                <button class="cancel" @click="cancelOrder">取消订单</button>
-                <button class="toPay" v-clipboard:copy="copyUrl" v-clipboard:error="onError" v-clipboard:success="onCopy" @click="share(item.productSn)">去分享</button>
+              <div class="fun-btn"> 
+                <p v-if="item.paymentMethod===2" class="xianxia">到店付，分享{{item.shareNeedNum}}人免拼，还差{{item.shareNeedNum - item.shareOkNum}}人</p>
+                <button v-if="item.paymentMethod!=2" class="cancel" @click="cancelOrder">取消订单</button>
+                <button class="toPay" v-clipboard:copy="copyUrl" v-clipboard:error="onError" v-clipboard:success="onCopy" @click="share(item.productSn,item.groupbuyingReocrdsId)">复制链接去分享</button>
                 <!-- <button v-else class="toPay" @click="getWxConfig(item.thumbnail,item.fullName,item.productSn)">去分享</button> -->
               </div>
             </li>
@@ -78,6 +79,7 @@ export default {
       currentPage:1,
       copyUrl:'',
       isWx:false,
+      groupId:'',//拼团id
     };
   },
   mounted() {
@@ -191,10 +193,10 @@ export default {
         params: { origin: "awaitpay", sn: sn }
       });
     },
-    share(sn) {
+    share(sn,groupId) {
       let wx = isWeixin();
       let shareBaseUrl = window.location.host;//获取当前域名
-      this.copyUrl = shareBaseUrl + '/detail/' + sn;
+      this.copyUrl = shareBaseUrl + "/detail/" + sn + '/' + groupId;
     },
     cancelOrder() {
       MessageBox.alert(
@@ -274,6 +276,11 @@ export default {
       line-height: 0.85rem;
       text-align: right;
       padding: 0 0.28rem;
+      p{
+        float: left;
+        font-size: .24rem;
+        color: #333;
+      }
       button {
         vertical-align: middle;
         padding: 0.1rem 0.15rem;

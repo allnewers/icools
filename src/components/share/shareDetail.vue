@@ -12,6 +12,19 @@
       </div>
       <p class="words">{{allData.areaName}}{{allData.address}}</p>
     </div>
+    <div class="zhuli" v-if="allData.paymentMethod===2">
+      <h3>邀请<span>{{needNums}}</span>人助力即可免拼<em v-if="needNums-hasTuanNum>0">，还差{{needNums-hasTuanNum}}人</em></h3>
+      <!-- <ul>
+        <li :class="{hasOkNum:hasTuanNum > index}" v-for="(item,index) in needNums" :key="index">
+          <div class="avatars" v-if="index < hasTuanNum">
+            <img src="../../assets/img/zhuli.png" alt="">
+          </div>
+          <div class="line" :class="{lastOk:index === hasTuanNum-1}"></div>
+          <div class="circle"></div>
+        </li>
+      </ul> -->
+      <div class="getZhuLi" v-clipboard:copy="copyUrl" v-clipboard:error="onError" v-clipboard:success="onCopy" @click="share(productSn,allData.groupbuyingReocrdsId)">立即获取助力</div>
+    </div>
     <div class="order-info">
       <div class="brief clear">
         <div class="thumbnail fl">
@@ -80,8 +93,8 @@
     </div>
     <div class="blank" style="height:1.5rem;"></div>
     <div class="fun-btn">
-      <button class="cancel" @click="cancelOrder">取消订单</button>
-      <button class="toPay" v-clipboard:copy="copyUrl" v-clipboard:error="onError" v-clipboard:success="onCopy" @click="share(sn)">分享出去</button>
+      <button v-if="allData.paymentMethod!=2" class="cancel" @click="cancelOrder">取消订单</button>
+      <button class="toPay" v-clipboard:copy="copyUrl" v-clipboard:error="onError" v-clipboard:success="onCopy" @click="share(productSn,allData.groupbuyingReocrdsId)">复制链接去分享</button>
     </div>
   </div>
 </template>
@@ -94,14 +107,17 @@ export default {
   name: "shareDetail",
   data() {
     return {
+      needNums:5,//需要的助力人数
+      hasTuanNum:2,//已经助力的人数
       values: "",
-      sn:'',
+      sn:'',//订单sn
       token:'',
       allData:'',
       info:'',
       imgBaseUrl:imgBaseUrl,
       comeData:false,
-      copyUrl:''
+      copyUrl:'',
+      productSn:'',//商品sn
     };
   },
   mounted(){
@@ -120,7 +136,10 @@ export default {
       });
       console.log(res);
       if(res.result === true){
+        this.productSn = res.data.productSn;
         this.allData = res.data.order;
+        this.needNums = parseInt(res.data.shareNeedNum);
+        this.hasTuanNum = parseInt(res.data.shareOkNum);
         this.info = res.data.order.items[0];
         this.comeData = true;
       }else{
@@ -152,11 +171,10 @@ export default {
       setCookie('orderSn',this.sn);
       this.$router.push('/payType');
     },
-    share(sn) {
+    share(sn,groupId) {
       //let browser = isWeixin();
       let shareBaseUrl = window.location.host;
-      this.copyUrl = shareBaseUrl + '/detail/' + sn;
-      
+      this.copyUrl = shareBaseUrl + '/detail/' + sn + '/' + groupId;
     },
     onCopy(){
       this.$toast('链接已复制，发给好友一起拼团吧~');
@@ -365,32 +383,111 @@ export default {
   }
 }
 .fun-btn{
-      height: 1.39rem;
-      line-height: 1.39rem;
-      text-align: right;
-      background: #fff;
-      width: 100%;
-      box-sizing: content-box;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      display: flex;
-      button{
-        width: 2rem;
-        height: 100%;
-        color: #fff;
-        font-size: .28rem;
+  height: 1.39rem;
+  line-height: 1.39rem;
+  text-align: right;
+  background: #fff;
+  width: 100%;
+  box-sizing: content-box;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  button{
+    width: 2rem;
+    height: 100%;
+    color: #fff;
+    font-size: .28rem;
+    position: absolute;
+    text-align: center;
+  }
+  .cancel{
+    background: #333;
+    right: 2.6rem;
+  }
+  .toPay{
+    width: 2.6rem;
+    background: #FF3737;
+    right: 0;
+  }
+}
+.zhuli{
+  padding: .3rem;
+  background: #fff;
+  margin-top: .2rem;
+  h3{
+    font-size:.3rem;
+    font-weight:bold;
+    color:rgba(51,51,51,1);
+    text-align: center;
+    span{
+      color: #F24848;
+    }
+  }
+  ul{
+    display: flex;
+    margin-top: .7rem;
+    li{
+      flex: 1;
+      height: 15px;
+      position: relative;
+      &:last-child{
+        flex: 14px 0 0;
+        .line{
+          width: 0;
+        }
+      }
+      &.hasOkNum{
+        .line{
+          background: #F24848;
+          &.lastOk{
+            background: #eee;
+          }
+        }
+        .circle{
+          border-color: #F24848;
+          background: #fff;
+        }
+      }
+      .line{
+        height: 2px;
+        width: 100%;
+        background: #eee;
+        margin-top: 7px;
+      }
+      .circle{
+        border: 2px solid #eee;
+        width: 10px;
+        height: 10px;
+        background:#FFA9A9; 
+        border-radius: 50%;
         position: absolute;
-        text-align: center;
+        left: 0;
+        top: 1px;
       }
-      .cancel{
-        background: #333;
-        right: 2.6rem;
-      }
-      .toPay{
-        width: 2.6rem;
-        background: #FF3737;
-        right: 0;
+      .avatars{
+        position: absolute;
+        width: .53rem;
+        height: .53rem;
+        top:-.55rem;
+        left: -.1rem;
+        img{
+          max-width: 100%;
+        }
       }
     }
+  }
+  .getZhuLi{
+    width: 70%;
+    height: .8rem;
+    text-align: center;
+    line-height: .8rem;
+    border-radius: 4px;
+    font-size: .28rem;
+    color: #fff;
+    font-weight: bold;
+    background: #F24848;
+    margin: .5rem auto 0;
+  }
+}
 </style>

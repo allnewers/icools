@@ -41,7 +41,7 @@ export default {
       isLoading: false,
       isMoreLoading: false,
       noMore: false,
-      i: 1,
+      i: 0,
       token:'',
       type:''
     };

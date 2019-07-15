@@ -50,9 +50,9 @@
                 </div>
                 <div
                   class="btn"
-                  :class="{btnDisabled:groupEnd}"
-                  @click="goBuyList(item.groupPrice)"
-                >{{!groupEnd?"去凑团":"已结束"}}</div>
+                  :class="{btnDisabled:item.isPast}"
+                  @click="goBuyList(item.groupPrice,item.id)"
+                >{{!item.isPast?"去凑团":"已结束"}}</div>
               </li>
             </ul>
           </div>
@@ -215,9 +215,9 @@
                     </div>
                     <div
                       class="btn"
-                      :class="{btnDisabled:groupEnd}"
-                      @click="goBuyList(item.groupPrice)"
-                    >{{!groupEnd?"去凑团":"已结束"}}</div>
+                      :class="{btnDisabled:item.isPast}"
+                      @click="goBuyList(item.groupPrice,item.id)"
+                    >{{!item.isPast?"去凑团":"已结束"}}</div>
                   </li>
                 </ul>
               </div>
@@ -241,9 +241,11 @@ import {
   eachGoodsBuyList,
   collectProduct,
   updateGroupPrice,
-  updateSinglePrice
+  updateSinglePrice,
+  shareClickTimes,
+  sendweixinCode
 } from "../api";
-import { getCookie,toTop,setCookie,imgBaseUrl } from "../util";
+import { getCookie,toTop,setCookie,imgBaseUrl, delCookie ,isWeixin} from "../util";
 import { mapState, mapGetters } from "vuex";
 import CountDown from "vue2-countdown";
 import { Indicator } from "mint-ui";
@@ -284,7 +286,7 @@ export default {
       price: "", //切换 规格后 刷新的价格
       groupPrice: "",
       allshow: false, //预加载 背景
-      groupEnd: false, //团购倒计时 结束
+      //groupEnd: false, //团购倒计时 结束
       groupingList: false, //正在拼团的列表
       isCollect: false, //是否收藏
       SpecificationList: [], //商品多规格选择 列表(要被渲染的字段)
@@ -304,7 +306,7 @@ export default {
       isScroll:'auto',
       limitH:'auto',
       pos:'initial',
-      widths:'100%'
+      widths:'100%',
     };
   },
   components: {
@@ -338,10 +340,40 @@ export default {
   },
   mounted() {
     toTop(); //进入详情页 到顶部显示
+    let isweixin = isWeixin();
     let sn = this.$route.params.sn;
+    let shareGroupId = this.$route.query.groupId;
+    let weixinCode = this.$route.query.code;
     let token = getCookie("token");
     this.sn = sn;
     this.token = token;
+    let groupId = this.$route.params.groupId;
+    //若是 拼团分享的链接，记录点击数，点击10次，拼团自动成功
+    // if(shareGroupId){
+    //   shareClickTimes({
+    //     groupbuyingId:shareGroupId
+    //   }).then(res=>{
+    //     console.log(res);
+    //   }).catch();
+    // }
+    //alert(`微信code----${weixinCode}`);
+    if(isweixin && groupId !== undefined && weixinCode === undefined){//微信浏览器 并且拼团id存在,微信未授权获取code之前（分享出去，朋友点进来助力）
+      //console.log('coming...');
+      this.weixinAuth();//微信授权，获取code
+      return false;
+    }
+    if(weixinCode !== undefined){//微信授权完成，调回此页面获取到code码，发送给后台保存 朋友（助力人）信息
+      //alert(`微信code----${weixinCode}`);
+      //return false;
+      sendweixinCode({
+        code:weixinCode,
+        groupbuyingId:groupId,
+      }).then(res=>{
+        console.log(res);
+      }).catch(err=>{
+        console.log(err);
+      });
+    }
     //console.log(sn);
     Indicator.open();
     getDetail({ sn: sn, token: this.token })
@@ -371,7 +403,7 @@ export default {
         //alert(JSON.stringify(this.shopItemInfo));
         eachGoodsBuyList({ product: this.goodsId }) //团购人数 列表
           .then(res => {
-            //console.log(res);
+            console.log(res);
             let groupList = res.data;
             if (groupList.length >= 1) {
               this.groupingList = true;
@@ -395,8 +427,7 @@ export default {
 
     // });
   },
-  methods: {
-    //initScroll(){
+  methods: { 
     //$refs绑定元素
     //if (!this.scroll) {
     //this.scroll = new BScroll(this.$refs.wrapper, {
@@ -468,17 +499,23 @@ export default {
       this.dialog = true;
       this.buyType = type;
       this.refreshPrice();
+      delCookie('groupId');//开团 删除 凑团的 开团记录
       setCookie('buyType',this.buyType,7);//cookie 存储 团购或单买
     },
-    goBuyList(val) {
+    goBuyList(val,groupId) {
+      this.buyType = 'group';
       //参与拼团列表 购买入口
       if (this.groupEnd) {
         this.$toast("此商品拼团已结束");
         return false;
       }
+      //console.log(groupId);
+      setCookie('groupId',groupId,7);//保存拼团记录id
+      setCookie('buyType',this.buyType,7);//cookie 存储 团购
       this.price = val;
       this.dialog = true;
       this.tuanShow = false;
+      this.refreshPrice();
     },
     refreshPrice() {
       if (this.buyType == "single") {
@@ -562,6 +599,10 @@ export default {
       this.$router.push({name:'totalComments',params:{goodsId:this.goodsId}});
     },
     collect() {
+      if(this.token === null){
+        this.$router.push({name:'phonelogin',params:{urlCode:'detail/'+this.sn}});
+        return;
+      }
       collectProduct({ token: this.token, productId: this.detailAllData.id })
         .then(res => {
           //console.log(res);
@@ -571,8 +612,17 @@ export default {
     },
     countDownE_cb() {
       //倒计时结束回调
-      this.groupEnd = true;
-    }
+      //this.groupEnd = true;
+    },
+    weixinAuth() {
+      //微信内置浏览器打开 h5微信支付 跳转微信授权页
+      let APPID = "wx2154ea226f52f94c";//微信公众号的 唯一标识
+      let url = window.location.href;
+      //let url = 'http://tuan.eicools.com'
+      let REDIRECT_URI = encodeURIComponent(url);
+      let SCOPE = "snsapi_userinfo"; //snsapi_base 静默授权 ；若为 snsapi_userinfo 则弹出授权页
+      window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${APPID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${SCOPE}&state=STATE#wechat_redirect`;
+    },
   },
   watch: {
     // dialog: {
@@ -798,7 +848,9 @@ export default {
       text-overflow: ellipsis;
       display: -webkit-box;
       -webkit-line-clamp: 2;
+      /*! autoprefixer: off */
       -webkit-box-orient: vertical;
+      /* autoprefixer: on */
       font-weight: 400;
       color: rgba(51, 51, 51, 1);
     }

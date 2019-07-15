@@ -202,7 +202,9 @@ export default {
         }
       ],
       timeList:['09:00-12:00','12:00-15:00','15:00-18:00','18:00-21:00'],
-      tokenExpire:false
+      tokenExpire:false,
+      groupId:'',//拼团记录id
+      groupMethod:1,//1、开团 2、凑团 
     };
   },
   computed: {
@@ -244,11 +246,12 @@ export default {
     let token = getCookie("token");
     let productId = getCookie("productId");
     let buyType = getCookie("buyType");
+    let groupId = getCookie('groupId');
     this.sum = getCookie("sum");
+    this.groupId = groupId;  
     this.productId = productId;
     this.buyType = buyType;
-    //console.info(params);
-    
+    //console.info(params);  
     this.token = token;
     Indicator.open();
     receiveAddress({ token: this.token })
@@ -345,7 +348,13 @@ export default {
       }
     },
     tuanOrder(){
-      saveOrderGroup({
+      if(!this.groupId){
+        this.groupId = null;
+      }else{//如果有拼团记录id 则为凑团的订单
+        this.groupMethod = 2;
+      }
+      //console.log(this.groupMethod)
+      let params = {
         token:this.token,
         productId:this.productId,//商品id
         quantity:this.sum,//商品数量
@@ -356,8 +365,12 @@ export default {
         identifyNumber:this.invoiceNum,//发票税号,
         memo:this.times.deliveryDate +' '+ this.times.deliveryTime,// 订单备注
         couponCodeId:'',//优惠卷id
-        groupMethod:1,//
-      }).then(res=>{
+        groupMethod:this.groupMethod,//1、开团 2、凑团  
+        groupbuyingReocrdsId:this.groupId
+      };
+      //console.log(params);
+      //return;
+      saveOrderGroup(params).then(res=>{
         Indicator.close();
         console.log(res);
         if(res.result === true){
@@ -367,7 +380,9 @@ export default {
         }else{
           this.$toast(res.msg);
         }
-      }).catch();
+      }).catch(err=>{
+        console.log(err);
+      });
     },
     singleOrder(){
       saveOrderSingle({

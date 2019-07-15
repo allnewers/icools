@@ -54,7 +54,7 @@
     <mt-popup v-model="popupVisible" position="center" :closeOnClickModal="true">
       <div class="status-guide">
         <h3>请拨打客服电话</h3>
-        <a href="tel:18871565300">18871565300</a>
+        <a href="tel:400-082-5588">400 082 5588</a>
       </div>
     </mt-popup>
   </div>

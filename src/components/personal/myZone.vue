@@ -189,6 +189,10 @@ export default {
       line-height: 1.2rem;
       padding-left: 0.2rem;
       font-size: 0.28rem;
+      width: 65%;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
     }
     input{
       position: absolute;

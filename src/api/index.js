@@ -7,6 +7,7 @@ let instance = Axios.create({
   //baseURL:'http://2443934eq9.qicp.vip:29031/'
   //baseURL:'http://tuan.eicools.com:9898/'
   baseURL:'http://app.icools.com/'////正式环境
+  //baseURL:'http://test.app.icools.com/'////测试服务器环境
 });
 //let baseURLs='http://192.168.0.200:9898/';
 //let baseURLs='http://2443934eq9.qicp.vip:29031/';//付永花生壳
@@ -52,6 +53,7 @@ function $axiosPost(url, data) {
 //export const baseURL = 'http://192.168.0.200:9898/';
 //export const baseURL = 'http://tuan.eicools.com:9898/'
 //export const baseURL = 'http://2443934eq9.qicp.vip:29031/'
+//export const baseURL = 'http://test.app.icools.com/'//测试服务器环境
 export const baseURL = 'http://app.icools.com/'//正式环境
 export const getIndexData = () => $fetch('get', 'homePage/details');
 export const sendLoginCode = (params) => $fetch('get', 'sms/sendSms', '', params);
@@ -111,7 +113,10 @@ export const wxPayment = (data) => $fetch('post','order/payOrderForWXJSAPI',data
 
 export const feedBacks = (params) => $fetch('get','member/addSuggestion','',params);
 export const initOrderNums = (params) => $fetch('get','order/getOrderNum','',params);
-
+//分享点击次数
+export const shareClickTimes = (params) => $fetch('get','order/share','',params);
+//微信分享 5次 自动拼团成功
+export const sendweixinCode = (params) => $fetch('get','order/weixinShare','',params);
 
 
 

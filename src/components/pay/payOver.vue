@@ -11,8 +11,8 @@
     </div>
     <div class="share mt20">
       <h2 v-if="defaultAvatars>0">还差{{defaultAvatars}}人拼购成功，快来一起拼团吧</h2>
-      <h2 v-if="defaultAvatars==0">拼团成功！</h2>
-      <div class="time-down mt"><span>剩余</span><count-down class="timeStamp"
+      <h2 class="success" v-if="defaultAvatars==0">拼团成功！</h2>
+      <div v-if="defaultAvatars!=0" class="time-down mt"><span>剩余</span><count-down class="timeStamp"
                           :currentTime="nowTimestamp"
                           :startTime="nowTimestamp"
                           :endTime="endTimestamp"
@@ -33,6 +33,7 @@
         </span>
       </div>
       <div
+        v-if="defaultAvatars!=0"
         class="shareOut mt"
         @click="share"
         v-clipboard:copy="copyUrl"
@@ -64,7 +65,8 @@ export default {
       defaultAvatars:1,//还差几人拼团 成功
       nowTimestamp:0,
       endTimestamp:0,
-      defaultImg
+      defaultImg,
+      groudId:''
     };
   },
   components:{
@@ -89,12 +91,14 @@ export default {
         console.log(res);
         if (res.result === true) {
           this.productSn = res.data.prodcutSN;
+          this.groudId = res.data.groupBuyingReocrdsId;
           this.avatarList = res.data.groupInfoList;
           this.pinNum = res.data.totalNum;
           this.nowTimestamp = res.data.nowDate;
           this.endTimestamp = res.data.endDate;
           this.getDefaultNum();
           delCookie("orderSn"); //支付完成删除 订单sn cookie
+          delCookie("groupId"); 
         } else {
           this.$toast(res.msg);
         }
@@ -116,7 +120,7 @@ export default {
     share() {
       //let wx = isWeixin();
       let shareBaseUrl = window.location.host; //获取当前域名
-      this.copyUrl = shareBaseUrl + "/detail/" + this.productSn;
+      this.copyUrl = shareBaseUrl + "/detail/" + this.productSn + '/' + this.groupId;
     },
     onCopy() {
       this.$toast("链接已复制，发给好友一起拼团吧~");
@@ -143,6 +147,9 @@ export default {
     font-weight: 400;
     color: rgba(51, 51, 51, 1);
     line-height: 0.5rem;
+  }
+  .success{
+    font-size: .32rem;
   }
   .time-down {
     font-size: 0.24rem;

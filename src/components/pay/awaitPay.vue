@@ -15,7 +15,8 @@
             <li v-for="(item,index) in awaitList" :key="item.id">
               <div class="top clear">
                 <p class="fl">订单编号：{{item.sn}}</p>
-                <span class="fr">{{item.typeName}}</span>
+                <span v-if="item.paymentMethod != 2" class="fr">{{item.typeName}}</span>
+                <span v-if="item.paymentMethod == 2" class="fr">助力完成</span>
               </div>
               <div class="brief clear" @click="pay(item.sn)">
                 <div class="thumbnail fl">
@@ -29,9 +30,12 @@
                   </p>
                 </div>
               </div>
-              <div class="fun-btn">
+              <div class="fun-btn" v-if="item.paymentMethod !== 2">
                 <button class="cancel" @click="cancelOrder">取消订单</button>
                 <button class="toPay" @click="pay(item.sn)">去支付</button>
+              </div>
+              <div class="fun-btn" v-if="item.paymentMethod === 2">
+                <button class="cancel"><a href="tel:400-082-5588">联系客服</a></button>
               </div>
             </li>
           </ul>

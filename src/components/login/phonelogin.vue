@@ -154,7 +154,7 @@ export default {
     },
     validPhoneNum(num) {
       //检验手机号
-      let reg = /^[1][3,4,5,7,8][0-9]{9}$/;
+      let reg = /^[1][3,4,5,7,8,9][0-9]{9}$/;
       let telNo = num.replace(/\s/g, ""); //去掉空格
       let val = reg.test(telNo);
       if (val) {

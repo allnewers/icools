@@ -44,7 +44,7 @@ export default new Router({
       } 
     },
     {
-      path:'/detail/:sn',
+      path:'/detail/:sn/:groupId?',
       name:'detail',
       component:()=>import("@/components/detail"),
       meta:{
@@ -335,6 +335,6 @@ export default new Router({
       meta:{
         title:'待评价'
       } 
-    },
+    }
   ]
 })

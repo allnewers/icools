@@ -36,5 +36,6 @@ const mutations = {
   changeInputType(state,newVal){
     state.inputType = newVal;
   }
+  
 }
 export default mutations;

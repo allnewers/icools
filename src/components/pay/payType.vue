@@ -24,9 +24,16 @@
             <img src="../../assets/img/alipay.png" alt> 支付宝支付
           </label>
         </li>
+        <li>
+          <input type="radio" value="xianxia" v-model="values">
+          <label for>
+            <img src="../../assets/img/xianxia.png" alt> 到店支付
+          </label>
+        </li>
       </ul>
     </div>
-    <div class="pay" @click="pay">确认支付 ¥{{price | returnFloat}}</div>
+    <div v-if="!xianxiaTxt" class="pay" @click="pay">确认支付 ¥{{price | returnFloat}}</div>
+    <div v-else class="pay" @click="pay">确认到店支付</div>
     <!-- <mt-popup v-model="popupVisible" position="center" :closeOnClickModal="false">
       <div class="status-guide">
         <h3>请确认微信支付是否完成</h3>
@@ -63,6 +70,7 @@ export default {
       params: {},
       code: "", //后台 拿openid 的code
       payFail:false,//支付失败
+      xianxiaTxt:false,
     };
   },
   mounted() {
@@ -142,6 +150,20 @@ export default {
           //浏览器打开 微信h5支付
           this.payApi();
         }
+      }else if(this.values == "xianxia"){
+        this.typeId = 3;
+        payOrder({
+          token: this.token,
+          sn: this.sn,
+          paymentMethodId: this.typeId //1-微信支付;
+        }).then(res=>{
+          console.log(res);
+          if(res.result === true){
+            this.$router.replace('/awaitshare');
+          }else{
+            this.$toast(res.msg);
+          }
+        }).catch(err=>{})
       }
     },
     wxPay() {
@@ -156,7 +178,7 @@ export default {
       let url = window.location.href;
       //let url = 'http://tuan.eicools.com'
       let REDIRECT_URI = encodeURIComponent(url);
-      let SCOPE = "snsapi_userinfo"; //snsapi_base 静默授权 ；若为 snsapi_userinfo 则弹出授权页
+      let SCOPE = "snsapi_base"; //snsapi_base 静默授权 ；若为 snsapi_userinfo 则弹出授权页
       window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${APPID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${SCOPE}&state=STATE#wechat_redirect`;
     },
     async wxPayCan() {
@@ -266,6 +288,15 @@ export default {
     //   delCookie("isPay");
     //   location.reload();
     // },
+  },
+  watch:{
+    values(val){
+      if(val == 'xianxia'){
+        this.xianxiaTxt = true;
+      }else{
+        this.xianxiaTxt = false;
+      }
+    }
   }
 };
 </script>

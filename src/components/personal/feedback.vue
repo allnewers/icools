@@ -6,8 +6,8 @@
     </div>
 
     <div class="content mg20">
-      <textarea ref="text" cols="40" maxlength="1000" rows="6" v-model="word" placeholder="反馈您的问题及意见，我们将为您不断改进..."></textarea>
-      <div class="wordNum">( {{wordnum}} / 1000)</div>
+      <textarea ref="text" cols="40" maxlength="200" rows="6" v-model="word" placeholder="反馈您的问题及意见，我们将为您不断改进..."></textarea>
+      <div class="wordNum">( {{wordnum}} / 200)</div>
       <button class="submit" :class="{isactive:isForbid}" @click="submit" :disabled="!isForbid">提交</button>
     </div>
   </div>
@@ -22,7 +22,7 @@ export default {
     return {
       tel: "",
       word: "",
-      isForbid: false,
+      isForbid: true,
       token:''
     };
   },
@@ -36,22 +36,24 @@ export default {
     let browername = getBrowser();
     let self = this;   
     this.token = token;
+    
     //alert(browername)
-    if (browername == 'safari') {
-      this.$refs.text.addEventListener("blur", self.trigger, false);
-    } else{
-      this.$refs.text.addEventListener("keyup", self.trigger, false);
-    }
+    // if (browername == 'safari') {
+    //   this.$refs.text.addEventListener("blur", self.trigger, false);
+    // } else{
+    //   this.$refs.text.addEventListener("keyup", self.trigger, false);
+    // }
   },
   methods: {
-    trigger() {
-      if (this.word != "") {
-        this.isForbid = true;
-      } else {
-        this.isForbid = false;
-      }
-    },
+    // trigger() {
+    //   if (this.word != "") {
+    //     this.isForbid = true;
+    //   } else {
+    //     this.isForbid = false;
+    //   }
+    // },
     submit() {
+      alert(this.token);
       feedBacks({
         token:this.token,
         title:'拼团意见反馈',

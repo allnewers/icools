@@ -46,6 +46,7 @@ export default {
     //alert(token);
     searchTag({token:token})
       .then(res => {
+        console.log('historyRes---',res);
         this.historyTag = res.data.history;
         this.hotTag = res.data.hot;
         Indicator.close();//数据加载完成，关闭加载中

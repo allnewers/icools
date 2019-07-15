@@ -180,7 +180,7 @@ export default {
     },
 
     toComment() {
-      
+      this.$router.push({name:'commentEdit',params:{orderSn:this.sn,productId:this.allData.items[0]['product']}});
     },
 
   }
