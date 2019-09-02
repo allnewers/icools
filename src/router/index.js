@@ -335,6 +335,26 @@ export default new Router({
       meta:{
         title:'待评价'
       } 
-    }
+    },
+    {
+      path: '/sellerSignUp',
+      name: 'sellerSignUp',
+      component: () => import('../components/sellerSignUp')
+    },
+    {
+      path: '/generalize',
+      name: 'generalize',
+      component: () => import('../components/sellerSignUp/generalize')
+    },
+    {
+      path: '/coupon',
+      name: 'coupon',
+      component: () => import('../components/coupon')
+    },
+    {
+      path: '/combine',
+      name: 'combine',
+      component: () => import('../components/coupon/combine')
+    },
   ]
 })

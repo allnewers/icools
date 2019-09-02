@@ -138,22 +138,31 @@ export function isWeixin() {
     if (ua.match(/MicroMessenger/i) == "micromessenger") {
         //在微信中打开
         return true;
-    }else{
+    } else {
         return false;
     }
 }
-export function GetRequest() {   
+//微信授权
+export function weixinAuth() {
+    let APPID = "wx2154ea226f52f94c";//微信公众号的 唯一标识
+    let url = window.location.href;
+    //let url = 'http://tuan.eicools.com'
+    let REDIRECT_URI = encodeURIComponent(url);
+    let SCOPE = "snsapi_userinfo"; //snsapi_base 静默授权 ；若为 snsapi_userinfo 则弹出授权页
+    window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${APPID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${SCOPE}&state=STATE#wechat_redirect`;
+}
+export function GetRequest() {
     var url = location.search; //获取url中"?"符后的字串   
-    var theRequest = new Object();   
-    if (url.indexOf("?") != -1) {   
-       var str = url.substr(1);   
-       strs = str.split("&");   
-       for(var i = 0; i < strs.length; i ++) {   
-          theRequest[strs[i].split("=")[0]]=unescape(strs[i].split("=")[1]);   
-       }   
-    }   
-    return theRequest;   
- }  
+    var theRequest = new Object();
+    if (url.indexOf("?") != -1) {
+        var str = url.substr(1);
+        strs = str.split("&");
+        for (var i = 0; i < strs.length; i++) {
+            theRequest[strs[i].split("=")[0]] = unescape(strs[i].split("=")[1]);
+        }
+    }
+    return theRequest;
+}
 export function dataURItoBlob(base64Data) {
     var byteString;
     if (base64Data.split(",")[0].indexOf("base64") >= 0)

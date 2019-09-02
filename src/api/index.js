@@ -1,5 +1,6 @@
 import Axios from 'axios'
 import { getCookie } from "../util";
+import { Toast } from 'mint-ui'
 import qs from 'qs'
 //Axios.defaults.baseURL = 'http://192.168.0.200:9898/';
 let instance = Axios.create({
@@ -39,6 +40,42 @@ function $fetch(method, url, data, params) {
 
   })
 }
+
+function $fetch1(method, url, data, params,header) {
+  return new Promise((reslove, reject) => {
+    instance({
+      method,
+      url,
+      data,
+      params,
+      headers:header?header : {
+        //'multipart/form-data;'
+        //application/json
+        'Content-Type': 'application/json'
+      },
+      // transformRequest: [
+      //   function (data) { // 解决传递数组变成对象的问题
+      //     data = qs.stringify(data,{ indices: false }) // 这里必须使用qs库进行转换
+      //     return data
+      //   }
+      // ],
+    }).then(res => {
+      let body = res.data;
+      //reslove(body);
+      if (body.result === true) {
+        reslove(body.data);
+      }else{
+        Toast(body.msg);
+        reslove(body);
+      }
+    }).catch(err => {
+      reject(err)
+    })
+
+  })
+}
+
+
 function $axiosPost(url, data) {
   return new Promise((reslove, reject) => {
     Axios.post(url, data).then(res => {
@@ -48,7 +85,6 @@ function $axiosPost(url, data) {
       reject(err)
     });
   });
-
 }
 //export const baseURL = 'http://192.168.0.200:9898/';
 //export const baseURL = 'http://tuan.eicools.com:9898/'
@@ -117,6 +153,18 @@ export const initOrderNums = (params) => $fetch('get','order/getOrderNum','',par
 export const shareClickTimes = (params) => $fetch('get','order/share','',params);
 //微信分享 5次 自动拼团成功
 export const sendweixinCode = (params) => $fetch('get','order/weixinShare','',params);
+
+export const sendLoginCode1 = (params) => $fetch1('get', 'sms/sendSms', '', params);
+//店员注册
+export const sellerSign = (params) => $fetch1('get', 'member/register', '', params);
+//发送微信授权码
+export const sendWxCode = (params) => $fetch1('get', 'member/getEmpNo', '', params);
+//微信授权查询 用户
+export const sendWeixinCode = (params) => $fetch1('get', 'member/getMemberIdByWX', '', params);
+//查询--用户的实物抵用券列表查询接口
+export const getCouponList = (data) => $fetch1('post', 'client/user/exchange_coupon/query/userlist/activityId', data);
+//微信号 绑定手机号
+export const bindMobileToWx = (params) => $fetch1('get', 'member/mergeMember', '', params);
 
 
 
