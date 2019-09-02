@@ -10,6 +10,9 @@ let instance = Axios.create({
   baseURL:'http://app.icools.com/'////正式环境
   //baseURL:'http://test.app.icools.com/'////测试服务器环境
 });
+let instance2 = Axios.create({
+  baseURL:'http://mkt.icools.com/',//正式环境(买二送二 用户优惠券)
+});
 //let baseURLs='http://192.168.0.200:9898/';
 //let baseURLs='http://2443934eq9.qicp.vip:29031/';//付永花生壳
 //let baseURLs = 'http://eic.natapp1.cc/';
@@ -74,7 +77,39 @@ function $fetch1(method, url, data, params,header) {
 
   })
 }
+function $fetch2(method, url, data, params,header) {
+  return new Promise((reslove, reject) => {
+    instance2({
+      method,
+      url,
+      data,
+      params,
+      headers:header?header : {
+        //'multipart/form-data;'
+        //application/json
+        'Content-Type': 'application/json'
+      },
+      // transformRequest: [
+      //   function (data) { // 解决传递数组变成对象的问题
+      //     data = qs.stringify(data,{ indices: false }) // 这里必须使用qs库进行转换
+      //     return data
+      //   }
+      // ],
+    }).then(res => {
+      let body = res.data;
+      //reslove(body);
+      if (body.result === true) {
+        reslove(body.data);
+      }else{
+        Toast(body.msg);
+        reslove(body);
+      }
+    }).catch(err => {
+      reject(err)
+    })
 
+  })
+}
 
 function $axiosPost(url, data) {
   return new Promise((reslove, reject) => {
@@ -162,7 +197,7 @@ export const sendWxCode = (params) => $fetch1('get', 'member/getEmpNo', '', para
 //微信授权查询 用户
 export const sendWeixinCode = (params) => $fetch1('get', 'member/getMemberIdByWX', '', params);
 //查询--用户的实物抵用券列表查询接口
-export const getCouponList = (data) => $fetch1('post', 'client/user/exchange_coupon/query/userlist/activityId', data);
+export const getCouponList = (data) => $fetch2('post', 'client/user/exchange_coupon/query/userlist/activityId', data);
 //微信号 绑定手机号
 export const bindMobileToWx = (params) => $fetch1('get', 'member/mergeMember', '', params);
 
