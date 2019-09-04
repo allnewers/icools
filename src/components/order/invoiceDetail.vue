@@ -45,11 +45,11 @@ export default {
       token:this.token
     }).then(res=>{
       Indicator.close();
-      console.log(res);
+      //console.log(res);
       if(res.result === true){
         this.invoiceInfo = res.data;
       }else{
-        console.log(res.msg);
+        this.$toast(res.msg);
       }
     }).catch(err=>{
 
@@ -131,7 +131,8 @@ export default {
           this.invoiceInfo = res.data;
           this.$toast('修改成功')
         }else{
-          console.log(res.msg);
+          this.$toast(res.msg);
+          return;
       }
       }).catch(err=>{
 
