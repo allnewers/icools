@@ -51,14 +51,14 @@
           <span>运费</span>
           <span>¥{{allData.freight}}</span>
         </li>
-        <li>
+        <!-- <li>
           <span>优惠券</span>
           <span v-if="!allData.couponDiscount">无</span>
           <span v-if="allData.couponDiscount>=1">￥{{allData.couponDiscount}}</span>
           <span
             v-if="allData.couponDiscount<1&&allData.couponDiscount>0"
           >{{allData.couponDiscount*10}}折</span>
-        </li>
+        </li> -->
         <li>
           <span>订单金额</span>
           <span>¥{{allData.totalAmount}}</span>

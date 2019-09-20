@@ -1,7 +1,7 @@
 <template>
   <div id="app" ref='pageDiv' @mousemove="onmousemove($event)" @touchmove="onmousemove($event)" @mouseup="onmouseup($event)" @touchend="onmouseup($event)">
     <transition :name="direction">
-      <keep-alive include="GBindex,collectList,notice">
+      <keep-alive include="GBindex,notice">
         <router-view/>
       </keep-alive>
     </transition>

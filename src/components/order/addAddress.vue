@@ -6,7 +6,7 @@
           <label for>姓名</label>
           <input
             type="text"
-            v-model="formData.consignee"
+            v-model.trim="formData.consignee"
             maxlength="30"
             placeholder="请输入姓名（必填）"
             required
@@ -25,7 +25,7 @@
         </li>
         <li>
           <label for>电话</label>
-          <input type="text" v-model="formData.phone" maxlength="11" placeholder="请输入正确的联系电话（必填）" />
+          <input type="text" v-model.trim="formData.phone" maxlength="11" placeholder="请输入正确的联系电话（必填）" />
         </li>
         <li @click="popupVisible = true">
           <label for>地区</label>
@@ -40,7 +40,7 @@
         </li>
         <li>
           <label for>地址</label>
-          <input type="text" v-model="formData.address" maxlength="50" placeholder="请输入详细地址（必填）" />
+          <input type="text" v-model.trim="formData.address" maxlength="50" placeholder="请输入详细地址（必填）" />
         </li>
         <!-- <li>
           <label for>邮编</label>
@@ -243,7 +243,7 @@ export default {
         this.$toast("请输入姓名");
         return;
       }
-      if (this.currentgenderVal[0] == "") {
+      if (this.currentgenderVal[0] == undefined || this.currentgenderVal[0] == '') {
         this.$toast("请选择性别");
         return;
       }

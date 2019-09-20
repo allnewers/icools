@@ -165,7 +165,7 @@ export default {
           //console.log(res);
           if (res.result === true) {
             let data = res.data.page.list;
-            this.productList = res.data.page.list;
+            //this.productList = res.data.page.list;
             let lastPage = res.data.page.lastPage;
             data.forEach(element => {
               this.productList.push(element);
@@ -234,7 +234,7 @@ export default {
 .prolist {
   margin-top: 0.75rem;
   .list-show {
-    height: 82vh;
+    height: 96vh;
     overflow: scroll;
     ul {
       width: 100%;

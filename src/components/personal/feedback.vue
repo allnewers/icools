@@ -53,7 +53,7 @@ export default {
     //   }
     // },
     submit() {
-      alert(this.token);
+      //alert(this.token);
       feedBacks({
         token:this.token,
         title:'拼团意见反馈',

@@ -32,10 +32,10 @@
             </div>
           </div>
           <ul>
-            <li @click="choiceType">
+            <!-- <li @click="choiceType">
               <span>配送方式</span>
               <span>{{currentVal?currentVal:'选择配送方式'}}</span>
-            </li>
+            </li> -->
             <li @click="choiceTime">
               <span>送货时间</span>
               <span>{{times.deliveryDate?times.deliveryDate:''}} {{times.deliveryDate?times.deliveryTime:'选择配送时间'}}</span>

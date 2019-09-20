@@ -410,7 +410,13 @@ export default {
           font-size: 0.28rem;
           font-weight: 400;
           color: rgba(51, 51, 51, 1);
-          padding: 0.2rem 0.28rem;
+          padding: 0 0.28rem;
+          margin: .2rem 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
         }
       }
       .prices {

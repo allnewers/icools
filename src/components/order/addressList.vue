@@ -64,6 +64,9 @@ export default {
         if (res.result === true) {
           this.addressList = res.data;
           this.isShow = true;
+          if(this.addressList.length === 0){
+            this.showno = true;
+          }
           res.data.forEach((element, index) => {
             if (element.isDefault === true) {
               this.n = index; //初始化默认地址 标识

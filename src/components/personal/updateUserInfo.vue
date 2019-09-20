@@ -66,7 +66,7 @@ export default {
       this.gender = gender;
       this.isUpdate = isUpdate;
       this.username = username;
-      this.nickname = nickname;
+      this.nickname = nickname || username;
       this.gender = obj[gender];
     },
     setgenderVal(){
