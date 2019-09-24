@@ -2,6 +2,10 @@
   <div>
     <div class="invoiceList" v-if="list.length>0">
       <ul>
+        <li class="clear" @click="isClick && selectInvoice(null)">
+          <h3>不开发票</h3>
+          <p>不开发票</p>
+        </li>
         <li class="clear" v-for="(item,index) in list" :key="item.id">
           <div class="left fl" @click="selectInvoice(index,item.id)">
             <h3>{{item.title}}</h3>
@@ -39,6 +43,7 @@ export default {
   name: "invoiceList",
   data() {
     return {
+      isClick:true,
       list: [],
       showNoData: false,
       Loop: "",
@@ -52,7 +57,9 @@ export default {
     let origin = this.$route.params.origin;
     this.origin = origin;
     this.token = token;
-
+    if(origin === 'myZone'){
+      this.isClick = false;//发票
+    }
     Indicator.open();
     InvoiceTitleList({
       token: this.token
@@ -83,6 +90,9 @@ export default {
       }
     },
     goAdd() {
+      if(this.origin === 'myZone'){
+        return this.$router.push({name:'invoiceTitle',query:{origin:'myZone'}});
+      }
       this.$router.push("/invoiceTitle");
     },
     delInvoice(id) {

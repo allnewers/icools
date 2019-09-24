@@ -162,9 +162,9 @@
               <div class="sum clear">
                 <div class="tit fl">购买数量</div>
                 <div class="compute fr">
-                  <button class="fl" @click="decrease">-</button>
+                  <button class="fl" @touchend="decrease">-</button>
                   <input class="fl" type="text" v-model="snum" readonly onfocus="this.blur();">
-                  <button class="fl" @click="increase">+</button>
+                  <button class="fl" @touchend="increase">+</button>
                 </div>
               </div>
               <div class="selected">

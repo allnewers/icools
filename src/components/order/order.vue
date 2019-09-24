@@ -71,7 +71,7 @@
       <div class="submitOrder">
         <div class="summary">
           共
-          <span>{{params.sum}}</span>件，合计：
+          <span>{{sum}}</span>件，合计：
           <i>¥{{summary | returnFloat}}</i>
         </div>
         <div class="submit" @click="submitOrder">提交订单</div>

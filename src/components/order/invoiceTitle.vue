@@ -37,13 +37,15 @@ export default {
       switchData: [],
       dataArr:[],
       token:'',
-      type:''
+      type:'',
+      origin:''
     };
   },
   mounted() {
     this.tabs();
     let token = getCookie("token");
     this.token = token;
+    this.origin = this.$route.query && this.$route.query.origin;
   },
   methods: {
     submit(){
@@ -76,6 +78,9 @@ export default {
         if(res.result === true){ 
           this.$toast({message:'添加成功',duration:1000});
           setTimeout(()=>{
+            if(this.origin === 'myZone'){
+              return this.$router.push({name:'invoiceList',params:{origin:'myZone'}});
+            }
             this.$router.push({name:'invoiceList',params:{origin:'order'}});
           },1000);
         }else{
