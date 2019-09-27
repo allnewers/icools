@@ -127,13 +127,13 @@ export default {
         .then(res => {
           deleteAddress({ ids: id, token: this.token })
             .then(res => {
-              //console.log(res);
+              //console.log('del:',res);
               if (res.result === true) {
                 this.$toast({ message: "删除成功", duration: 1000 });
                 setTimeout(() => {
                   //this.$router.go(0);
                   location.reload();
-                }, 1000);
+                }, 500);
               }
             })
             .catch(err=>{

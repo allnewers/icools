@@ -18,7 +18,7 @@
           </div>
           <div class="right fr">
             <p @click="delInvoice(item.id)">
-              <img src="../../assets/img/del@2x.png" alt>
+              <img src="../../assets/img/del@2x.png" alt />
             </p>
           </div>
         </li>
@@ -26,7 +26,7 @@
       </ul>
     </div>
     <div class="noData" v-show="showNoData">
-      <img src="../../assets/img/noData.png" alt>
+      <img src="../../assets/img/noData.png" alt />
       <span>您还没有发票抬头</span>
       <div class="add" @click="goAdd">+添加</div>
     </div>
@@ -43,7 +43,7 @@ export default {
   name: "invoiceList",
   data() {
     return {
-      isClick:true,
+      isClick: true,
       list: [],
       showNoData: false,
       Loop: "",
@@ -57,8 +57,8 @@ export default {
     let origin = this.$route.params.origin;
     this.origin = origin;
     this.token = token;
-    if(origin === 'myZone'){
-      this.isClick = false;//发票
+    if (origin === "myZone") {
+      this.isClick = false; //发票
     }
     Indicator.open();
     InvoiceTitleList({
@@ -84,14 +84,17 @@ export default {
       this.id = id;
       if (this.origin == "order") {
         this.$store.commit("changeInvoiceTitle", index);
-        this.$router.push('/'+ this.origin);
+        this.$router.push("/" + this.origin);
       } else {
         this.$router.push({ name: "invoiceDetail", params: { id: this.id } });
       }
     },
     goAdd() {
-      if(this.origin === 'myZone'){
-        return this.$router.push({name:'invoiceTitle',query:{origin:'myZone'}});
+      if (this.origin === "myZone") {
+        return this.$router.push({
+          name: "invoiceTitle",
+          query: { origin: "myZone" }
+        });
       }
       this.$router.push("/invoiceTitle");
     },
@@ -105,13 +108,13 @@ export default {
           })
             .then(res => {
               Indicator.close();
-              //console.log(res);
+              //console.log("del:", res);
               if (res.result === true) {
                 this.list.splice(this.idIndex[id], 1); //ui 删除
-                if(this.list.length == 0){
-                  location.reload();
-                }
                 this.$toast("删除成功");
+              }
+              if (this.list.length == 0) {
+                this.showNoData = true;
               }
             })
             .catch(err => {

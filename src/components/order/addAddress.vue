@@ -224,6 +224,8 @@ export default {
       this.formData.id = this.editData.id;
       this.getVal();
       this.getCountyId();
+      this.valid();
+      if(!this.valid()) return; 
       Indicator.open();
       updateAddress(this.formData)
         .then(res => {
@@ -239,6 +241,27 @@ export default {
         .catch(err => {});
     },
     xinZengAddress() {
+      this.getVal(); //获取性别id 地区名称
+      this.getCountyId(); //获取 县级 id
+      this.valid();
+      if(!this.valid()) return;
+      Indicator.open();
+      saveAddress(this.formData)
+        .then(res => {
+          console.log(res);
+          if (res.result === true) {
+            Indicator.close();
+            this.$toast({ message: "添加成功", duration: 1000 });
+            setTimeout(() => {
+              this.$router.go(-1);
+            }, 1000);
+          } else {
+            this.$toast(res.msg);
+          }
+        })
+        .catch();
+    },
+    valid(){
       if (this.formData.consignee == "") {
         this.$toast("请输入姓名");
         return;
@@ -262,23 +285,7 @@ export default {
         this.$toast("请输入详细地址");
         return;
       }
-      this.getVal(); //获取性别id 地区名称
-      this.getCountyId(); //获取 县级 id
-      Indicator.open();
-      saveAddress(this.formData)
-        .then(res => {
-          console.log(res);
-          if (res.result === true) {
-            Indicator.close();
-            this.$toast({ message: "添加成功", duration: 1000 });
-            setTimeout(() => {
-              this.$router.go(-1);
-            }, 1000);
-          } else {
-            this.$toast(res.msg);
-          }
-        })
-        .catch();
+      return true;
     }
   }
 };

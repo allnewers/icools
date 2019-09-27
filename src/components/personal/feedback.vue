@@ -1,9 +1,9 @@
 <template>
   <div>
-    <div class="tel mg20">
+    <!-- <div class="tel mg20">
       <label>联系电话:</label>
       <input type="text" maxlength="11" v-model="tel" placeholder="(选填）以便我们给您回复">
-    </div>
+    </div> -->
 
     <div class="content mg20">
       <textarea ref="text" cols="40" maxlength="200" rows="6" v-model="word" placeholder="反馈您的问题及意见，我们将为您不断改进..."></textarea>
